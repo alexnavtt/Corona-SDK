@@ -14,9 +14,27 @@ function scene:create( event )
  
 	local sceneGroup = self.view
 	local background = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
-	background:setFillColor(unpack(globalData.blue))
-	-- Code here runs when the scene is first created but has not yet appeared on screen
- 
+	background:setFillColor(unpack(globalData.background_color))
+
+	self.tab_group = cookbook.createTabBar() 
+	sceneGroup:insert(self.tab_group)
+
+	local text_field_params = {	rounded = true,
+								defaultText = "Enter Recipe Name",
+								font = native.systemFontBold,
+								backgroundColor = globalData.white,
+								textColor = globalData.dark_grey,
+								strokeColor = globalData.dark_grey,
+								strokeWidth = 0,
+								cursorColor = globalData.dark_grey}
+	local name_text_field = tinker.newTextField(display.contentCenterX, 0.2*display.contentHeight, 0.8*display.contentWidth, 0.05*display.contentHeight, text_field_params)
+	sceneGroup:insert(name_text_field)
+
+	text_field_params.defaultText = "Prep Time"
+	local prep_time_text_field = tinker.newTextField(0.5*display.contentCenterX, 0.4*display.contentHeight, 0.4*display.contentWidth, 0.05*display.contentHeight, text_field_params)
+
+	text_field_params.defaultText = "Cook Time"
+	local cook_time_text_field = tinker.newTextField(1.5*display.contentCenterX, 0.4*display.contentHeight, 0.4*display.contentWidth, 0.05*display.contentHeight, text_field_params)
 end
  
  
@@ -27,9 +45,7 @@ function scene:show( event )
 	local phase = event.phase
  
 	if ( phase == "will" ) then
-		local params = {rounded = false, backgroundColor = {0.7}, font = native.systemFontBold, cursorColor = globalData.red}
-		local test_field = tinker.newTextField(display.contentCenterX, display.contentCenterY, 0.7*display.contentWidth, 0.05*display.contentHeight, params)
-		sceneGroup:insert(test_field)
+		self.tab_group = cookbook.updateTabBar(self.tab_group)
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
  
 	elseif ( phase == "did" ) then
@@ -46,9 +62,11 @@ function scene:hide( event )
 	local phase = event.phase
  
 	if ( phase == "will" ) then
+		native.setKeyboardFocus(nil)
 		-- Code here runs when the scene is on screen (but is about to go off screen)
  
 	elseif ( phase == "did" ) then
+
 		-- Code here runs immediately after the scene goes entirely off screen
  
 	end

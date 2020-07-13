@@ -10,16 +10,18 @@ function tinker.newTextField(x, y, width, height, params)
 	local strokeColor = params.strokeColor or {0}
 	local strokeWidth = params.strokeWidth or {0}
 	local cursorColor = params.cursorColor or {1}
-	local textColor = params.textColor or {0}
+	local textColor = params.textColor or {1}
 	local font = params.font or native.systemFont
 	local defaultText = params.defaultText or "TEXT HERE"
 	local id = params.id or "Tinker_Text_Field"
 
-	local NTF = native.newTextField(500, 500, 500, 100)  -- Native Text Field: Out of sight, out of mind
+	local NTF = native.newTextField(-display.contentWidth, -display.contentHeight, 500, 100)  -- Native Text Field: Out of sight, out of mind
 	local TTF = display.newGroup()  -- Tinker Text Field
 	TTF.x = x
 	TTF.y = y
 	TTF.id = id
+	TTF.text = defaultText
+	TTF._nativeTextField = NTF
 
 	-- Determine if the Text Field should have corners or rounded edges
 	local radius = 0
@@ -29,7 +31,9 @@ function tinker.newTextField(x, y, width, height, params)
 
 	-- Create Background Rect or RoundedRect
 	local bkgd = display.newRoundedRect(TTF, 0, 0, width, height, radius)
+	bkgd:setStrokeColor(unpack(strokeColor))
 	bkgd:setFillColor(unpack(backgroundColor))
+	bkgd.strokeWidth = strokeWidth
 
 	-- Create underline for text
 	local line_y = 0.25*height
@@ -121,6 +125,10 @@ function tinker.newTextField(x, y, width, height, params)
 	local function textFieldUpdateListener(event)
 		if event.phase == "began" then
 			timer.resume(timerHandle)
+
+			if NTF.text == "" then
+				NTF.fresh = true
+			end
 		end
 
 		if event.phase == "editing" then
@@ -130,6 +138,7 @@ function tinker.newTextField(x, y, width, height, params)
 				TTF.text = ""
 				text.alpha = 0.5
 				cursor.x = line_x
+				NTF.fresh = true
 			else
 				local old_width = text.width
 				text.alpha = 1
@@ -137,8 +146,9 @@ function tinker.newTextField(x, y, width, height, params)
 				ghostText.text = text.text
 				TTF.text = text.text
 
-				if #text.text == 1 then
+				if NTF.fresh then
 					cursor.x = line_x + text.width
+					NTF.fresh = false
 				else
 					cursor.x = cursor.x + text.width - old_width
 				end
@@ -163,9 +173,23 @@ function tinker.newTextField(x, y, width, height, params)
 	end
 	bkgd:addEventListener("tap", bkgd)
 
+
+	-- ############# --
+	-- Class Methods --
+	-- ############# --
+
+	function TTF:addEventListener(format, listener)
+		NTF:addEventListener(format, listener)
+		bkgd:addEventListener(format, listener)
+	end
+
+	function TTF:replaceText(new_text)
+		NTF.text = new_text
+		text.text = new_text
+		ghostText.text = new_text
+	end
+
 	return TTF
-
-
 end
 
 return tinker

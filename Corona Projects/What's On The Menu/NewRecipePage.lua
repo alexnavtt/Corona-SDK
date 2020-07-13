@@ -16,9 +16,6 @@ function scene:create( event )
 	local background = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
 	background:setFillColor(unpack(globalData.background_color))
 
-	self.tab_group = cookbook.createTabBar() 
-	sceneGroup:insert(self.tab_group)
-
 	local text_field_params = {	rounded = true,
 								defaultText = "Enter Recipe Name",
 								font = native.systemFontBold,
@@ -32,9 +29,14 @@ function scene:create( event )
 
 	text_field_params.defaultText = "Prep Time"
 	local prep_time_text_field = tinker.newTextField(0.5*display.contentCenterX, 0.4*display.contentHeight, 0.4*display.contentWidth, 0.05*display.contentHeight, text_field_params)
+	sceneGroup:insert(prep_time_text_field)
 
 	text_field_params.defaultText = "Cook Time"
 	local cook_time_text_field = tinker.newTextField(1.5*display.contentCenterX, 0.4*display.contentHeight, 0.4*display.contentWidth, 0.05*display.contentHeight, text_field_params)
+	sceneGroup:insert(cook_time_text_field)
+
+	self.tab_group = cookbook.createTabBar() 
+	sceneGroup:insert(self.tab_group)
 end
  
  

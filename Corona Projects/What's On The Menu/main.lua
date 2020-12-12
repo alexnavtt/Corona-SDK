@@ -11,6 +11,7 @@ local colors 		= require("Palette")
 local defaultMenu   = require("DefaultMenu")
 local lfs 			= require("lfs")
 local app_colors 	= require("AppColours")
+local tab_bar_util  = require("TabBarUtil.tab_bar_util")
 
 local url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSsYVoMs9cpnRWNg-B7usduhVjY8GYzOb74rutaGxwtBhG8BcT7wdqKJ_3q34R2CtFCV8TagJktLVVO/pub?output=csv"
 local ftcsv = require("ftcsv")
@@ -622,7 +623,7 @@ function globalData.reloadApp()
 	composer.removeScene(globalData.activeScene)
 	composer.gotoScene(globalData.activeScene)
 	globalData.tab_bar:removeSelf()
-	globalData.tab_bar = cookbook.createTabBar()
+	globalData.tab_bar = tab_bar_util.createTabBar()
 
 	for i = 1,#globalData.all_scenes,1 do
 		composer.removeScene(globalData.all_scenes[i])
@@ -646,6 +647,6 @@ end
 
 if not test then
 	globalData.activeScene = "BrowsePage"
-	globalData.tab_bar = cookbook.createTabBar()
+	globalData.tab_bar = tab_bar_util.createTabBar()
 	composer.gotoScene("BrowsePage")
 end

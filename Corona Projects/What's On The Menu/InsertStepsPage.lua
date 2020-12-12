@@ -5,6 +5,8 @@ local globalData = require("globalData")
 local tinker = require("Tinker")
 local app_colors = require("AppColours")
 local transition = require("transition")
+local new_recipe_info = require("NewRecipeUtil.new_recipe_info")
+local tab_bar_util = require("TabBarUtil.tab_bar_util")
  
 local scene = composer.newScene()
 
@@ -17,40 +19,40 @@ local current_index
  
 local function finalizeRecipe(event)
 	local recipe_title
-	if not globalData.menu[cookbook.newRecipeTitle] then
-		recipe_title = cookbook.newRecipeTitle
+	if not globalData.menu[new_recipe_info.newRecipeTitle] then
+		recipe_title = new_recipe_info.newRecipeTitle
 	else
 		for i = 1,10000,1 do
-			if not globalData.menu[cookbook.newRecipeTitle .. " " .. i] then
-				recipe_title = cookbook.newRecipeTitle .. " " .. i
+			if not globalData.menu[new_recipe_info.newRecipeTitle .. " " .. i] then
+				recipe_title = new_recipe_info.newRecipeTitle .. " " .. i
 				break
 			end
 		end
 	end
 
 	-- Overwrite Value if editing
-	if cookbook.is_editing then recipe_title = cookbook.newRecipeTitle end
+	if new_recipe_info.is_editing then recipe_title = new_recipe_info.newRecipeTitle end
 
 	globalData.menu[recipe_title] = {ingredients = {}, steps = {}}
 
-	for ingredient_name, values in pairs(cookbook.newRecipeIngredientList) do
+	for ingredient_name, values in pairs(new_recipe_info.newRecipeIngredientList) do
 		table.insert(globalData.menu[recipe_title].ingredients, {name = ingredient_name, amount = values.amount, unit = values.unit, text_amount = values.text_amount})
 		print("Added Ingredient:\n\tName: " .. ingredient_name .. "\n\tAmount: " .. values.amount .. "\n\tUnit: " .. values.unit .. "\n\tText Amount " .. values.text_amount)
 	end
 
-	for index, step_text in pairs(cookbook.newRecipeSteps) do
+	for index, step_text in pairs(new_recipe_info.newRecipeSteps) do
 		table.insert(globalData.menu[recipe_title].steps, step_text)
 		print("Added step: " .. step_text)
 	end
 
-	globalData.menu[recipe_title].cook_time = cookbook.newRecipeParams.cook_time
-	globalData.menu[recipe_title].prep_time = cookbook.newRecipeParams.prep_time
+	globalData.menu[recipe_title].cook_time = new_recipe_info.newRecipeParams.cook_time
+	globalData.menu[recipe_title].prep_time = new_recipe_info.newRecipeParams.prep_time
 
-	cookbook.newRecipeIngredients = {}
-	cookbook.newRecipeSteps = {}
-	cookbook.newRecipeTitle = nil
-	cookbook.newRecipeParams = {}
-	cookbook.is_editing = false
+	new_recipe_info.newRecipeIngredients = {}
+	new_recipe_info.newRecipeSteps = {}
+	new_recipe_info.newRecipeTitle = nil
+	new_recipe_info.newRecipeParams = {}
+	new_recipe_info.is_editing = false
 
 	globalData.writeCustomMenu()
 
@@ -72,7 +74,7 @@ local function updateStepText(event)
  		scene.steps_scroll_view:remove(1)
  	end
 
- 	for i = 1,#cookbook.newRecipeSteps,1 do
+ 	for i = 1,#new_recipe_info.newRecipeSteps,1 do
 
  		local title = display.newText( {text = "Step " .. i,
  										x = non_indented_x,
@@ -97,12 +99,12 @@ local function updateStepText(event)
  		scene.steps_scroll_view:insert(trash_step)
 
  		function trash_step:tap(event)
- 			for j = 1,#cookbook.newRecipeSteps,1 do
+ 			for j = 1,#new_recipe_info.newRecipeSteps,1 do
  				if j > i then
- 					cookbook.newRecipeSteps[j-1] = cookbook.newRecipeSteps[j]
+ 					new_recipe_info.newRecipeSteps[j-1] = new_recipe_info.newRecipeSteps[j]
  				end
  			end
- 			cookbook.newRecipeSteps[#cookbook.newRecipeSteps] = nil
+ 			new_recipe_info.newRecipeSteps[#new_recipe_info.newRecipeSteps] = nil
  			print("tapped " .. i)
  			updateStepText()
  			return true
@@ -111,7 +113,7 @@ local function updateStepText(event)
 
  		local function editStep()
  			current_index = i
- 			globalData.steps_text_field.text = cookbook.newRecipeSteps[i]
+ 			globalData.steps_text_field.text = new_recipe_info.newRecipeSteps[i]
  		end
 
  		local edit_image = "Image Assets/White-Edit-Graphic.png"
@@ -121,25 +123,25 @@ local function updateStepText(event)
  		scene.steps_scroll_view:insert(edit_button)
 
  		local function decreaseIndex()
- 			local temp_text = cookbook.newRecipeSteps[i]
+ 			local temp_text = new_recipe_info.newRecipeSteps[i]
  			local new_index = i-1
 
  			if new_index == 0 then return true end
 
- 			cookbook.newRecipeSteps[i] = cookbook.newRecipeSteps[new_index]
- 			cookbook.newRecipeSteps[new_index] = temp_text
+ 			new_recipe_info.newRecipeSteps[i] = new_recipe_info.newRecipeSteps[new_index]
+ 			new_recipe_info.newRecipeSteps[new_index] = temp_text
 
  			updateStepText()
  		end
 
  		local function increaseIndex()
- 			local temp_text = cookbook.newRecipeSteps[i]
+ 			local temp_text = new_recipe_info.newRecipeSteps[i]
  			local new_index = i+1
 
- 			if new_index == #cookbook.newRecipeSteps+1 then return true end
+ 			if new_index == #new_recipe_info.newRecipeSteps+1 then return true end
 
- 			cookbook.newRecipeSteps[i] = cookbook.newRecipeSteps[new_index]
- 			cookbook.newRecipeSteps[new_index] = temp_text
+ 			new_recipe_info.newRecipeSteps[i] = new_recipe_info.newRecipeSteps[new_index]
+ 			new_recipe_info.newRecipeSteps[new_index] = temp_text
 
  			updateStepText()
  		end
@@ -159,7 +161,7 @@ local function updateStepText(event)
  		-- Increment Text Level
  		Y = Y + 0.5*dY
 
- 		local step = display.newText({text = cookbook.newRecipeSteps[i],
+ 		local step = display.newText({text = new_recipe_info.newRecipeSteps[i],
  									  x = indented_x,
  									  y = Y,
  									  width = 0.8*display.contentWidth,
@@ -184,7 +186,7 @@ local function stepFieldInputListener(event)
  		local STR = string.format("%q",globalData.steps_text_field.text)
 
  		if STR:sub(#STR-4,#STR-2) == "\\r\\" or STR:sub(#STR-4,#STR-2) == "\\n\\" then
- 			table.insert(cookbook.newRecipeSteps, globalData.steps_text_field.text)
+ 			table.insert(new_recipe_info.newRecipeSteps, globalData.steps_text_field.text)
  			globalData.steps_text_field.text = ""
  			-- scene.glass_screen:toBack()
  			native.setKeyboardFocus(nil)
@@ -225,7 +227,7 @@ function scene:create( event )
  	insert_step_text:setFillColor(unpack(app_colors.steps.title_text))
  	self.back_group:insert(insert_step_text)
 
- 	local temp_tab = cookbook.tempTabBar("Insert Steps", "Back to Ingredients", "IngredientsPage", "Finish", "BrowsePage")
+ 	local temp_tab = tab_bar_util.simpleTabBar("Insert Steps", "Back to Ingredients", "IngredientsPage", "Finish", "BrowsePage")
  	local finalize_button = cookbook.findID(temp_tab, "BrowsePage")
  	finalize_button:addEventListener("tap", finalizeRecipe)
  	sceneGroup:insert(temp_tab) 
@@ -279,13 +281,13 @@ function scene:show( event )
 
 		local function submitStep(event)
 			if not current_index then 
-				current_index = #cookbook.newRecipeSteps + 1 
+				current_index = #new_recipe_info.newRecipeSteps + 1 
 			else
-				table.remove(cookbook.newRecipeSteps, current_index)
+				table.remove(new_recipe_info.newRecipeSteps, current_index)
 			end
 
  			if globalData.steps_text_field.text ~= "" then
-	 			table.insert(cookbook.newRecipeSteps, current_index, globalData.steps_text_field.text)
+	 			table.insert(new_recipe_info.newRecipeSteps, current_index, globalData.steps_text_field.text)
 	 			globalData.steps_text_field.text = ""
 	 			native.setKeyboardFocus(nil)
 	 			updateStepText()

@@ -4,6 +4,9 @@ local widget   = require("widget")
 local globalData = require("globalData")
 local tinker = require("Tinker")
 local app_colors = require("AppColours")
+local new_recipe_info = require("NewRecipeUtil.new_recipe_info")
+local tab_bar_util = require("TabBarUtil.tab_bar_util")
+local util = require("GeneralUtility")
 
 local scene = composer.newScene()
 
@@ -23,7 +26,7 @@ local function updateIngredients()
 	end
 
 	local iter = 1
-	for name, value in pairs(cookbook.newRecipeIngredientList) do
+	for name, value in pairs(new_recipe_info.newRecipeIngredientList) do
 		local tag_options = {label = name .. " [" .. value.text_amount .. " " .. value.unit .. "]", strokeWidth = 5, color = app_colors.ingredients.known_ing, labelColor = app_colors.ingredients.known_text, displayGroup = scene.ingredient_group}
 		local tag = tinker.newButton(-0.02*display.contentWidth, (0.05 + 0.1*(iter-1))*scene.ingredient_group.height, 0.9*scene.ingredient_group.width, 0.05*scene.ingredient_group.height, tag_options)
 		tag.id = name
@@ -31,7 +34,7 @@ local function updateIngredients()
 
 		function tag:tap(event)
 			print("Ingredient removed: " .. self.id)
-			cookbook.newRecipeIngredientList[self.id] = nil
+			new_recipe_info.newRecipeIngredientList[self.id] = nil
 			updateIngredients()
 		end
 		tag:addEventListener("tap",tag)
@@ -192,7 +195,7 @@ local function inputIngredientAmount(name)
 			text_amount = int.label.text .. " " .. num.label.text .. "/" .. den.label.text
 		end
 
-		cookbook.newRecipeIngredientList[name] = {amount = int_amount + num_amount/den_amount, unit = unit_rect.text, text_amount = text_amount}
+		new_recipe_info.newRecipeIngredientList[name] = {amount = int_amount + num_amount/den_amount, unit = unit_rect.text, text_amount = text_amount}
 		updateIngredients()
 		group:removeSelf()
 	end
@@ -227,7 +230,7 @@ function scene:create( event )
 	function background:tap(event) native.setKeyboardFocus(nil) end
 	background:addEventListener("tap", background)
 
-	local tab_bar = cookbook.tempTabBar("Ingredient Selection", "Back to Title", "NewRecipePage", "Input Steps", "InsertStepsPage")
+	local tab_bar = tab_bar_util.simpleTabBar("Ingredient Selection", "Back to Title", "NewRecipePage", "Input Steps", "InsertStepsPage")
 	sceneGroup:insert(tab_bar)
 
 	local sb_options = {defaultText = "Search Ingredients...", radius = 0.025*display.contentHeight, tapOutside = false}
@@ -252,10 +255,10 @@ function scene:create( event )
 				self.results_group:remove(1)
 			end
 
-			local options = cookbook.getAlphabetizedList(cookbook.searchIngredients(search_bar.text))
+			local options = util.sortTableKeys(cookbook.searchIngredients(search_bar.text))
 			local iter = 1
 			for i = 1,#options,1 do
-				if cookbook.newRecipeIngredientList[options[iter]] then
+				if new_recipe_info.newRecipeIngredientList[options[iter]] then
 					table.remove(options,iter)
 				else
 					iter = iter + 1
@@ -298,7 +301,7 @@ function scene:create( event )
 
 				function tag:tap(event)
 					-- local newIngredient = {amount = 0, unit = "cup", text_amount = "0"}
-					-- cookbook.newRecipeIngredientList[options[i]] = newIngredient
+					-- new_recipe_info.newRecipeIngredientList[options[i]] = newIngredient
 					search_bar:replaceText("")
 
 					for i = 1,scene.results_group._collectorGroup.numChildren,1 do

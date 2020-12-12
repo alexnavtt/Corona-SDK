@@ -1,5 +1,4 @@
 local composer = require( "composer" )
-local cookbook = require( "cookbook" )
 local globalData = require( "globalData" )
 local widget = require( "widget" )
 local tinker = require("Tinker")
@@ -84,9 +83,9 @@ function scene:create( event )
 	sceneGroup:insert(begin_label)
 
 	function begin_button:tap(event)
-		cookbook.is_editing = true
-		cookbook.newRecipeTitle = name_text_field.text
-		cookbook.newRecipeParams = {cook_time = cook_time_text_field.text, prep_time = prep_time_text_field.text}
+		new_recipe_info.is_editing = true
+		new_recipe_info.newRecipeTitle = name_text_field.text
+		new_recipe_info.newRecipeParams = {cook_time = cook_time_text_field.text, prep_time = prep_time_text_field.text}
 		composer.gotoScene("IngredientsPage", {effect = "slideUp", time = globalData.transition_time})
 	end
 	begin_button:addEventListener("tap", begin_button)
@@ -118,7 +117,7 @@ function scene:show( event )
 		if cook_time then cook_time_text_field:replaceText(cook_time) end
 
 		-- Set the editing key to false, which becomes true when proceeding to the next page
-		cookbook.is_editing = false
+		new_recipe_info.is_editing = false
  
 	end
 end
@@ -136,7 +135,7 @@ function scene:hide( event )
  
 	elseif ( phase == "did" ) then
 
-		if not cookbook.is_editing then 
+		if not new_recipe_info.is_editing then 
 			-- When leaving the page (not proceeding) clear all fields
 			name_text_field:replaceText("")
 			prep_time_text_field:replaceText("")

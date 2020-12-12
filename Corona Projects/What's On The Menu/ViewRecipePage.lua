@@ -6,6 +6,7 @@ local colors = require("Palette")
 local tinker = require("Tinker")
 local app_colors = require("AppColours")
 local transition = require("transition")
+local util = require("GeneralUtility")
 
 local scene = composer.newScene()
 
@@ -41,6 +42,18 @@ local scroll_view_width_1 = 0.45*W
 
 local scroll_view_left_2 = scroll_view_left_1 + scroll_view_width_1 + h_spacing
 local scroll_view_width_2 = W - scroll_view_width_1 - 3*h_spacing
+
+-- Item Spacing
+local div_y  = 0.15*H
+local div_x1 = 0.30*W
+local div_x2 = div_x1 + 0.13*W
+
+local ingredient_level_delta = 0.1*H
+local ingredient_level       = div_y + 0.5*ingredient_level_delta
+
+local step_level_delta = 0.015*H
+local step_level = div_y + step_level_delta
+local step_count = 1
 
 
 ---------------------
@@ -172,7 +185,7 @@ local function insertIngredient(ingredient, amount, unit, amount_number, ingredi
 	end
 	ingredient_amount:addEventListener("tap", ingredient_amount)
 
-	-- local new_dividing_line = display.newLine(ingredient_group, -display.contentWidth, ingredient_level + 0.5*ingredient_level_delta, cookbook.div_x2, ingredient_level + 0.5*ingredient_level_delta)
+	-- local new_dividing_line = display.newLine(ingredient_group, -display.contentWidth, ingredient_level + 0.5*ingredient_level_delta, div_x2, ingredient_level + 0.5*ingredient_level_delta)
 	-- new_dividing_line.strokeWidth = 2
 	-- new_dividing_line:setStrokeColor(unpack(globalData.outline_color))
 
@@ -190,9 +203,9 @@ local function insertStep(step_text, step_level, step_level_delta, step_count)
 	end
 
 	local step_title_params = {text = "Step " .. step_count,
-						 x = 0.13*(display.contentWidth - cookbook.div_x2),
+						 x = 0.13*(display.contentWidth - div_x2),
 						 y = step_level,
-						 width = 0,--0.8*(display.contentWidth - cookbook.div_x2),
+						 width = 0,--0.8*(display.contentWidth - div_x2),
 						 height = 0,
 						 font = native.systemFontBold,
 						 fontSize = globalData.titleFontSize,
@@ -202,7 +215,7 @@ local function insertStep(step_text, step_level, step_level_delta, step_count)
 	step_level = step_level + step_level_delta + step_title.height/2.0
 
 	local step_text_params = {text = step_text,
-						x = 0.12*(display.contentWidth - cookbook.div_x2),
+						x = 0.12*(display.contentWidth - div_x2),
 						y = step_level,
 						width = 0.8*scroll_view_width_2,
 						height = 0,
@@ -577,7 +590,7 @@ function scene:show( event )
 	local ingredient_level_delta = 0.1*display.contentHeight
 	local ingredient_level = 0.5*ingredient_level_delta
 	local step_level_delta = 0.015*display.contentHeight
-	local step_level = 2*cookbook.step_level_delta
+	local step_level = 2*step_level_delta
  
 	if ( phase == "will" ) then
 		transition.to(globalData.tab_bar, {alpha = 0, time = 0.8*globalData.transition_time})
@@ -628,7 +641,7 @@ function scene:show( event )
 		for j = 1,#ingredients,1 do
 			ingredient_names[ingredients[j].name] = j
 		end
-		local sorted_ingredients = cookbook.getAlphabetizedList(ingredient_names)
+		local sorted_ingredients = util.sortTableKeys(ingredient_names)
 
 		-- Insert Each Ingredient 1 by 1
 		for j = 1,#sorted_ingredients,1 do
@@ -653,12 +666,12 @@ function scene:show( event )
 		end
 
 		-- local button_params = {label = "Double It", color = app_colors.recipe.measure_buttons, tap_func = function(event) composer.gotoScene("ViewRecipePage", {params = {name = name, scaling_factor = scaling_factor*2}}) end, displayGroup = self.ingredient_panel, strokeWidth = 3}
-		-- local double_button = tinker.newButton(0, ingredient_level - 0.25*ingredient_level_delta, 0.5*cookbook.div_x2, 0.5*ingredient_level_delta, button_params)
+		-- local double_button = tinker.newButton(0, ingredient_level - 0.25*ingredient_level_delta, 0.5*div_x2, 0.5*ingredient_level_delta, button_params)
 		-- double_button.anchorX = 0
 
 		-- button_params.label = "Half It"
 		-- button_params.tap_func = function(event) composer.gotoScene("ViewRecipePage", {params = {name = name, scaling_factor = scaling_factor*0.5}}) end
-		-- local half_button = tinker.newButton(cookbook.div_x2, ingredient_level - 0.25*ingredient_level_delta, 0.5*cookbook.div_x2, 0.5*ingredient_level_delta, button_params)
+		-- local half_button = tinker.newButton(div_x2, ingredient_level - 0.25*ingredient_level_delta, 0.5*div_x2, 0.5*ingredient_level_delta, button_params)
 		-- half_button.anchorX = half_button.width
 
 		for index, table_val in pairs(globalData.menu[name].steps) do

@@ -5,8 +5,11 @@ local globalData = require("globalData")
 local tinker = require("Tinker")
 local colors = require("Palette")
 local app_colors = require("AppColours")
+local util = require("GeneralUtility")
  
 local scene = composer.newScene()
+
+local createFoodPanel = require("BrowseUtil.create_food_panel")
  
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
@@ -44,7 +47,7 @@ function scene:show( event )
 	local sceneGroup = self.view
 	local phase = event.phase
 
-	local food_list = cookbook.getAlphabetizedList(globalData.menu)
+	local food_list = util.sortTableKeys(globalData.menu)
  
 	if ( phase == "will" ) then
 
@@ -70,7 +73,7 @@ function scene:show( event )
 		end
 
 		for i = 1,#food_list,1 do
-			local new_panel_group = cookbook.createFoodPanel(food_list[i], display.contentCenterX, panel_pos, panel_width, panel_height, self.clip_box, panel_color[1+iter], text_color[iter+1])
+			local new_panel_group = createFoodPanel(food_list[i], display.contentCenterX, panel_pos, panel_width, panel_height, self.clip_box, panel_color[1+iter], text_color[iter+1])
 	
 			local new_panel = cookbook.findID(new_panel_group, "panel")
 			self.panels[food_list[i]] = new_panel

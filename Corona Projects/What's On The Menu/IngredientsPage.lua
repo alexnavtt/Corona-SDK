@@ -1,372 +1,369 @@
-local composer = require( "composer" )
-local cookbook = require( "cookbook" )
-local globalData = require( "globalData" )
-local widget = require( "widget" )
- 
+local composer = require("composer")
+local cookbook = require("cookbook")
+local widget   = require("widget")
+local globalData = require("globalData")
+local tinker = require("Tinker")
+local app_colors = require("AppColours")
+
 local scene = composer.newScene()
 
- 
-local container
+local Cx = display.contentCenterX
+local Cy = display.contentCenterY
+local W  = display.contentWidth
+local H  = display.contentHeight
 
-local function createIngredientPanel(x,y,foodname,image_title)
+-- ############### --
+-- LOCAL FUNCTIONS --
+-- ############### --
+
+local function updateIngredients()
+
+	for i = 1,scene.ingredient_group.numChildren,1 do
+		scene.ingredient_group:remove(1)
+	end
+
+	local iter = 1
+	for name, value in pairs(cookbook.newRecipeIngredientList) do
+		local tag_options = {label = name .. " [" .. value.text_amount .. " " .. value.unit .. "]", strokeWidth = 5, color = app_colors.ingredients.known_ing, labelColor = app_colors.ingredients.known_text, displayGroup = scene.ingredient_group}
+		local tag = tinker.newButton(-0.02*display.contentWidth, (0.05 + 0.1*(iter-1))*scene.ingredient_group.height, 0.9*scene.ingredient_group.width, 0.05*scene.ingredient_group.height, tag_options)
+		tag.id = name
+		tag.anchorX = -0.05*tag.width
+
+		function tag:tap(event)
+			print("Ingredient removed: " .. self.id)
+			cookbook.newRecipeIngredientList[self.id] = nil
+			updateIngredients()
+		end
+		tag:addEventListener("tap",tag)
+
+		iter = iter + 1
+	end
+end
+
+local function inputIngredientAmount(name)
 	local group = display.newGroup()
 
-	local background = display.newRect(0, 0, globalData.label_width, globalData.label_height)
-	-- background.anchorX = 0
-	background:setFillColor(unpack(globalData.panel_color))
-	group:insert(background)
+	local glass_screen = tinker.glass_screen(false)
+	glass_screen:setFillColor(0,0,0,0.4)
+	group:insert(glass_screen)
 
-	if image_title then
-		local icon = display.newImageRect("Image Assets/"..image_title, 0.2*background.width, 0.9*background.height)
-		icon.x = background.x + 0.75*background.width
-		icon.y = background.y
-		group:insert(icon)
+	---- Create Basic GUI ----
+	local background = display.newRect(group, Cx, 0.65*H, 0.85*W, 0.67*H)
+	background:setFillColor(unpack(app_colors.ingredients.panel_bkgd))
+
+	local ingredient_panel = display.newRect(group, Cx, 0.4*H, 0.8*W, 0.15*H)
+	ingredient_panel:setFillColor(unpack(app_colors.ingredients.panel_fore))
+	ingredient_panel:setStrokeColor(unpack(app_colors.ingredients.units))
+	ingredient_panel.strokeWidth = 3
+
+	local label_params = {label = name, radius = 10000, color = app_colors.ingredients.panel_bkgd, labelColor = app_colors.ingredients.panel_text, displayGroup = group}
+	local ingredient_label = tinker.newButton(Cx, ingredient_panel.y - 0.3*ingredient_panel.height, 0.8*ingredient_panel.width, 0.3*ingredient_panel.height, label_params)
+
+	local num_params = {label = "", radius = 10, displayGroup = group, color = app_colors.ingredients.panel_bkgd, labelColor = app_colors.ingredients.panel_text, strokeWidth = 3, strokeColor = app_colors.ingredients.panel_outline, fontSize = globalData.titleFontSize}
+	local int = tinker.newButton(Cx - 0.2*ingredient_panel.width, ingredient_panel.y + 0.15*ingredient_panel.height, 0.4*ingredient_panel.height, 0.4*ingredient_panel.height, num_params)
+	
+	local ampersand = display.newText({text = "&", x = Cx - 0.09*ingredient_panel.width, y = int.y, fontSize = globalData.titleFontSize, align = "center"})
+	group:insert(ampersand)
+
+	num_params.strokeWidth = 0
+	local num = tinker.newButton(Cx, ingredient_panel.y + 0.01*ingredient_panel.height, 0.22*ingredient_panel.height, 0.22*ingredient_panel.height, num_params)
+	local den = tinker.newButton(Cx, ingredient_panel.y + 0.30*ingredient_panel.height, 0.22*ingredient_panel.height, 0.22*ingredient_panel.height, num_params)
+
+	local div_line = display.newLine(group, Cx - 0.03*ingredient_panel.width, ampersand.y, Cx + 0.03*ingredient_panel.width, ampersand.y)
+	div_line.strokeWidth = 4
+
+	local unit_params = {label = "cup", radius = 10, displayGroup = group, color = app_colors.ingredients.panel_bkgd, labelColor = app_colors.ingredients.panel_text, strokeColor = app_colors.ingredients.panel_outline}
+	local unit_rect = tinker.newButton(Cx + 0.2*ingredient_panel.width, ingredient_panel.y + 0.15*ingredient_panel.height, 0.8*ingredient_panel.height, 0.4*ingredient_panel.height, unit_params)
+	----
+
+
+	---- Add Keyboard And Touch Listeners ----
+	local text_rects = {int, num, den}
+	local text_objects = {int.label, num.label, den.label}
+
+	local keyboard_params = {X_func = function(event) int:replaceLabel("") end, radius = 100, backgroundColor = app_colors.ingredients.panel_bkgd, keyColor = app_colors.ingredients.key_color}
+	local keyboard = tinker.numericKeyboard(Cx, 0.925*display.contentHeight, nil, nil, keyboard_params)
+	keyboard.index = 1
+	keyboard.anchorY = keyboard.height
+	keyboard:attachTextObject(int.label)
+
+	local function limitDigits(event)
+		if #int.label.text > 3 then
+			int:replaceLabel(int.label.text:sub(1,3))
+			print("stopped")
+		end
+
+		if #num.label.text > 1 then
+			num:replaceLabel(num.label.text:sub(1,1))
+			print("too big")
+		end
+
+		if #den.label.text > 1 then
+			den:replaceLabel(den.label.text:sub(1,1))
+		end
+	end
+	keyboard._glass_screen:addEventListener("tap", limitDigits)
+
+	local function thisField(index)
+		for i = 1,3,1 do
+			text_rects[i]:setStrokeWidth(0)
+		end
+		text_rects[index]:setStrokeWidth(4)
+
+		keyboard.index = index
+		keyboard:attachTextObject(text_objects[keyboard.index])
+		keyboard._glass_screen:addEventListener("tap", limitDigits)
+		keyboard:setXFunc(function(event) text_rects[keyboard.index]:replaceLabel("") end)
 	end
 
-	local text_params = {text = foodname, 
-						 x = -0.45*background.width,
-						 y = background.y,
-						 width = 0.75*background.width,
-						 fontSize = 0.02*display.contentHeight}
-	local text = display.newText(text_params)
-	text:setFillColor(unpack(globalData.light_text_color))
-	text.anchorX = 0
-	while text.height > 0.9*background.height do
-		text.size = 0.95*text.size
+	local function nextField(event)
+		if keyboard.index < 3 then
+			keyboard.index = keyboard.index + 1
+			thisField(keyboard.index)
+		end
 	end
+	keyboard:setOFunc(nextField)
 
-	group:insert(text)
+	int:addEventListener("tap", function(event) thisField(1) end)
+	num:addEventListener("tap", function(event) thisField(2) end)
+	den:addEventListener("tap", function(event) thisField(3) end)
 
-	group.anchorX = 0
-	group.anchorY = 0
-	group.anchorChildren = true
+	group:insert(keyboard)
+	----
 
-	group.x = x
-	group.y = y
 
-	return(group)
-end
+	---- Create Unit Tab Bar ----
+	local unit_group = display.newGroup()
+	local left_x = ingredient_panel.x - 0.5*ingredient_panel.width
 
-local function translateBy(object, final_time, delay, dx, dy)
-	local time_ratio = delay/final_time
-	object:translate(time_ratio*dx, time_ratio*dy)
-end
- 
- 
--- -----------------------------------------------------------------------------------
--- Scene event functions
--- -----------------------------------------------------------------------------------
+	for i = 1,#cookbook.essential_units,1 do
+		local new_unit_rect = display.newRect(unit_group, left_x, ingredient_panel.y + 0.625*ingredient_panel.height, (1/#cookbook.essential_units)*ingredient_panel.width, 0.35*ingredient_panel.height)
+		new_unit_rect:setFillColor(unpack(app_colors.ingredients.units))
+		new_unit_rect:setStrokeColor(unpack(app_colors.ingredients.panel_bkgd))
+		new_unit_rect.anchorX = 0
+		new_unit_rect.strokeWidth = 2
 
-function scene:create( event )
- 	cookbook.newRecipeIngredientList = {}
+		local new_unit_text = display.newText({text = cookbook.essential_units[i], x = left_x + 0.5*new_unit_rect.width, y = new_unit_rect.y, width = new_unit_rect.width, fontSize = globalData.smallFontSize, align = "center"})
+		new_unit_text:setFillColor(unpack(app_colors.ingredients.panel_text))
+		unit_group:insert(new_unit_text)
 
- 	-- Create display groups
-	local sceneGroup 	= self.view
-	self.tab_group 	= cookbook.createTabBar()
-	local label_group 	= display.newGroup()
-	local scroll_group 	= display.newGroup()
-
-	-- Parameters
-	local tab_height = globalData.tab_height
-
-	local panel_labels = {"Common Ingredients", "Meats", "Starches", "Fruits and Veggies", "Dairy", "Nuts", "Seasonings", "Sauces", "New Ingredient"}
-	local panel_text_keys = {"common_ingredients", "meats", "starches", "fruits_and_veggies", "dairy", "nuts", "seasonings", "sauces", "new_ingredient"}
-
-	local display_height = display.contentHeight - 2*tab_height
-	local scroll_height = 0.95*display_height
-
-	local y_level = tab_height + 0.025*display_height
-	local y_level_delta = (scroll_height - globalData.label_height)/(#panel_labels-1)
-
-	-- Create Background
-	local background = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight )
-	background:setFillColor(unpack(globalData.background_color))
-
-	-- Create Scroll Panels to Hold Ingredients
-	local left_side_tab = widget.newScrollView({left = 0.025*display_height,
-												top = tab_height + 0.025*display_height, 
-												width = 0.475*display.contentWidth, 
-												height = scroll_height,
-												friction = 1.0,
-												horizontalScrollDisabled = true,
-												isBounceEnabled = false,
-												backgroundColor = globalData.panel_color})
-	left_side_tab.index = 1.0
-
-	local left_outline = display.newRect(scroll_group, left_side_tab.x, left_side_tab.y, left_side_tab.width, left_side_tab.height)
-	left_outline:setFillColor(1,1,1,0)
-	left_outline:setStrokeColor(0.1)
-	left_outline.strokeWidth = 2
-
-	-- Create Ingredient List
-	local right_side_tab = widget.newScrollView({left = 1.05*display.contentWidth, 
-												top = tab_height + 0.025*display_height,  
-												width = 0.4*display.contentWidth, 
-												height = scroll_height,
-												friction = 1.0,
-												horizontalScrollDisabled = true,
-												isBounceEnabled = false,
-												backgroundColor = globalData.background_color})
-
-	local back_button = display.newRect(label_group, right_side_tab.x - 0.5*right_side_tab.width - 0.0*display.contentWidth, right_side_tab.y, 0.05*display.contentWidth, 0.3*right_side_tab.height)
-	back_button:setFillColor(unpack(globalData.panel_color))
-
-	local back_button_arrow = display.newLine(label_group,
-											  back_button.x - 0.4*back_button.width, back_button.y + 0.05*back_button.height,
-											  back_button.x - 0.1*back_button.width, back_button.y + 0.00*back_button.height,
-											  back_button.x - 0.4*back_button.width, back_button.y - 0.05*back_button.height)
-	back_button_arrow.strokeWidth = 4
-	back_button_arrow:setStrokeColor(1)
-
-	function back_button:tap(event)
-		local parent_group = self.parent
-		local delta_t = 10
-		local final_t = 100
-
-		local function clearList()
-			for i = 1,right_side_tab._collectorGroup.numChildren,1 do
-				right_side_tab:remove(1)
-			end
-			right_side_tab:scrollTo("top", {time = 1})
+		function new_unit_rect:tap(event)
+			unit_rect:replaceLabel(new_unit_text.text)
 		end
+		new_unit_rect:addEventListener("tap", new_unit_rect)
 
-		local function timerFunc(event)
-			return translateBy(parent_group, final_t, delta_t, 0.5*display.contentWidth, 0)
-		end
-		timer.performWithDelay(delta_t, timerFunc, final_t/delta_t)
-
-		local function timerFunc(event)
-			return translateBy(right_side_tab, final_t, delta_t, 0.5*display.contentWidth, 0)
-		end
-		timer.performWithDelay(delta_t, timerFunc, final_t/delta_t)
-		timer.performWithDelay(final_t, clearList, 1)
+		left_x = left_x + (1/#cookbook.essential_units)*ingredient_panel.width
 	end
-	back_button:addEventListener("tap", back_button)
+	group:insert(unit_group)
+	----
 
-	right_side_tab.y_level = 0.025*right_side_tab.height
-	right_side_tab.y_level_delta = 0.1*right_side_tab.height
 
-	local function toggleScrollView(object)
-		-- print(object[2].text)
-		local left_side_obj = left_side_tab._collectorGroup
-		local right_side_obj = right_side_tab._collectorGroupd
+	---- Add Submit And Cancel Buttons ----
+	local submit_button = tinker.newButton(background.x + background.width/2, background.y + background.height/2, 0.498*background.width, 0.1*background.height,
+											{label = "Submit", displayGroup = group, labelColor = 1,  color = app_colors.ingredients.confirm_button})
+	submit_button.anchorX = submit_button.width
+	submit_button.anchorY = submit_button.height
 
-		if object.pos_id == "right" then
-			for i = 1,left_side_obj.numChildren,1 do
-				left_side_obj[i]:translate(0, right_side_tab.y_level_delta)
-				left_side_obj[i].tab_index = left_side_obj[i].tab_index + 1
-			end
+	function submit_button:tap(event)
+		local int_amount = tonumber(int.label.text) or 0
+		local num_amount = tonumber(num.label.text) or 0
+		local den_amount = tonumber(den.label.text) or 1
+		local den_amount = math.max(den_amount,1)
 
-			left_side_tab:insert(object)
-			object:translate(0,-(object.index-1)*right_side_tab.y_level_delta)
-			object.tab_index = 1
-			object.pos_id = "left"
-			object[1]:setFillColor(unpack(globalData.background_color))
-			object[2]:setFillColor(unpack(globalData.panel_color))
-		
-		elseif object.pos_id == "left" then
-			-- object.tab_index = 0
-			local cutoff_index = object.tab_index
-			cookbook.newRecipeIngredientList[object.id] = nil
+		if int.label.text == "" then int.label.text = "0" end
+		if num.label.text == "" then num.label.text = "0" end
+		if den.label.text == "" then den.label.text = "1" end
+		if den.label.text == "0" then den.label.text = "1" end
 
-			if object.category == right_side_tab.category then
-				right_side_tab:insert(object)
-			else
-				left_side_tab:remove(object)
-			end
+		local text_amount
+		if int_amount == 0 and num_amount == 0 then
+			text_amount = "0"
 
-			for i = 1,left_side_obj.numChildren,1 do --left_side_obj.numChildren,1 do
-				if left_side_obj[i] then
-					if left_side_obj[i].tab_index > cutoff_index then
-						left_side_obj[i]:translate(0, -right_side_tab.y_level_delta)
-						left_side_obj[i].tab_index = left_side_obj[i].tab_index - 1
-					end
-				end
-			end
+		elseif int_amount == 0 and den_amount == 1 then
+			text_amount = num.label.text
 
-			object.y = object.y0
-			object.pos_id = "right"
-			object[2]:setFillColor(unpack(globalData.background_color))
-			object[1]:setFillColor(unpack(globalData.panel_color))
+		elseif int_amount == 0 then
+			text_amount = num.label.text .. "/" .. den.label.text
 
-			left_side_tab:scrollTo("top", {time = 1})
+		elseif num_amount == 0 then
+			text_amount = int.label.text 
+
+		else
+			text_amount = int.label.text .. " " .. num.label.text .. "/" .. den.label.text
 		end
 
-		local function timerFunc(event)
-			translateBy()
-		end
+		cookbook.newRecipeIngredientList[name] = {amount = int_amount + num_amount/den_amount, unit = unit_rect.text, text_amount = text_amount}
+		updateIngredients()
+		group:removeSelf()
+	end
+	submit_button:addEventListener("tap", submit_button)
 
+	local cancel_button = tinker.newButton(background.x - background.width/2, background.y + background.height/2, 0.498*background.width, 0.1*background.height,
+											{label = "Cancel", displayGroup = group, labelColor = 1, color = app_colors.ingredients.confirm_button})
+	cancel_button.anchorX = 0
+	cancel_button.anchorY = submit_button.height
+
+	function cancel_button:tap(event)
+		updateIngredients()
+		group:removeSelf()
 		return true
 	end
+	cancel_button:addEventListener("tap", cancel_button)
+	----
 
-	-- Create Food Type Label Panels
-	for i = 1,#panel_labels,1 do
-		local label = createIngredientPanel(0.55*display.contentWidth, y_level, panel_labels[i], false)
-		label.id = panel_text_keys[i]
+	return group
+end
 
-		function label:tap(event)
-			-- Parameters
-			local y_level = 0.05*(display.contentHeight - tab_height)
-			local y_level_delta = right_side_tab.y_level_delta
-			local name_table = cookbook.getAlphabetizedList(cookbook[label.id])
-			local delta_t = 10   -- milliseconds
-			local final_t = 100  -- milliseconds
 
-			-- Transparent Listener to Prevent Touch Propagation
-			local glass_screen = display.newRect(0.5*display.contentCenterX, display.contentCenterY + 0.5*tab_height, 0.5*display.contentWidth, display.contentHeight - tab_height)
-			glass_screen:setFillColor(1,1,1,0.01)
-			scroll_group:insert(glass_screen)
-
-			function glass_screen:tap(event)
-				return true
-			end
-			glass_screen:addEventListener("tap", glass_screen)
-
-			local existance_table = {}
-			for k = 1,left_side_tab._collectorGroup.numChildren,1 do
-				print(left_side_tab._collectorGroup[k].id)
-				existance_table[left_side_tab._collectorGroup[k].id] = true
-			end
-
-			-- Add options to scrollView
-			for index, fieldname in pairs(name_table) do
-
-				if not existance_table[fieldname] then
-					-- Create Icon with Ingredient Name
-					local icon = createIngredientPanel(0.025*right_side_tab.width, y_level, fieldname, false)
-					icon.id = fieldname
-					icon.pos_id = "right"
-					icon.index = index
-					icon.category = label.id
-					icon.y0 = y_level
-					right_side_tab:insert(icon)
-
-					-- Add Listener to move to Other Scroll View
-					function icon:tap(event)
-						return toggleScrollView(self) 
-					end
-					icon:addEventListener("tap", icon)
-				end
-
-				y_level = y_level + y_level_delta
-			end
-
-			right_side_tab.category = label.id
-			right_side_tab:insert(display.newRect(0,y_level,1,1))
-			-- right_side_tab:toFront()
-			left_side_tab:toFront()
-			-- back_button:toFront()
-			-- back_button_arrow:toFront()
-
-			local parent_group = self.parent
-
-			for i = 1,parent_group.numChildren,1 do
-				local function timerFunc(event)
-					return translateBy(parent_group[i], final_t, delta_t, -0.5*display.contentWidth, 0)
-				end
-				timer.performWithDelay(delta_t, timerFunc, final_t/delta_t)
-			end
-
-			local function timerFunc(event)
-				return translateBy(right_side_tab, final_t, delta_t, -0.5*display.contentWidth, 0)
-			end
-			timer.performWithDelay(delta_t, timerFunc, final_t/delta_t)
-		end
-		label:addEventListener("tap", label)
-
-		y_level = y_level + y_level_delta
-		label_group:insert(label)
-	end
-
-	local bottomTabGroup = display.newGroup()
-
-	-- Create Progression Bar
-	local progress_tab = display.newRect(bottomTabGroup, 0.5*display.contentWidth, display.contentHeight, 0.5*display.contentWidth, globalData.tab_height)
-	progress_tab.anchorX = 0
-	progress_tab.anchorY = progress_tab.height
-	progress_tab:setFillColor(unpack(globalData.green))
-	progress_tab.strokeWidth = 2
-	progress_tab:setStrokeColor(0.1)
-
-	local proceed_text = display.newText({text = "Select Ingredient Measurements",
-										  x = progress_tab.x + 0.5*progress_tab.width,
-										  y = progress_tab.y - 0.5*progress_tab.height,
-										  width = 0.8*progress_tab.width,
-										  height = 0,
-										  fontSize = globalData.smallFontSize,
-										  align = "center"})
-	proceed_text:setFillColor(unpack(globalData.tab_text_color))
-	bottomTabGroup:insert(proceed_text)
-
-	function progress_tab:tap(event)
-		-- LOOK TO ALLOW MEASUREMENTS TO STAY WHEN SWITCHING TABS
-		for i = 1,left_side_tab._collectorGroup.numChildren,1 do
-			if not cookbook.newRecipeIngredientList[left_side_tab._collectorGroup[i].id] then
-				cookbook.newRecipeIngredientList[left_side_tab._collectorGroup[i].id] = {amount = 0, unit = "cup", text_amount = "0"}
-			end
-		end
-
-		globalData.relocateSearchBar(-1000,-1000)
-		composer.gotoScene("MeasurementPage")	
-	end
-	progress_tab:addEventListener("tap", progress_tab)
-
-	local clear_tab = display.newRect(bottomTabGroup, 0, display.contentHeight, 0.5*display.contentWidth, globalData.tab_height)
-	clear_tab.anchorX = 0
-	clear_tab.anchorY = clear_tab.height
-	clear_tab:setFillColor(unpack(globalData.red))
-	clear_tab.strokeWidth = 2
-	clear_tab:setStrokeColor(0.1)
-
-	local clear_text = display.newText({text = "Clear Ingredients",
-										x = clear_tab.x + 0.5*clear_tab.width,
-										y = clear_tab.y - 0.5*clear_tab.height,
-										width = 0.8*clear_tab.width,
-										height = 0,
-										fontSize = globalData.smallFontSize,
-										align = "center"})
-
-	function clear_tab:tap(event)
-		for i = 1,left_side_tab._collectorGroup.numChildren,1 do
-			toggleScrollView(left_side_tab._collectorGroup[1])
-		end
-	end
-	clear_tab:addEventListener("tap", clear_tab)
-
-	clear_text:setFillColor(globalData.tab_text_color)
-	bottomTabGroup:insert(clear_text)
-
-	scroll_group:insert(left_side_tab)
-	scroll_group:insert(right_side_tab)
-
-	sceneGroup:insert(label_group)
-	sceneGroup:insert(scroll_group)
-	sceneGroup:insert(self.tab_group)
-	sceneGroup:insert(bottomTabGroup)
+-- ############ --
+-- SCENE EVENTS --
+-- ############ --
+function scene:create( event )
  
- 	right_side_tab:insert(display.newRect(0,y_level,1,1))
+	local sceneGroup = self.view
+	local background = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
+	background:setFillColor(unpack(app_colors.ingredients.search_bkgd))
+
+	function background:tap(event) native.setKeyboardFocus(nil) end
+	background:addEventListener("tap", background)
+
+	local tab_bar = cookbook.tempTabBar("Ingredient Selection", "Back to Title", "NewRecipePage", "Input Steps", "InsertStepsPage")
+	sceneGroup:insert(tab_bar)
+
+	local sb_options = {defaultText = "Search Ingredients...", radius = 0.025*display.contentHeight, tapOutside = false}
+	local search_bar = tinker.newTextField(display.contentCenterX, 1.7*globalData.tab_height, 0.8*display.contentWidth, 0.05*display.contentHeight, sb_options)
+	sceneGroup:insert(search_bar)
+
+	self.results_group = widget.newScrollView({	left = display.contentCenterX, 
+												top  = 0.2*display.contentHeight,
+												width  = 0.5*display.contentWidth,
+												height = 0.8*display.contentHeight,
+												backgroundColor = app_colors.ingredients.option_bkgd,
+												friction = 1.2,
+												horizontalScrollDisabled = true,
+												hideScrollBar = true,
+												bottomPadding = 0.1*display.contentHeight})
+
+	sceneGroup:insert(self.results_group)
+
+	local function searchResults(event)
+		if event.phase == "editing" then
+			for i = 1,self.results_group._collectorGroup.numChildren,1 do
+				self.results_group:remove(1)
+			end
+
+			local options = cookbook.getAlphabetizedList(cookbook.searchIngredients(search_bar.text))
+			local iter = 1
+			for i = 1,#options,1 do
+				if cookbook.newRecipeIngredientList[options[iter]] then
+					table.remove(options,iter)
+				else
+					iter = iter + 1
+				end
+			end
+
+			-- Custom ingredient label
+			if search_bar.text ~= "" then
+				local tag_options = {label = search_bar.text, strokeWidth = 5, color = app_colors.ingredients.option_ing, labelColor = app_colors.ingredients.option_text}
+				local tag = tinker.newButton(self.results_group.width, 0.05*self.results_group.height, 0.9*self.results_group.width, 0.05*self.results_group.height, tag_options)
+				tag.id = search_bar.text
+				tag.anchorX = tag.width
+				self.results_group:insert(tag)
+
+				function tag:tap(event)
+					print("Created from scratch")
+					for i = 1,scene.results_group._collectorGroup.numChildren,1 do
+						scene.results_group:remove(1)
+					end
+
+					local input_group = inputIngredientAmount(search_bar.text)
+					input_group:translate(0,-100)
+
+					search_bar:replaceText("")
+					native.setKeyboardFocus(nil)
+					print("Hidden")
+
+					return true
+				end
+				tag:addEventListener("tap", tag)
+			end
+
+			-- Built in ingredients
+			for i = 1,#options,1 do
+				local tag_options = {label = options[i], strokeWidth = 5, color = app_colors.ingredients.option_ing, labelColor = app_colors.ingredients.option_text}
+				local tag = tinker.newButton(self.results_group.width, (0.05 + i*0.1)*self.results_group.height, 0.9*self.results_group.width, 0.05*self.results_group.height, tag_options)
+				tag.id = options[i]
+				tag.anchorX = tag.width
+				self.results_group:insert(tag)
+
+				function tag:tap(event)
+					-- local newIngredient = {amount = 0, unit = "cup", text_amount = "0"}
+					-- cookbook.newRecipeIngredientList[options[i]] = newIngredient
+					search_bar:replaceText("")
+
+					for i = 1,scene.results_group._collectorGroup.numChildren,1 do
+						scene.results_group:remove(1)
+					end
+
+					local input_group = inputIngredientAmount(options[i])
+					input_group:translate(0,-100)
+
+					native.setKeyboardFocus(nil)
+					print("Hidden")
+
+					return true
+				end
+				tag:addEventListener("tap", tag)
+			end
+		end
+
+		if event.phase == "submitted" then
+			native.setKeyboardFocus(nil)
+		end
+	end
+	search_bar:addEventListener("userInput", searchResults)
+
+
+	self.ingredient_group = widget.newScrollView({	x = 0.5*display.contentCenterX,
+													y = self.results_group.y,
+													width = 0.5*display.contentWidth,
+													height = self.results_group.height,
+													backgroundColor = app_colors.ingredients.known_bkgd,
+													horizontalScrollDisabled = true,
+													hideScrollBar = true,
+													bottomPadding = 0.1*display.contentHeight})
+	sceneGroup:insert(self.ingredient_group)
+
+	-- self.timerHandle = timer.performWithDelay(250, updateIngredients, -1)
+
+	local div_line_1 = display.newLine(sceneGroup, 0, 0.2*display.contentHeight, display.contentWidth, 0.2*display.contentHeight)
+	div_line_1:setStrokeColor(unpack(app_colors.ingredients.outline))
+	div_line_1.strokeWidth = 3
+
+	local div_line_2 = display.newLine(sceneGroup, display.contentCenterX, 0.2*display.contentHeight, display.contentCenterX, display.contentHeight)
+	div_line_2:setStrokeColor(unpack(app_colors.ingredients.outline))
+	div_line_2.strokeWidth = 3
 end
  
- 
--- show()
+
 function scene:show( event )
  
 	local sceneGroup = self.view
 	local phase = event.phase
  
 	if ( phase == "will" ) then
-		self.tab_group = cookbook.updateTabBar(self.tab_group)
+		transition.to(globalData.tab_bar, {alpha = 0, time = globalData.transition_time})
+		updateIngredients()
+		-- timer.resume(self.timerHandle)
+		-- sceneGroup:insert(input_group)
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
  
 	elseif ( phase == "did" ) then
-		globalData.relocateSearchBar(unpack(globalData.search_bar_home))
 		-- Code here runs when the scene is entirely on screen
  
 	end
 end
- 
- 
--- hide()
+
 function scene:hide( event )
  
 	local sceneGroup = self.view
@@ -376,13 +373,12 @@ function scene:hide( event )
 		-- Code here runs when the scene is on screen (but is about to go off screen)
  
 	elseif ( phase == "did" ) then
+		-- timer.pause(self.timerHandle)
 		-- Code here runs immediately after the scene goes entirely off screen
  
 	end
 end
- 
- 
--- destroy()
+
 function scene:destroy( event )
  
 	local sceneGroup = self.view

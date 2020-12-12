@@ -5,6 +5,10 @@ local globalData = require("globalData")
 local widget = require("widget")
 local composer = require("composer")
 local json = require("json")
+local tinker = require("Tinker")
+local colors = require("Palette")
+local app_colors = require("AppColours")
+local transition = require("transition")
 
 -- Density is measured in gram/Cup
 cookbook.densities  =  {["flour"]			= 120,
@@ -86,130 +90,165 @@ cookbook.convertFromGram = {g 	= 1,
 					   		oz 	= 1/28.35,
 					   		lb  = 0.0022}
 
-cookbook.ingredient_list = {["flour"] = "Flour-Graphic.png",
-							["salt"]  = "Salt-Shaker-Graphic.png",
-							["pepper"] = "Pepper-Shaker-Graphic.png",
-							["cheese"] = "Cheese-Graphic.png",
-							["butter"] = "Unsalted-Butter.png",
-							["milk"] = false,
-							["eggs"] = "Egg-Graphic.png",
-							["waffle"] = "Waffle-Graphic.png",
-							["red onion"] = "Red-Onion-Graphic.png",
-							["yellow onion"] = "Yellow-Onion-Graphic.png",
-							["cinnamon"] = false,
-							["sugar"] = false,
-							["brown sugar"] = false,
-							["chicken"] = false,
-							["pork"] = false,
-							["beef"] = false,
-							["lamb"] = false,
-							["turkey"] = false,
-							["basil"] = false,
-							["parsley"] = false,
-							["oregano"] = false,
-							["bread crumbs"] = false,
-							["olive oil"] = false,
-							['garlic'] = false,
-							['cream cheese'] = false,
-							['vegetable oil'] = false}
 
-cookbook.common_ingredients ={["Flour"] 		= true,
-							  ["Salt"] 			= true,
-							  ["Black pepper"] 	= true,
-							  ["Cheese"] 		= true,
-							  ["Milk"] 			= true,
-							  ["Eggs"] 			= true,
-							  ["Olive oil"] 	= true,
-							  ["Vegetable oil"] = true,
-							  ["Potato"] 		= true}
+-- INGREDIENTS
+cookbook.common_ingredients =	{["Flour"] 			= true,
+								["Salt"] 			= true,
+								["Black pepper"] 	= true,
+								["Cheese"] 			= true,
+								["Milk"] 			= true,
+								["Eggs"] 			= true,
+								["Olive oil"] 		= true,
+								["Vegetable oil"] 	= true,
+								["Potato"] 			= true,
+								["Sugar"]			= true,
+								["Brown Sugar"]		= true,
+								["Honey"] 			= true,
+								["Baking Powder"]	= true,
+								["Baking Soda"]		= true,
+								["Water"]			= true}
 
-cookbook.meats = {["Chicken breasts"] 	= true,
-				  ["Chicken legs"] 		= true,
-				  ["Chicken thighs"] 	= true,
-				  ["Chicken wings"]		= true,
-				  ["Chicken - whole"] 	= true,
-				  ["Lamb"]	 			= true,
-				  ["Beef"]	 			= true,
-				  ["Steak"]  			= true,
-				  ["Pork sausage"]		= true,
-				  ["Chicken sausage"] 	= true,
-				  ["Turkey sausage"] 	= true,
-				  ["Pork loins"]		= true,
-				  ["Pork chops"] 		= true,
-				  ['Shrimp']			= true,
-				  ['Shrimp - jumbo']  	= true,
-				  ['Scallops'] 			= true,
-				  ['Fish']				= true,
-				  ['Ham'] 				= true}
+cookbook.meats = {				["Chicken breasts"] = true,
+				  				["Chicken legs"] 	= true,
+								["Chicken thighs"] 	= true,
+								["Chicken wings"]	= true,
+								["Chicken - whole"] = true,
+								["Lamb"]	 		= true,
+								["Beef"]	 		= true,
+								["Steak"]  			= true,
+								["Pork sausage"]	= true,
+								["Chicken sausage"] = true,
+								["Turkey sausage"] 	= true,
+								["Pork loins"]		= true,
+								["Pork chops"] 		= true,
+								['Shrimp']			= true,
+								['Shrimp - jumbo']  = true,
+								['Scallops'] 		= true,
+								['Fish']			= true,
+								['Ham'] 			= true}
 
-cookbook.fruits_and_veggies =  {["Broccoli"] 	= true,
-							  	["Carrots"] 	= true,
-							  	["Apples"]		= true,
-							  	["Strawberries"]= true,
-							  	["Celery"]	 	= true,
-							  	["Cabbage"]  	= true,
-							  	["Lettuce"] 	= true,
-							  	["Tomato"]		= true,
-							  	["Pumpkin"]		= true,
-							  	["Potato"]	= true,
-							  	["Eggplant"]	= true,
+cookbook.fruits_and_veggies =  {["Broccoli"] 		= true,
+							  	["Carrots"] 		= true,
+							  	["Apples"]			= true,
+							  	["Strawberries"]	= true,
+							  	["Celery"]	 		= true,
+							  	["Cabbage"]  		= true,
+							  	["Lettuce"] 		= true,
+							  	["Tomato"]			= true,
+							  	["Pumpkin"]			= true,
+							  	["Potato"]			= true,
+							  	["Eggplant"]		= true,
 							  	["Butternut squash"] = true,
 							  	["Zuchinni squash"]	 = true,
-							  	["Beets"] 		= true,
-							  	["Spinnach"]	= true,
-							  	["Chick peas"]	= true,
-							  	["Red beans"]	= true,
-							  	["Black beans"]	= true,
-							  	["Baked beans"] = true,
-							  	["Green beans"] = true,
-							  	["Peaches"] 	= true,
-							  	["Plums"] 		= true,
-							  	["Cherries"]	= true,
-							  	["Pears"]		= true,
-							  	["Raspberries"]	= true,
-							  	["Blackberries"]= true,
-							  	["Onions"]		= true,
-							  	["Cucumbers"]	= true}
+							  	["Beets"] 			= true,
+							  	["Spinnach"]		= true,
+							  	["Chick peas"]		= true,
+							  	["Red beans"]		= true,
+							  	["Black beans"]		= true,
+							  	["Baked beans"] 	= true,
+							  	["Green beans"] 	= true,
+							  	["Peaches"] 		= true,
+							  	["Plums"] 			= true,
+							  	["Cherries"]		= true,
+							  	["Pears"]			= true,
+							  	["Raspberries"]		= true,
+							  	["Blackberries"]	= true,
+							  	["Onions"]			= true,
+							  	["Cucumbers"]		= true,
+							  	["Banana"] 			= true}
 
-cookbook.starches =    {Potato = true,
-						["Instant mashed potato"] = true,
-						Penne = true,
-						Linguini = true,
-						Macaroni = true,
-						["White rice"] = true,
-						["Brown rice"] = true,
-						Spaghetti = true,
-						Fettuccini = true,
-						}
+cookbook.starches =    {		["Potato"] 			= true,
+								["Instant mashed potato"] = true,
+								["Penne"] 			= true,
+								["Linguini"] 		= true,
+								["Macaroni"] 		= true,
+								["White rice"] 		= true,
+								["Brown rice"] 		= true,
+								["Spaghetti"] 		= true,
+								["Fettuccini"] 		= true}
 
-cookbook.seasonings =  {["Black Pepper"] = true,
-						Salt = true,
-						["Garlic powder"] = true,
-						["Onion powder"] = true,
-						Cinnamon = true,
-						["Garlic cloves"] = true,
-						["Minced Garlic"] = true,
-						["All Purpose Seasoning"] = true,
-						Allspice = true,
-						Thyme = true,
-						Basil = true,
-						Oregano = true,
-						Parsley = true,
-						["Bay Leaves"] = true,
-						}
+cookbook.seasonings =  {		["Black Pepper"] 	= true,
+								["Salt"]	 		= true,
+								["Garlic powder"]	= true,
+								["Onion powder"] 	= true,
+								["Cinnamon"] 		= true,
+								["Garlic cloves"] 	= true,
+								["Minced Garlic"] 	= true,
+								["All Purpose Seasoning"] = true,
+								["Allspice"] 		= true,
+								["Thyme"] 			= true,
+								["Basil"] 			= true,
+								["Oregano"] 		= true,
+								["Parsley"] 		= true,
+								["Bay Leaves"] 		= true}
 
-cookbook.dairy = {}
+cookbook.dairy = {				["Milk"] 			= true,
+								["Almond Milk"]		= true,
+								["Soy Milk"] 		= true,
+								["Yoghurt"] 		= true,
+								["Sour Cream"] 		= true,
+								["Whipped Cream"] 	= true,
+								["Half and Half"] 	= true,
+								["Light Cream"] 	= true,
+								["Heavy Cream"] 	= true,
+								["Cheddar Cheese"] 	= true,
+								["Gouda Cheese"]	= true,
+								["Mozzarella Cheese"]= true,
+								["Provolone Cheese"]= true,
+								["Parmesan Cheese"] = true,
+								["Ricotta Cheese"] 	= true,
+								["PepperJack Cheese"] = true,
+								["Cream Cheese"] 	= true,
+								["Cheese"] 			= true,
+								["Marscarpone Cheese"] =true,
+								["Brie Cheese"] 	= true,
+								["Blue Cheese"] 	= true,
+								["Cottage Cheese"] 	= true,
+								["Cottage Cheese"] 	= true,
+								["Butter"]			= true,
+								["Margarine"]		= true,
+								["Ice Cream"]		= true}
 
-cookbook.sauces = {}
+cookbook.sauces = {				["Soy Sauce"] 		= true,
+								["Ketchup"] 		= true,
+								["Mustard"] 		= true,
+								["Mayonnaise"]		= true,
+								["Worcestershire Sauce"] = true,
+								["BBQ Sauce"]		= true,
+								["Honey BBQ Sauce"] = true,
+								["Garlic Sauce"] 	= true}
 
-cookbook.nuts = {}
+cookbook.nuts = {				["Macadamia Nuts"] 	= true,
+								["Pistachios"]		= true,
+								["Cashews"]			= true,
+								["Almonds"]			= true,
+								["Pecans"]			= true,
+								["Walnuts"]			= true,
+								["Trail Mix"]		= true,
+								}
 
+cookbook.ingredientList = {}
+local categories = {"common_ingredients", "meats", "fruits_and_veggies", "dairy", "nuts", "sauces", "seasonings", "starches"} 
+for i = 1,#categories,1 do
+	for food, value in pairs(cookbook[categories[i]]) do
+		cookbook.ingredientList[food] = true
+	end
+end
+
+
+
+-- NEW RECIPE STUFF
 cookbook.newRecipeTitle = "test-recipe"
 cookbook.newRecipeIngredientList = {}
+cookbook.newIngredient = {amount = 0, unit = "Cup", text_amount = "0"}
 cookbook.newRecipeSteps = {}
 cookbook.newRecipeKeywords = {}
+cookbook.newRecipeParams = {}
 
+-- EDIT RECIPE STUFF
+cookbook.is_editing = false
 
+-- BECAUSE I'M BAD AT PLANNING
 cookbook.div_y  = 0.15*display.contentHeight
 cookbook.div_x1 = 0.3*display.contentWidth
 cookbook.div_x2 = cookbook.div_x1 + 0.13*display.contentWidth
@@ -223,365 +262,6 @@ cookbook.step_count = 1
 
 cookbook.sub_line_color = {0.8, 0.8, 0.8}
 cookbook.major_line_color = {0.3, 0.3, 0.3}
-
-function cookbook.displayRecipe(name)
-	local function insertIngredient(ingredient, amount, unit, amount_number)
-		-- Make it look pretty
-		for i = 1,#ingredient-2,1 do
-			if string.sub(ingredient,i, i) == " " then
-				ingredient = ingredient:sub(1,i) .. string.upper(ingredient:sub(i+1,i+1)) .. ingredient:sub(i+2)
-			end
-		end
-
-		-- Still making it look pretty
-		ingredient = string.upper(ingredient:sub(1,1)) .. ingredient:sub(2)
-		unit = string.upper(unit:sub(1,1)) .. unit:sub(2)
-
-		-- Ingredient Text
-		ingredient_text_params = {text = ingredient,
-								  x = 0.07*cookbook.div_x1,
-								  y = cookbook.ingredient_level,
-								  width = 0.9*cookbook.div_x1,
-								  height = 0,
-								  font = native.systemFont,
-								  fontSize = 0.025*display.contentHeight}
-		local ingredient_word = display.newText(ingredient_text_params)
-		ingredient_word.anchorX = 0
-		ingredient_word:setFillColor(0.2)
-
-		while ingredient_word.height > cookbook.ingredient_level_delta do
-			ingredient_word.size = 0.9*ingredient_word.size
-		end
-
-		-- Ingredient Amount Text
-		if unit == "Count" then
-			unit = ""
-		end
-
-		local amount_text_params = {text = amount .. "\n" .. unit,
-									x = 0.5*(cookbook.div_x1 + cookbook.div_x2),
-									y = cookbook.ingredient_level,
-									width = 0.9*(cookbook.div_x2 - cookbook.div_x1),
-									height = 0,
-									font = native.systemFont,
-									fontSize = 0.025*display.contentHeight,
-									align = "center"}
-		ingredient_amount = display.newText(amount_text_params)
-		ingredient_amount:setFillColor(0.2)
-		ingredient_amount.value = amount_number
-		ingredient_amount.unit  = unit
-		ingredient_amount.food  = ingredient
-
-		function ingredient_amount:tap(event)
-			if not self.value then
-				return true
-			end
-
-			local old_value = self.value
-			local old_unit  = self.unit
-			local food_name = self.food
-
-			local new_panel = cookbook.createUnitTab(old_unit, self.y, self, old_value, food_name)
-			cookbook.ingredient_group:insert(new_panel)
-		end
-
-		ingredient_amount:addEventListener("tap", ingredient_amount)
-
-		local new_dividing_line = display.newLine(-display.contentWidth, cookbook.ingredient_level + 0.5*cookbook.ingredient_level_delta, cookbook.div_x2, cookbook.ingredient_level + 0.5*cookbook.ingredient_level_delta)
-		new_dividing_line.strokeWidth = 2
-		new_dividing_line:setStrokeColor(unpack(cookbook.sub_line_color))
-
-		cookbook.ingredient_group:insert(ingredient_word)
-		cookbook.ingredient_group:insert(ingredient_amount)
-		cookbook.ingredient_group:insert(new_dividing_line)
-
-		cookbook.ingredient_level = cookbook.ingredient_level + cookbook.ingredient_level_delta
-	end
-
-	function insertStep(step_text)
-		if step_text == "" or step_text == nil then
-			return
-		end
-
-		step_title_params = {text = "Step " .. cookbook.step_count,
-							 x = cookbook.div_x2 + 0.07*(display.contentWidth - cookbook.div_x2),
-							 y = cookbook.step_level,
-							 width = 0.9*(display.contentWidth - cookbook.div_x2),
-							 height = 0,
-							 font = native.systemFontBold,
-							 fontSize = globalData.titleFontSize}
-		step_title = display.newText(step_title_params)
-
-		cookbook.step_level = cookbook.step_level + cookbook.step_level_delta + step_title.height
-
-		step_text_params = {text = step_text,
-							x = cookbook.div_x2 + 0.12*(display.contentWidth - cookbook.div_x2),
-							y = cookbook.step_level,
-							width = 0.8*(display.contentWidth - cookbook.div_x2),
-							height = 0,
-							font = native.systemFont,
-							fontSize = 0.025*display.contentHeight}
-
-		step_text_paragraph = display.newText(step_text_params)
-		step_text_paragraph.id = "step_text"
-
-		cookbook.step_level = cookbook.step_level + 2*cookbook.step_level_delta + step_text_paragraph.height
-		cookbook.step_count = cookbook.step_count + 1
-
-		step_title:setFillColor(0)
-		step_title.anchorX = 0
-		step_title.anchorY = 0
-		step_text_paragraph:setFillColor(0)
-		step_text_paragraph.anchorX = 0
-		step_text_paragraph.anchorY = 0
-
-		cookbook.step_group:insert(step_title)
-		cookbook.step_group:insert(step_text_paragraph)
-	end
-
-	cookbook.recipe_group 	  = display.newGroup()
-	cookbook.ingredient_group = display.newGroup()
-	cookbook.step_group 	  = display.newGroup()
-	cookbook.title_group 	  = display.newGroup()
-
-	globalData.relocateSearchBar(-display.contentCenterX, -display.contentCenterY)
-
-
-	-----------------------------------------------------
-	-------------------- PARAMETERS ---------------------
-	-----------------------------------------------------
-	cookbook.div_y  = 0.15*display.contentHeight
-	cookbook.div_x1 = 0.3*display.contentWidth
-	cookbook.div_x2 = cookbook.div_x1 + 0.13*display.contentWidth
-
-	cookbook.ingredient_level_delta = 0.1*display.contentHeight
-	cookbook.ingredient_level = cookbook.div_y + 0.5*cookbook.ingredient_level_delta
-
-	cookbook.step_level_delta = 0.015*display.contentHeight
-	cookbook.step_level = cookbook.div_y + cookbook.step_level_delta
-	cookbook.step_count = 1
-
-	cookbook.sub_line_color = {0.8, 0.8, 0.8}
-	cookbook.major_line_color = {0.3, 0.3, 0.3}
-	-------------------------------------------------------
-	-------------------------------------------------------
-
-
-	local title_background = display.newRect(0, 0, display.contentWidth, cookbook.div_y)
-	title_background.anchorX = 0
-	title_background.anchorY = 0
-	title_background:setFillColor(0.8)
-
-	local back_button = display.newRect(display.contentWidth, 0, 0.15*display.contentWidth, 0.5*cookbook.div_y)
-	back_button.anchorX = back_button.width
-	back_button.anchorY = 0
-	back_button:setFillColor(0.7)
-
-	local favourite_button = display.newRect(display.contentWidth, back_button.height, back_button.width, back_button.height)
-	favourite_button.anchorX = favourite_button.width
-	favourite_button.anchorY = 0
-	favourite_button:setFillColor(0.6)
-
-	local ingredient_panel = display.newRect(0, cookbook.div_y, cookbook.div_x2, display.contentHeight-cookbook.div_y)
-	ingredient_panel.anchorX = 0
-	ingredient_panel.anchorY = 0
-	ingredient_panel:setFillColor(0.7)
-
-	local instruction_panel = display.newRect(display.contentWidth, cookbook.div_y, display.contentWidth-cookbook.div_x2, display.contentHeight-cookbook.div_y)
-	instruction_panel.anchorX = instruction_panel.width
-	instruction_panel.anchorY = 0
-	instruction_panel:setFillColor(0.9)
-
-	local horizontal_dividing_line = display.newLine(0, cookbook.div_y, display.contentWidth, cookbook.div_y)
-	horizontal_dividing_line.strokeWidth = 3
-	horizontal_dividing_line:setStrokeColor(unpack(cookbook.major_line_color))
-
-	local small_div_line1 = display.newLine(display.contentWidth - back_button.width, 0, display.contentWidth - back_button.width, cookbook.div_y)
-	small_div_line1.strokeWidth = 3
-	small_div_line1:setStrokeColor(unpack(cookbook.major_line_color))
-
-	local small_div_line2 = display.newLine(display.contentWidth - back_button.width, back_button.height, display.contentWidth, back_button.height)
-	small_div_line2.strokeWidth = 3
-	small_div_line2:setStrokeColor(unpack(cookbook.major_line_color))
-
-	local vertical_dividing_line1 = display.newLine(cookbook.div_x1, cookbook.div_y, cookbook.div_x1, display.contentHeight)
-	vertical_dividing_line1.strokeWidth = 2
-	vertical_dividing_line1:setStrokeColor(unpack(cookbook.sub_line_color))
-
-	local vertical_dividing_line2 = display.newLine(cookbook.div_x2, cookbook.div_y, cookbook.div_x2, display.contentHeight)
-	vertical_dividing_line2.strokeWidth = 3
-	vertical_dividing_line2:setStrokeColor(unpack(cookbook.major_line_color))
-
-	local move_tab_line = display.newRect(cookbook.div_x2, cookbook.div_y, 0.05*display.contentWidth, display.contentHeight - cookbook.div_y)
-	move_tab_line:setFillColor(1,1,1,0.01)
-	move_tab_line.anchorY = 0
-
-	-- Image Asset Load --
-	local unfavourite_icon = display.newImageRect("Image Assets/Empty Star.png", 0.6*favourite_button.width, 0.6*favourite_button.width)
-	unfavourite_icon.x = favourite_button.x - favourite_button.width/2
-	unfavourite_icon.y = favourite_button.y + favourite_button.height/2
-
-	local favourite_icon = display.newImageRect("Image Assets/Star.png", 0.6*favourite_button.width, 0.6*favourite_button.width)
-	favourite_icon.x = favourite_button.x - favourite_button.width/2
-	favourite_icon.y = favourite_button.y + favourite_button.height/2
-	if not globalData.favourites[name] then
-		favourite_icon.alpha = 0
-	end
-
-	-- Section Title Generation --
-	title_text_params = {text = name,
-						 x = 0.4*display.contentWidth,
-						 y = 0.07*display.contentHeight,
-						 height = 0,
-						 width = 0.8*display.contentWidth,
-						 font = native.systemFontBold,
-						 fontSize = 0.05*display.contentHeight,
-						 align = "center"}
-	local title = display.newText(title_text_params)
-	title:setFillColor(0.2)
-
-	back_text_params = {text = "Back",
-						x = back_button.x - 0.5*back_button.width,
-						y = back_button.y + 0.5*back_button.height,
-						height = 0,
-						width = 0,
-						font = native.systemFont,
-						fontSize = 0.02*display.contentHeight,
-						align = "center"}
-	back_text = display.newText(back_text_params)
-	back_text:setFillColor(0.1)
-
-	-- Touch Listener Functions
-	local function onTouchIngredient(event)
-		if event.phase == "began" then
-			ingredient_panel.y_start = event.y
-			ingredient_panel.y0 = cookbook.ingredient_group.y
-			display.getCurrentStage():setFocus(ingredient_panel)
-
-		elseif event.phase == "moved" then
-			cookbook.ingredient_group.y = math.max(math.min(ingredient_panel.y0 + event.y - ingredient_panel.y_start,0), -cookbook.ingredient_level + ingredient_panel.height + 2*cookbook.ingredient_level_delta)
-		
-		elseif event.phase == "ended" or event.phase == "cencalled" then
-			display.getCurrentStage():setFocus(nil)
-		end
-	end
-
-	local function onTouchStep(event)
-		if event.phase == "began" then
-			instruction_panel.y_start = event.y
-			instruction_panel.y0 = cookbook.step_group.y
-			display.getCurrentStage():setFocus(instruction_panel)
-
-		elseif event.phase == "moved" then
-			cookbook.step_group.y = math.max(math.min(instruction_panel.y0 + event.y - instruction_panel.y_start, 0), -cookbook.step_level + instruction_panel.height + 4*cookbook.step_level_delta)
-
-		elseif event.phase == "ended" or event.phase == "cancelled" then
-			display.getCurrentStage():setFocus(nil)
-		end
-	end
-
-	local function onTouchBack(event)
-		if event.phase == "began" then
-			back_text:setFillColor(0.2, 0.2, 0.5)
-			back_button:setFillColor(0.5)
-			display.getCurrentStage():setFocus(back_button)
-
-		elseif event.phase == "ended" or event.phase == "cancelled" then
-			back_text:setFillColor(0.1)
-			back_button:setFillColor(0.7)
-
-			if event.y < (back_button.height) and event.x > (back_button.x - back_button.width) then
-				while cookbook.recipe_group.numChildren > 0 do
-					cookbook.recipe_group:remove(1)
-				end
-				composer.gotoScene(globalData.activeScene)
-				globalData.relocateSearchBar(unpack(globalData.search_bar_home))
-			end
-
-			display.getCurrentStage():setFocus(nil)
-		end
-	end
-
-	local function moveTab(event)
-		if event.phase == "began" then
-			move_tab_line.left_offset = vertical_dividing_line2.x - event.x
-			move_tab_line.right_offset = vertical_dividing_line1.x - event.x
-			display.getCurrentStage():setFocus(move_tab_line)
-
-		elseif event.phase == "moved" then
-			vertical_dividing_line2.x = event.x + move_tab_line.left_offset
-			ingredient_panel.width = event.x + move_tab_line.left_offset
-			instruction_panel.width = display.contentWidth - ingredient_panel.width
-
-		elseif event.phase == "ended" or event.phase == "cancelled" then
-			display.getCurrentStage():setFocus(nil)
-		end
-	end
-
-	local function onFavouriteTouch(event)
-
-		if globalData.favourites[name] then
-			globalData.favourites[name] = nil
-			favourite_icon.alpha = 0
-			print("Removed " .. name .. " from Favourites")
-		else
-			globalData.favourites[name] = true
-			favourite_icon.alpha = 1
-			print("Added " .. name .. " to Favourites")
-		end
-
-		globalData.writeFavourites()
-	end
-
-
-	cookbook.recipe_group:insert(instruction_panel)
-	cookbook.recipe_group:insert(ingredient_panel)
-
-	cookbook.title_group:insert(title_background)
-	cookbook.title_group:insert(title)
-	cookbook.title_group:insert(back_button)
-	cookbook.title_group:insert(back_text)
-	cookbook.title_group:insert(favourite_button)
-	cookbook.title_group:insert(unfavourite_icon)
-	cookbook.title_group:insert(favourite_icon)
-
-	for index, food_value in pairs(globalData.menu[name].ingredients) do
-		table_val = globalData.menu[name].ingredients[index]
-		step_val  = globalData.menu[name].steps[index]
-		insertIngredient(table_val.name, table_val.text_amount, table_val.unit, table_val.amount)
-		insertStep(step_val)
-	end
-
-	cookbook.recipe_group:insert(cookbook.step_group)
-	cookbook.recipe_group:insert(cookbook.ingredient_group)
-	cookbook.recipe_group:insert(cookbook.title_group)
-
-	cookbook.recipe_group:insert(vertical_dividing_line1)
-	cookbook.recipe_group:insert(vertical_dividing_line2)
-	cookbook.recipe_group:insert(horizontal_dividing_line)
-	cookbook.recipe_group:insert(small_div_line1)
-	cookbook.recipe_group:insert(small_div_line2)
-	cookbook.recipe_group:insert(move_tab_line)
-	cookbook.recipe_group:insert(favourite_icon)
-	move_tab_line:toBack()
-
-	-- Add event listeners
-	if cookbook.ingredient_level - 0.5*cookbook.ingredient_level_delta - cookbook.div_y > ingredient_panel.height then
-		ingredient_panel:addEventListener("touch", onTouchIngredient)
-	end
-
-	if cookbook.step_level - 0.5*cookbook.step_level_delta - cookbook.div_y > instruction_panel.height then
-		instruction_panel:addEventListener("touch", onTouchStep)
-	end
-
-	back_button:addEventListener("touch", onTouchBack)
-	favourite_button:addEventListener("tap", onFavouriteTouch)
-	-- move_tab_line:addEventListener("touch", moveTab)
-
-	return cookbook.recipe_group
-end
-
-
 
 
 function cookbook.findRecipe(search_word)
@@ -629,13 +309,45 @@ function cookbook.searchMenu(search_word)
 
 		if foodname:lower() == search_word then
 			result_options[foodname] = true
-			print("Found it exactly")
+			-- print("Found it exactly")
 		end
 
 		for i = 1,#foodname,1 do 
 			if foodname:lower():sub(i,i+word_length-1) == search_word then
 				result_options[foodname] = true
-				print("Found it")
+				-- print("Found it")
+			end
+		end
+
+	end
+
+	return(result_options)
+end 
+
+function cookbook.searchIngredients(search_word)
+	search_word = search_word:lower()
+	result_options = {}
+
+	if search_word == "" then
+		return {}
+	end
+
+	local word_length = #search_word
+
+	for foodname, value in pairs(cookbook.ingredientList) do
+
+		-- print(foodname)
+		-- foodname = foodname:lower()
+
+		if foodname:lower() == search_word then
+			result_options[foodname] = true
+			-- print("Found it exactly")
+		end
+
+		for i = 1,#foodname,1 do 
+			if foodname:lower():sub(i,i+word_length-1) == search_word then
+				result_options[foodname] = true
+				-- print("Found it")
 			end
 		end
 
@@ -649,64 +361,251 @@ end
 function cookbook.createTabBar()
 	local tab_group  = display.newGroup()
 	local tab_height = globalData.tab_height
+	local width = 0.8*display.contentWidth
 
-	local tab_titles 	= {'Browse','Favourites','Add Recipe','Settings'} --'Custom Search'
+	local tab_titles 	= {'Cookbook','Favourites','New Recipe'} --,'Settings'} --'Custom Search'
 	local page_titles 	= {"BrowsePage", "FavouritesPage", "NewRecipePage", "Settings"} -- "CustomPage",
-	local icon_paths 	= {"Recipe-App-Icon-Transparent.png", "Star.png", "Recipe-Card-Graphic.png", "Settings-Graphic.png"}
+	local icon_paths 	= {"Small-Recipe-App-Icon-Transparent.png", "Small-Star.png", "Small-Recipe-Card-Graphic.png", "Small-Settings-Graphic.png"}
 	local num_tabs 		= #tab_titles
 
-	local tab_bar = display.newRect(tab_group, display.contentCenterX, 0.5*tab_height, display.contentWidth, tab_height)
-	tab_bar:setFillColor(unpack(globalData.tab_color))
-	tab_bar.strokeWidth = 2
-	tab_bar:setStrokeColor(unpack(globalData.dark_grey))
+	local tab_bar = display.newRoundedRect(tab_group, display.contentCenterX, 0.5*tab_height, display.contentWidth, tab_height, 0.00*display.contentWidth)
+	tab_bar:setFillColor(unpack(app_colors.tab_bar.background))
+	tab_bar:setStrokeColor(unpack(app_colors.tab_bar.outline))
 
-	local icon_height 	= 0.5*tab_height
+	local shadow = display.newRect(tab_group, display.contentCenterX, 0.5*tab_height, display.contentWidth, tab_height)
+	shadow:setFillColor(0,0,0,0.2)
+	shadow:translate(0, 0.1*tab_height)
+	shadow:toBack()
+
+	local underline = display.newLine(tab_group, 0, tab_height, display.contentWidth, tab_height)
+	underline.strokeWidth = 4
+	underline:setStrokeColor(unpack(app_colors.recipe.outline))
+
+	-- Find the direction to transition in order to move pages naturally
+	local function findDirection(last_name, this_name)
+		local last_index, this_index
+
+		if this_name == "Settings" then return "slideRight" end
+
+		for i = 1,#page_titles,1 do
+			if page_titles[i] == last_name then
+				last_index = i
+			end
+
+			if page_titles[i] == this_name then
+				this_index = i
+			end
+		end
+
+		if last_index < this_index then
+			return "slideLeft"
+		elseif last_index > this_index then
+			return "slideRight"
+		else
+			return nil
+		end
+	end
+
+	local icon_height 	= 0.07*display.contentWidth
 	local icon_spacing 	= 0.1*display.contentWidth
-	local icon_loc		= 0.5*icon_spacing
+	local icon_loc		= 0.7*icon_spacing
 
-	-- local tab_width  = 1/num_tabs*display.contentWidth
+	local tab_width  = 1/num_tabs*width
+
+	local buttons = {}
+	local active_index = 4
 
 	for i = 1,num_tabs,1 do
-		local icon_background = display.newRoundedRect(tab_group, icon_loc, 0.5*tab_height, 1.3*icon_height, 1.3*icon_height, 0.1*tab_height)
-		icon_background:setFillColor(unpack(globalData.tab_color))
-		icon_background.id = "bkgd-" .. page_titles[i]
+		local button
 
-		function icon_background:tap(event)
+		local function onTap(event)
+			local old_one = globalData.activeScene
+			if old_one == page_titles[i] then return true end
+
 			globalData.activeScene = page_titles[i]
-			composer.gotoScene(page_titles[i])
-		end
-		icon_background:addEventListener("tap", icon_background)
+			for i = 1,#buttons,1 do
+				buttons[i]:setBackgroundColor({1,1,1,0.1})
+				if i == #buttons then buttons[i]:setBackgroundColor({1,1,1,0.01}) end
+			end
+			button:setBackgroundColor({1,1,1,0.2})
+			composer.gotoScene(page_titles[i], {effect = findDirection(old_one, page_titles[i]), time = globalData.transition_time})
+			return true
+		end 
 
-		local icon = display.newImageRect(tab_group, "Image Assets/"..icon_paths[i], icon_height, icon_height)
-		icon.x = icon_loc
-		icon.y = 0.5*tab_height
+		local options = {label = tab_titles[i], color = {1,1,1,0.1}, labelColor = app_colors.tab_bar.button_text, tap_func = onTap, fontSize = globalData.smallFontSize, displayGroup = tab_group, font = native.systemFontBold, radius = 30}
+		button = tinker.newButton((i-1)*tab_width + tab_width/2, 0.5*tab_height, 0.8*tab_width, 0.7*tab_height, options)
+		button.id = "bkgd-" .. page_titles[i]
+		button.count = i
 
-		icon_loc = icon_loc + icon_spacing
+		-- local div_line = display.newLine(tab_group, i*tab_width, 0.1*tab_height, i*tab_width, 0.9*tab_height)
+		-- div_line.strokeWidth = 3
+		-- div_line:setStrokeColor(0,0,0,0.5)
+
+		if globalData.activeScene == page_titles[i] then active_index = i end
+
+		table.insert(buttons, button)
 	end
 
-	local searchGroup = display.newGroup()
-	tab_group:insert(searchGroup)
+	local settings_button
+	local function goToSettings(event)
+		if globalData.activeScene == "Settings" then return true end
 
-	local function textListener(event)
-		globalData.parseMenuSearch(event, searchGroup)
+		globalData.activeScene = "Settings"
+		for i = 1,#buttons,1 do
+			buttons[i]:setBackgroundColor({1,1,1,0.1})
+		end
+		settings_button:setBackgroundColor({1,1,1,0.2})
+
+		globalData.activeScene = "Settings"
+		composer.gotoScene("Settings", {effect = "slideLeft", time = globalData.transition_time})
+		return true
+	end 
+
+	local options = {image = "Image Assets/Small-Settings-Graphic.png", tap_func = goToSettings, displayGroup = tab_group, color = {0,0,0,0.01}}
+	-- settings_button = tinker.newButton(0.95*display.contentWidth, 0.5*tab_height, 0.8*tab_height, 0.8*tab_height, options)
+	settings_button = tinker.newDot(0.95*display.contentWidth, 0.5*tab_height, 0.4*tab_height, options)
+	settings_button.id = "bkgd-Settings"
+	table.insert(buttons, settings_button)
+
+	buttons[active_index]:setBackgroundColor({1,1,1,0.2})
+
+
+	-- ----------------------------- --
+	-- ------- Search Button ------- --
+	-- ----------------------------- --
+	local search_button
+
+	-- ------ Search Bar ------- --
+	local function createSearchBar(event)
+		local search_group = display.newGroup()
+		local options_group = display.newGroup()
+		search_group:insert(options_group)
+
+		local options = {radius = 0.025*display.contentHeight, textColor = app_colors.tab_bar.search_text, backgroundColor = app_colors.tab_bar.search_bkgd, 
+						 defaultText = "Search Recipes...", displayGroup = search_group, strokeWidth = 5, strokeColor = app_colors.tab_bar.outline}
+		local search_bar = tinker.newTextField(display.contentCenterX, 2*tab_height, 0.8*display.contentWidth, 0.05*display.contentHeight, options)
+		search_bar.alpha = 0
+
+		local glass_screen = display.newRect(search_group, display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
+		glass_screen:setFillColor(0,0,0,0.3)
+		glass_screen:addEventListener("tap", function(event) native.setKeyboardFocus(nil); search_group:removeSelf(); return true; end)
+		glass_screen:addEventListener("touch", function(event) return true end)
+
+		glass_screen:toBack()		
+
+		transition.to(search_bar, {time = 300, alpha = 1})
+
+		-- Search Bar Listener
+		local function searchFoods(event)
+			if not event.text then return end
+
+			for i = 1,options_group.numChildren,1 do
+				options_group:remove(1)
+			end
+
+			local possible_foods = cookbook.searchMenu(event.text)
+			local delta_y = 1.5*search_bar.height
+			local y = 3*tab_height
+			local count = 0
+
+			for name, value in pairs(possible_foods) do
+				local function tap_func(event)
+					composer.gotoScene("ViewRecipePage", {effect = "slideRight", time = globalData.transition_time, params = {name = name}})
+				end
+
+				local params = {label = name, displayGroup = options_group, radius = 20, tap_func = tap_func}
+				local option = tinker.newButton(display.contentCenterX, y, search_bar.width, search_bar.height, params)
+			
+				y = y + delta_y
+				count = count + 1
+				if count == 11 then break end
+			end
+		end
+		search_bar:addEventListener("userInput", searchFoods)
+
+		-- Set Keyboard Focus
+		search_bar._background:dispatchEvent({name = "tap", x = display.contentCenterX})
+
 		return true
 	end
-	globalData.search_bar:addEventListener("userInput", textListener)
+
+	local options = {image = "Image Assets/Small-Magnifying-Glass-Graphic.png", tap_func = createSearchBar, displayGroup = tab_group, color = {0,0,0,0.01}}
+	search_button = tinker.newButton(settings_button.x - settings_button.width, settings_button.y, settings_button.width, settings_button.height, options)
 
 	return tab_group
 end
 
+-- function cookbook.createTabBar()
+-- 	local tab_group  = display.newGroup()
+-- 	local tab_height = globalData.tab_height
+
+-- 	local tab_titles 	= {'Browse','Favourites','Add Recipe','Settings'} --'Custom Search'
+-- 	local page_titles 	= {"BrowsePage", "FavouritesPage", "NewRecipePage", "Settings"} -- "CustomPage",
+-- 	local icon_paths 	= {"Small-Recipe-App-Icon-Transparent.png", "Small-Star.png", "Small-Recipe-Card-Graphic.png", "Small-Settings-Graphic.png"}
+-- 	local num_tabs 		= #tab_titles
+
+-- 	local tab_bar = display.newRect(tab_group, display.contentCenterX, 0.5*tab_height, display.contentWidth, tab_height)
+-- 	tab_bar:setFillColor(unpack(app_colors.tab_bar.background))
+-- 	tab_bar.strokeWidth = 2
+-- 	tab_bar:setStrokeColor(unpack(app_colors.tab_bar.outline))
+
+-- 	local icon_height 	= 0.07*display.contentWidth
+-- 	local icon_spacing 	= 0.1*display.contentWidth
+-- 	local icon_loc		= 0.7*icon_spacing
+
+-- 	-- local tab_width  = 1/num_tabs*display.contentWidth
+
+-- 	for i = 1,num_tabs,1 do
+-- 		local icon_background = display.newRoundedRect(tab_group, icon_loc, 0.5*tab_height, 1.3*icon_height, 1.3*icon_height, 0.1*tab_height)
+-- 		icon_background:setFillColor(unpack(globalData.tab_color))
+-- 		icon_background.id = "bkgd-" .. page_titles[i]
+
+-- 		function icon_background:tap(event)
+-- 			print(page_titles[i])
+-- 			globalData.activeScene = page_titles[i]
+-- 			composer.gotoScene(page_titles[i])
+-- 			return true
+-- 		end
+-- 		icon_background:addEventListener("tap", icon_background)
+
+-- 		local icon = display.newImageRect(tab_group, "Image Assets/"..icon_paths[i], icon_height, icon_height)
+-- 		icon.x = icon_loc
+-- 		icon.y = 0.5*tab_height
+
+-- 		icon_loc = icon_loc + icon_spacing
+-- 	end
+
+-- 	local options = {rounded = false, defaultText = "Search", strokeWidth = 4, strokeColor = globalData.dark, tapOutside = false, centered = false}
+-- 	local search_bar = tinker.newTextField(0.7*display.contentWidth, 0.5*globalData.tab_height, 0.5*display.contentWidth, 0.6*globalData.tab_height, options)
+-- 	tab_group:insert(search_bar)
+
+-- 	local searchGroup = display.newGroup()
+-- 	searchGroup.y = 0.5*globalData.tab_height
+-- 	searchGroup.x = search_bar.x
+-- 	tab_group:insert(searchGroup)
+
+-- 	local function textListener(event)
+-- 		globalData.parseMenuSearch(event, searchGroup, {width = search_bar.width, height = search_bar.height, strokeWidth = options.strokeWidth})
+-- 		return true
+-- 	end
+-- 	search_bar:addEventListener("userInput", textListener)
+
+-- 	return tab_group
+-- end
+
 function cookbook.updateTabBar(tab_group)
 	for i = 1,tab_group.numChildren,1 do
 		if tab_group[i].id then
-			print(tab_group[i].id:sub(6))
+			-- print(tab_group[i].id:sub(6))
 			if tab_group[i].id:sub(6) == globalData.activeScene then
-				tab_group[i]:setFillColor(unpack(globalData.dark_grey))
-				print("Colour Filled")
+				tab_group[i]:setBackgroundColor({0,0,0,0.1})
+				-- tab_group[i]:setFillColor(unpack(app_colors.tab_bar.selected))
+				-- print("Colour Filled")
 
 			elseif tab_group[i].id:sub(1,4) == "bkgd" then
-				tab_group[i]:setFillColor(unpack(globalData.tab_color))
-				print("Set to invis")
+				tab_group[i]:setBackgroundColor({0,0,0,0.01})
+				-- tab_group[i]:setFillColor(unpack(app_colors.tab_bar.background))
+				-- print("Set to invis")
 
 			end
 		end
@@ -715,6 +614,57 @@ function cookbook.updateTabBar(tab_group)
 	return tab_group
 end
 
+function cookbook.tempTabBar(title, back_text, back_page, next_text, next_page)
+	local group = display.newGroup()
+	local tab_height = globalData.tab_height
+
+	local tab_bar = display.newRect(group, display.contentCenterX, 0.5*tab_height, display.contentWidth, tab_height)
+	tab_bar:setFillColor(unpack(app_colors.tab_bar.background))
+	tab_bar:setStrokeColor(unpack(app_colors.tab_bar.outline))
+	tab_bar.strokeWidth = 3
+
+	local function back_tap(event)
+		globalData.activeScene = back_page
+		if back_page == "NewRecipePage" then
+			composer.gotoScene(back_page, {effect = "slideDown", time = globalData.transition_time})
+		else
+			composer.gotoScene(back_page, {effect = "slideRight", time = globalData.transition_time})
+		end
+	end
+
+	local back_params = {label = back_text, tap_func = back_tap, color = {1,1,1,0.1}, labelColor = app_colors.tab_bar.button_text, radius = 0.02*display.contentWidth, fontSize = globalData.mediumFontSize}
+	local back_button = tinker.newButton(0.03*display.contentWidth, 0.5*tab_height, 0.25*display.contentWidth, 0.8*tab_height, back_params)
+	back_button.anchorX = 0
+	back_button.id = back_page
+	group:insert(back_button)
+
+	local function next_tap(event)
+		globalData.activeScene = next_page
+		composer.gotoScene(next_page, {effect = "slideLeft", time = globalData.transition_time})
+	end
+
+	local next_params = {label = next_text, tap_func = next_tap, color = {1,1,1,0.1}, labelColor = app_colors.tab_bar.button_text, radius = 10, radius = 0.02*display.contentWidth, fontSize = globalData.mediumFontSize}
+	local next_button = tinker.newButton(0.97*display.contentWidth, 0.5*tab_height, 0.25*display.contentWidth, 0.8*tab_height, next_params)
+	next_button.anchorX = next_button.width
+	next_button.id = next_page
+	group:insert(next_button)
+
+	local title = display.newText({text = title,
+								   x = display.contentCenterX,
+								   y = 0.5*tab_height,
+								   width = 0.45*display.contentWidth,
+								   fontSize = globalData.titleFontSize,
+								   font = native.systemFontBold,
+								   align = "center"})
+	title:setFillColor(unpack(app_colors.tab_bar.title))
+	group:insert(title)
+
+	while title.height > 0.9*tab_height do
+		title.size = 0.95*title.size
+	end
+
+	return group
+end
 
 
 
@@ -728,8 +678,8 @@ function cookbook.getAlphabetizedList(table_input)
 				return(false)
 			end
 
-			letter1 = a:sub(i,i)
-			letter2 = b:sub(i,i)
+			letter1 = a:sub(i,i):lower()
+			letter2 = b:sub(i,i):lower()
 
 			if letter1 < letter2 then
 				return true
@@ -770,51 +720,76 @@ function cookbook.getAlphabetizedList(table_input)
 end
 
 
-function cookbook.createFoodPanel(title, x, y, width, height)
+function cookbook.createFoodPanel(title, x, y, width, height, parent, color, text_color)
 	local panel_group = display.newGroup()
 
-	local panel = display.newRoundedRect(0, 0, width, height, 0.05*height)
+	local panel = display.newRoundedRect(panel_group, 0, 0, width, height, 0.1*height)
 	panel.id = "panel"
-	panel:setFillColor(unpack(globalData.panel_color))
-	-- panel.fill = {type = "image", filename = "Image Assets/Settings-Graphic.png"}
-	panel.strokeWidth = 2
-	panel:setStrokeColor(0.1)
+	panel:setFillColor(unpack(color))
+
+	local has_image = globalData.gallery[title] ~= nil
+	if globalData.gallery[title] then
+
+		panel.fill = {	type 		= "image",
+						filename 	= globalData.textures[title].filename,
+						baseDir 	= globalData.textures[title].baseDir}
+
+	end
+
+	local panel_shadow = display.newRoundedRect(panel_group, -0.015*display.contentWidth, 0.02*display.contentWidth, width, height, 0.1*height)
+	panel_shadow.id = "panel_shadow"
+	panel_shadow:setFillColor(0,0,0,0.4)
 
 	local panel_text_params = {text = title,
 							   x = -0.47*panel.width,
-							   y = -0.35*panel.height,
-							   width = 0.8*panel.width,
+							   y = -0.15*panel.height,
+							   width = 0.6*panel.width,
 							   height = 0,
 							   font = native.systemFontBold,
-							   fontSize = 0.1*math.sqrt(panel.height*panel.width),
+							   fontSize = 0.08*math.sqrt(panel.height*panel.width),
 							   align = "left"}
 	local panel_text = display.newText(panel_text_params)
-	panel_text:setFillColor(unpack(globalData.light_text_color))
+	panel_text:setFillColor(has_image and 1 or unpack(app_colors.browse.recipe_title))
 	panel_text.anchorX = 0
 	panel_text.anchorY = 0
 
-	local ingredient_count = #globalData.menu[title].ingredients
-	local step_count = #globalData.menu[title].steps
-	local ingredient_text_params = panel_text_params
-	ingredient_text_params.y = -panel_text_params.y
-	ingredient_text_params.fontSize = 0.8*ingredient_text_params.fontSize
-	ingredient_text_params.text = ingredient_count .. " Ingredients            " .. step_count .. " Steps"
-	local ingredient_text = display.newText(ingredient_text_params)
-	ingredient_text:setFillColor(0.3)
-	ingredient_text.anchorX = 0
+	local prep_text = globalData.menu[title].prep_time
+	if prep_text and prep_text ~= "" then
+		local prep_time = display.newText({	text = "Prep Time: " .. prep_text,
+										 	x = -0.45*width,
+										 	y = 0.25*panel.height,
+										 	width = 0.6*width,
+										 	fontSize = globalData.smallFontSize})
+		prep_time.anchorY = 0
+		prep_time.anchorX = 0
+		prep_time:setFillColor(has_image and 1 or unpack(app_colors.browse.recipe_info))
+		panel_group:insert(prep_time)
+	end
 
-	panel_group:insert(panel)
-	panel_group:insert(ingredient_text)
+	local cook_text = globalData.menu[title].cook_time
+	if cook_text and cook_text ~= "" then
+		local cook_time = display.newText({	text = "Cook Time: " .. cook_text,
+										 	x = -0.45*width,
+										 	y = 0.25*panel.height + 0.1*height,
+										 	width = 0.6*width,
+										 	fontSize = globalData.smallFontSize})
+		cook_time.anchorY = 0
+		cook_time.anchorX = 0
+		cook_time:setFillColor(has_image and 1 or unpack(app_colors.browse.recipe_info))
+		panel_group:insert(cook_time)
+	end
+
+	-- panel_group:insert(ingredient_text)
 	panel_group:insert(panel_text)
 
-	local star = display.newImageRect("Image Assets/Star.png", 0.07*panel.width, 0.07*panel.width)
+	local star = display.newImageRect("Image Assets/Small-Star.png", 0.07*panel.width, 0.07*panel.width)
 	star.x = 0.4*panel.width
-	star.y = ingredient_text.y
+	star.y = 0.35*panel.height
 	panel_group:insert(star)
 
-	local empty_star = display.newImageRect("Image Assets/Empty Star.png", 0.07*panel.width, 0.07*panel.width)
+	local empty_star = display.newImageRect("Image Assets/Small-Empty Star.png", 0.07*panel.width, 0.07*panel.width)
 	empty_star.x = 0.4*panel.width
-	empty_star.y = ingredient_text.y
+	empty_star.y = star.y
 	panel_group:insert(empty_star)
 
 	if not globalData.favourites[title] then
@@ -836,13 +811,75 @@ function cookbook.createFoodPanel(title, x, y, width, height)
 		globalData.writeFavourites()
 		return true
 	end
-
 	empty_star:addEventListener("tap", empty_star)
+
+	-- Edit Icon
+	local edit_image = "Image Assets/White-Edit-Graphic.png"
+	if app_colors.scheme == "light" and not has_image then edit_image = "Image Assets/Edit-Graphic.jpg" end
+	local edit_params = {image = edit_image, tap_func = function(event) return cookbook.editRecipe(title) end, color = {0,0,0,0.01}}
+	local edit_button = tinker.newButton(0.4*width, -0.15*height, 0.2*height, 0.2*height, edit_params)
+	panel_group:insert(edit_button)
+
+	-- Trash Icon
+	local trash_image = "Image Assets/White-Trash-Graphic.png"
+	if app_colors.scheme == "light" and not has_image then trash_image = "Image Assets/Trash-Graphic-Simple.png" end
+	local trash_icon = display.newImageRect(panel_group, trash_image, empty_star.width, empty_star.height)
+	trash_icon.x = 0.25*panel.width
+	trash_icon.y = empty_star.y
+
+	-- Function To Delete a Food From Memory
+	function trash_icon:tap(event)
+		local function trash_listener(event)
+			if event.index == 1 then 
+				globalData.menu[title] = nil
+				globalData.favourites[title] = nil
+				globalData.writeCustomMenu()
+				globalData.deleteFoodImage(title)
+				composer.gotoScene(globalData.activeScene)
+
+			end
+		end
+		native.showAlert("What's On The Menu", "Are you sure you want to delete \"" .. title .. "\"?", {"Yes, I'm Sure", "Cancel"}, trash_listener )
+
+		return true
+	end
+	trash_icon:addEventListener("tap", trash_icon)
+
+	local function image_listener(event)
+
+		local function selectListener(event)
+			if event.index == 1 then
+				cookbook.captureFoodImage(title)
+
+			elseif event.index == 2 then
+				cookbook.selectFoodImage(title)
+
+			elseif event.index == 3 then
+				globalData.deleteFoodImage(title)
+				composer.gotoScene(globalData.activeScene)
+			end
+		end
+
+		local options = {"Take Photo", "Select From Device"}
+		if globalData.gallery[title] then
+			table.insert(options, "Delete Photo")
+		end
+		native.showAlert("Corona", "Select Photo Method", options, selectListener)
+		return true
+	end
+
+	local image_image = "Image Assets/Small-White-Camera-Graphic.png"
+	if app_colors.scheme == "light" and not has_image then image_image = "Image Assets/Small-Camera-Graphic.png" end
+	local image_params = {image = image_image, color = {0,0,0,0.01}, tap_func =  image_listener}
+	local image_button = tinker.newButton(trash_icon.x - 0.15*width, trash_icon.y, trash_icon.width, trash_icon.height, image_params)
+	panel_group:insert(image_button)
 
 	panel_group.x = x
 	panel_group.y = y
 
 	panel_group.id = title
+
+	panel_shadow:toBack()
 
 	return panel_group
 end
@@ -899,7 +936,7 @@ function cookbook.convertUnit(value, old_unit, new_unit, food_name)
 	elseif masses[old_unit] and masses[new_unit] then
 		-- Converting to a mass
 		gram_val = value*convertToGram[old_unit]
-		new_val  = gram_val*convertFromGram
+		new_val  = gram_val*convertFromGram[new_unit]
 	end
 
 	-- Convert beween Mass and Volume
@@ -953,9 +990,28 @@ function cookbook.createUnitTab(current_unit, x_level, y_level, amount_text, amo
 	unit_group:insert(glass_screen)
 	-------------------------------------------|
 
-	local labels = {'Cup', 'Tsp', 'Tbsp', 'Fl oz', 'mL'}
+	local labels = {}
+	if cookbook.volumes[current_unit:lower()] then
+		labels = {'Cup', 'Tsp', 'Tbsp', 'Fl oz', 'mL'}
 
-	if cookbook.densities[food:lower()] then
+		if cookbook.densities[food:lower()] then
+			table.insert(labels, "g")
+			table.insert(labels, "oz")
+			table.insert(labels, "kg")
+			table.insert(labels, 'lb')
+		end
+
+	elseif cookbook.masses[current_unit:lower()] then
+		labels = {}
+
+		if cookbook.densities[food:lower()] then
+			table.insert(labels, "Cup")
+			table.insert(labels, "Tsp")
+			table.insert(labels, "Tbsp")
+			table.insert(labels, "Fl oz")
+			table.insert(labels, "mL")
+		end
+
 		table.insert(labels, "g")
 		table.insert(labels, "oz")
 		table.insert(labels, "kg")
@@ -975,8 +1031,12 @@ function cookbook.createUnitTab(current_unit, x_level, y_level, amount_text, amo
 
 			if current_unit == "" or current_unit == "count" then
 				amount_text.text = amount_text.text
-			elseif self.id == "Fl oz" or self.id == "oz" or self.id == "g" or self.id == "mL" then
+			elseif self.id == "Fl oz" or self.id == "oz" or self.id == "g" or self.id == "mL" or self.id == "kg" then
 				amount_text.text = (new_value - new_value % 1) .. "\n" .. self.id 
+
+				if amount_text.text:sub(1,1) == "0" then
+					amount_text.text = string.format("%.2f", new_value) .. "\n" .. self.id
+				end
 			else
 				amount_text.text = cookbook.getFraction(new_value) .. "\n" .. self.id
 			end
@@ -1010,6 +1070,99 @@ function cookbook.createUnitTab(current_unit, x_level, y_level, amount_text, amo
 	return(unit_group)
 end
 
+
+function cookbook.showUnitCircle(unit, amount_text, amount, foodname)
+	if unit == "" or unit:lower() == "count" then return true end
+
+	local labels = {}
+	if cookbook.volumes[unit:lower()] then
+		labels = {'Cup', 'Tsp', 'Tbsp', 'Fl oz', 'mL'}
+
+		if cookbook.densities[foodname:lower()] then
+			table.insert(labels, "g")
+			table.insert(labels, "oz")
+			-- table.insert(labels, "kg")
+			table.insert(labels, 'lb')
+		end
+
+	elseif cookbook.masses[unit:lower()] then
+		labels = {}
+
+		if cookbook.densities[foodname:lower()] then
+			table.insert(labels, "Cup")
+			table.insert(labels, "Tsp")
+			table.insert(labels, "Tbsp")
+			table.insert(labels, "Fl oz")
+			table.insert(labels, "mL")
+		end
+
+		table.insert(labels, "g")
+		table.insert(labels, "oz")
+		-- table.insert(labels, "kg")
+		table.insert(labels, 'lb')
+	end
+
+	local group = display.newGroup()
+
+	local iter = 1
+	local function spawnDot(event)
+		local label
+		local new_unit = labels[iter]
+		local new_amount = cookbook.convertUnit(amount, unit, new_unit, foodname)
+
+		if new_unit == "lb" or new_unit == "Fl oz" or new_unit == "oz" or new_unit == "g" or new_unit == "mL" or new_unit == "kg" then
+			label = (new_amount - new_amount % 1) .. "\n" .. new_unit
+
+			if label:sub(1,1) == "0" then
+				label = string.format("%.2f", new_amount) .. "\n" .. new_unit
+			end
+		else
+			label = cookbook.getFraction(new_amount) .. "\n" .. new_unit
+		end
+
+		local function replaceText(event)
+			amount_text.text = label
+			group:removeSelf()
+			return true
+		end
+
+		local params = {color = app_colors.recipe.title_bkgd, label = label, hasShadow = true, tap_func = replaceText, labelColor = app_colors.recipe.ing_text}
+		local offset = 0.35*display.contentWidth
+		local x = display.contentCenterX + offset*math.sin((iter-1)*2*math.pi/#labels)
+		local y = display.contentCenterY - offset*math.cos((iter-1)*2*math.pi/#labels)
+		local dot = tinker.newDot(display.contentCenterX,display.contentCenterY,0.07*display.contentWidth, params)
+		group:insert(dot)
+
+		globalData.transitionTo(dot, x, y, 0.2)
+		iter = iter + 1
+	end
+
+	local function spawnLabel(event)
+		local foodname = foodname
+
+		for i =1,foodname:len(),1 do
+			if foodname:sub(i,i) == " " or foodname:sub(i,i) == "/" then
+				foodname = foodname:sub(1,i) .. "\n" .. foodname:sub(i+1)
+			end
+		end
+
+		local params = {color = app_colors.recipe.title_bkgd, label = foodname, hasShadow = true, labelColor = app_colors.recipe.ing_text, tap_func = function(event) return true end}
+		local offset = 0.35*display.contentWidth
+		local dot = tinker.newDot(display.contentCenterX,display.contentCenterY,0.1*display.contentWidth, params)
+		group:insert(dot)
+	end
+
+	spawnLabel()
+	spawnDot()
+	timer.performWithDelay(50, spawnDot, #labels-1)
+	-- timer.performWithDelay(50*#labels + 500, spawnLabel, 1)
+
+	local glass_screen = display.newRect(group, 0,0,2*display.contentWidth, 2*display.contentHeight)
+	glass_screen:setFillColor(0,0,0,0.3)
+	glass_screen:toBack()
+	glass_screen:addEventListener("tap", function(event) group:removeSelf(); return true end)
+end
+
 function cookbook.getFraction(number)
 
 	if number <= 0 then
@@ -1028,10 +1181,10 @@ function cookbook.getFraction(number)
 		local denom_table = allowable_denom_table[allowable_denominators]
 		local min_error = 1e6
 
+		local error_value
 		for i = 1,#denom_table,1 do
 			local fraction_value = math.round(decimal_value/(1/denom_table[i]))
-			local error_value = math.abs((integer_value + fraction_value/denom_table[i]) - number)
-			print(error_value)
+			error_value = math.abs((integer_value + fraction_value/denom_table[i]) - number)
 			if error_value <= min_error then
 				denominator = denom_table[i]
 				min_error = error_value
@@ -1058,7 +1211,9 @@ function cookbook.getFraction(number)
 			end
 		end
 
-		if string_number ~= "" then
+		if string_number == "" then string_number = "0" end
+
+		if error_value < 1e-2 or allowable_denominators == 2 then
 			return string_number
 		end
 
@@ -1068,7 +1223,6 @@ function cookbook.getFraction(number)
 end
 
 function cookbook.breakdownFraction(string_number)
-	print("Got :" .. string_number)
 
 	if #string_number == 1 and tonumber(string_number) then
 		return string_number, "0", "1"
@@ -1085,32 +1239,26 @@ function cookbook.breakdownFraction(string_number)
 		if string_number:sub(i,i) == " " then
 			has_integer = true
 			space_index = i
-			print("Found space at " .. i)
 		
 		elseif string_number:sub(i,i) == "/" then
 			has_fraction = true
 			divide_index = i
-			print("Found divide at " .. i)
 		end
 	end
 
 	local integer; local numerator; local denominator;
 
 	if has_fraction and has_integer then
-		print("Integer and fraction")
-		print(string_number)
 		integer = string_number:sub(1,space_index-1)
 		numerator = string_number:sub(space_index+1,divide_index-1)
 		denominator = string_number:sub(divide_index+1)
 
 	elseif has_integer then
-		print("just integer")
 		integer = string_number:sub(1,space_index-1)
 		numerator = "0"
 		denominator = "1"
 
 	elseif has_fraction then
-		print("just fraction")
 		integer = "0"
 		numerator = string_number:sub(1,divide_index-1)
 		denominator = string_number:sub(divide_index+1)
@@ -1152,6 +1300,75 @@ function cookbook.createStar(OD, ID, points)
 	star:setFillColor(0.9, 0.9, 0)
 
 	return star
+end
+
+function cookbook.editRecipe(title)
+	cookbook.newRecipeTitle = title
+	cookbook.newRecipeIngredientList = {}
+	cookbook.newRecipeSteps = {}
+	cookbook.newRecipeParams = {}
+
+	for index, ingredient in pairs(globalData.menu[title].ingredients) do
+		cookbook.newRecipeIngredientList[ingredient.name] = {amount = ingredient.amount, text_amount = ingredient.text_amount, unit = ingredient.unit} 
+	end
+
+	for index, step in pairs(globalData.menu[title].steps) do
+		table.insert(cookbook.newRecipeSteps, step)
+	end
+
+	cookbook.newRecipeParams = {cook_time = globalData.menu[title].cook_time, prep_time = globalData.menu[title].prep_time}
+	globalData.activeScene = "NewRecipePage"
+	composer.gotoScene("NewRecipePage", {params = {name = title, prep_time = globalData.menu[title].cook_time, cook_time = globalData.menu[title].prep_time}})
+	return true
+end
+
+function cookbook.captureFoodImage(title)
+
+	local filename = "Food_Images__"..title..".png"
+	local function recordImage(event) 
+		local test_image = display.newImage(filename, system.DocumentsDirectory)
+		globalData.gallery[title] = {width = test_image.width, height = test_image.height, source = "camera"}
+		test_image:removeSelf()
+
+		if globalData.textures[title] then
+			globalData.textures[title]:releaseSelf()
+			globalData.textures[title] = nil
+		end
+		composer.removeScene(globalData.activeScene)
+
+		-- globalData.textures[title] = graphics.newTexture({type = "image", filename = filename, baseDir = system.DocumentsDirectory})
+		globalData.saveMenuImages()
+		-- globalData.textures[title]:preload()
+		
+		composer.gotoScene(globalData.activeScene)
+	end
+
+	-- recordImage({target = display.newRect(0,0,100,100)})
+	media.capturePhoto( { listener = recordImage, destination = {baseDir = system.DocumentsDirectory, filename = filename }} )
+end
+
+function cookbook.selectFoodImage(title)
+
+	local filename = "Food_Images__"..title..".png"
+	local function recordImage(event)
+		local test_image = display.newImage(filename, system.DocumentsDirectory)
+		globalData.gallery[title] = {width = test_image.width, height = test_image.height, source = "gallery"}
+		test_image:removeSelf()
+
+		if globalData.textures[title] then
+			globalData.textures[title]:releaseSelf()
+			globalData.textures[title] = nil
+		end
+		composer.removeScene(globalData.activeScene)
+
+		-- globalData.textures[title] = graphics.newTexture({type = "image", filename = filename, baseDir = system.DocumentsDirectory})
+		globalData.saveMenuImages()
+		-- globalData.textures[title]:preload()
+
+		composer.gotoScene(globalData.activeScene)
+	end
+
+	media.selectPhoto({ listener = recordImage , mediaSource = media.PhotoLibrary, destination = {baseDir = system.DocumentsDirectory, filename = "Food_Images__"..title..".png"}} )
 end
 
 return cookbook

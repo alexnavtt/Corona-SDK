@@ -1,5 +1,4 @@
--- custom library for the cookbook app
-
+-- Custom library for the cookbook app
 local cookbook = {}
 local globalData = require("globalData")
 local widget = require("widget")
@@ -10,223 +9,31 @@ local colors = require("Palette")
 local app_colors = require("AppColours")
 local transition = require("transition")
 
--- Density is measured in gram/Cup
-cookbook.densities  =  {["flour"]			= 120,
-						["baking powder"] 	= 12,
-						["baking soda"] 	= 2*48*3,
-						["bread crumbs"] 	= 4*28,
-						["brown sugar"]		= 213,
-						["butter"] 			= 2*113,
-						["buttermilk"] 		= 227,
-						["parmesan cheese"] = 2*50,
-						["chocolate chips"] = 170,
-						["cinnamon sugar"] 	= 4*50,
-						["coconut oil"] 	= 2*113,
-						["cornmeal"] 		= 150,
-						["cornstarch"] 		= 4*28,
-						["cream"] 			= 227,
-						["heavy whipping cream"] = 227,
-						["light cream"] 	= 227,
-						["half and half"] 	= 227,
-						["cream cheese"] 	= 227,
-						["eggs"]			= 220,
-						["garlic"] 			= 8*28,
-						["granola"] 		= 113,
-						["honey"] 			= 16*21,
-						["lard"]			= 2*113,
-						["marshmallow"] 	= 43,
-						["mashed potato"] 	= 213,
-						["mayonnaise"]		= 2*113,
-						["mayo"] 			= 2*113,
-						["milk"] 			= 227,
-						["olive oil"] 		= 200,
-						["olives"] 			= 142,
-						["onions"]			= 142,
-						["peanut butter"] 	= 2*135,
-						["pumpkin"] 		= 227,
-						["raisins"] 		= 149,
-						["rice"] 			= 198,
-						["salt"] 			= 16*18,
-						["sour cream"] 		= 227,
-						["sugar"] 			= 198,
-						["vanilla extract"] = 16*14,
-						["vegetable oil"] 	= 198,
-						["water"] 			= 227,
-						["yeast"] 			= (1/2.25)*48*7}
 
-cookbook.essential_units = {"cup", "tsp", "tbsp", "fl oz", "ml", "g", "oz", "lb", "count"}
-
-cookbook.volumes =  {cup 	= true,
-					 tsp 	= true,
-					 tbsp 	= true,
-				 ["fl oz"]  = true,
-					 ml 	= true,
-					 l 		= true,
-					 pint 	= true,
-					 quart 	= true,
-					 gallon = true,
-					 dash 	= true,
-					 pinch 	= true}
-
-cookbook.masses =  {g  = true,
-					oz = true,
-					kg = true,
-					lb = true}
-
-cookbook.convertFromCup  = {cup 	= 1,
-					   		tsp 	= 48,
-					   		tbsp 	= 16,
-						["fl oz"] 	= 8,
-							ml 		= 236.6,
-							l 		= 0.2366,
-							pint 	= 0.5,
-							quart  	= 0.25,
-							gallon 	= 0.0625,
-							dash 	= 385,	
-							pinch	= 768}
-
-cookbook.convertFromGram = {g 	= 1,
-					   		kg 	= 0.001,
-					   		oz 	= 1/28.35,
-					   		lb  = 0.0022}
+-- Foods and Ingredients ----------------------------------
+local foods = require("Cookbook.cookbook_foods")
+cookbook.common_ingredients = foods.common_ingredients
+cookbook.meats 				= foods.meats
+cookbook.fruits_and_veggies = foods.fruits_and_veggies
+cookbook.starches 			= foods.starches
+cookbook.seasonings 		= foods.seasonings
+cookbook.dairy 				= foods.dairy
+cookbook.sauces 			= foods.sauces
+cookbook.nuts 				= foods.nuts
+-- ========================================================
 
 
--- INGREDIENTS
-cookbook.common_ingredients =	{["Flour"] 			= true,
-								["Salt"] 			= true,
-								["Black pepper"] 	= true,
-								["Cheese"] 			= true,
-								["Milk"] 			= true,
-								["Eggs"] 			= true,
-								["Olive oil"] 		= true,
-								["Vegetable oil"] 	= true,
-								["Potato"] 			= true,
-								["Sugar"]			= true,
-								["Brown Sugar"]		= true,
-								["Honey"] 			= true,
-								["Baking Powder"]	= true,
-								["Baking Soda"]		= true,
-								["Water"]			= true}
 
-cookbook.meats = {				["Chicken breasts"] = true,
-				  				["Chicken legs"] 	= true,
-								["Chicken thighs"] 	= true,
-								["Chicken wings"]	= true,
-								["Chicken - whole"] = true,
-								["Lamb"]	 		= true,
-								["Beef"]	 		= true,
-								["Steak"]  			= true,
-								["Pork sausage"]	= true,
-								["Chicken sausage"] = true,
-								["Turkey sausage"] 	= true,
-								["Pork loins"]		= true,
-								["Pork chops"] 		= true,
-								['Shrimp']			= true,
-								['Shrimp - jumbo']  = true,
-								['Scallops'] 		= true,
-								['Fish']			= true,
-								['Ham'] 			= true}
+-- Measurements and Conversions ---------------------------
+local measurements = require("Cookbook.cookbook_measurements")
+cookbook.densities 		 = measurements.densities
+cookbook.essential_units = measurements.essential_units
+cookbook.volumes 		 = measurements.volumes
+cookbook.masses  		 = measurements.masses
+cookbook.convertFromCup  = measurements.convertFromCup
+cookbook.convertFromGram = measurements.convertFromGram
 
-cookbook.fruits_and_veggies =  {["Broccoli"] 		= true,
-							  	["Carrots"] 		= true,
-							  	["Apples"]			= true,
-							  	["Strawberries"]	= true,
-							  	["Celery"]	 		= true,
-							  	["Cabbage"]  		= true,
-							  	["Lettuce"] 		= true,
-							  	["Tomato"]			= true,
-							  	["Pumpkin"]			= true,
-							  	["Potato"]			= true,
-							  	["Eggplant"]		= true,
-							  	["Butternut squash"] = true,
-							  	["Zuchinni squash"]	 = true,
-							  	["Beets"] 			= true,
-							  	["Spinnach"]		= true,
-							  	["Chick peas"]		= true,
-							  	["Red beans"]		= true,
-							  	["Black beans"]		= true,
-							  	["Baked beans"] 	= true,
-							  	["Green beans"] 	= true,
-							  	["Peaches"] 		= true,
-							  	["Plums"] 			= true,
-							  	["Cherries"]		= true,
-							  	["Pears"]			= true,
-							  	["Raspberries"]		= true,
-							  	["Blackberries"]	= true,
-							  	["Onions"]			= true,
-							  	["Cucumbers"]		= true,
-							  	["Banana"] 			= true}
-
-cookbook.starches =    {		["Potato"] 			= true,
-								["Instant mashed potato"] = true,
-								["Penne"] 			= true,
-								["Linguini"] 		= true,
-								["Macaroni"] 		= true,
-								["White rice"] 		= true,
-								["Brown rice"] 		= true,
-								["Spaghetti"] 		= true,
-								["Fettuccini"] 		= true}
-
-cookbook.seasonings =  {		["Black Pepper"] 	= true,
-								["Salt"]	 		= true,
-								["Garlic powder"]	= true,
-								["Onion powder"] 	= true,
-								["Cinnamon"] 		= true,
-								["Garlic cloves"] 	= true,
-								["Minced Garlic"] 	= true,
-								["All Purpose Seasoning"] = true,
-								["Allspice"] 		= true,
-								["Thyme"] 			= true,
-								["Basil"] 			= true,
-								["Oregano"] 		= true,
-								["Parsley"] 		= true,
-								["Bay Leaves"] 		= true}
-
-cookbook.dairy = {				["Milk"] 			= true,
-								["Almond Milk"]		= true,
-								["Soy Milk"] 		= true,
-								["Yoghurt"] 		= true,
-								["Sour Cream"] 		= true,
-								["Whipped Cream"] 	= true,
-								["Half and Half"] 	= true,
-								["Light Cream"] 	= true,
-								["Heavy Cream"] 	= true,
-								["Cheddar Cheese"] 	= true,
-								["Gouda Cheese"]	= true,
-								["Mozzarella Cheese"]= true,
-								["Provolone Cheese"]= true,
-								["Parmesan Cheese"] = true,
-								["Ricotta Cheese"] 	= true,
-								["PepperJack Cheese"] = true,
-								["Cream Cheese"] 	= true,
-								["Cheese"] 			= true,
-								["Marscarpone Cheese"] =true,
-								["Brie Cheese"] 	= true,
-								["Blue Cheese"] 	= true,
-								["Cottage Cheese"] 	= true,
-								["Cottage Cheese"] 	= true,
-								["Butter"]			= true,
-								["Margarine"]		= true,
-								["Ice Cream"]		= true}
-
-cookbook.sauces = {				["Soy Sauce"] 		= true,
-								["Ketchup"] 		= true,
-								["Mustard"] 		= true,
-								["Mayonnaise"]		= true,
-								["Worcestershire Sauce"] = true,
-								["BBQ Sauce"]		= true,
-								["Honey BBQ Sauce"] = true,
-								["Garlic Sauce"] 	= true}
-
-cookbook.nuts = {				["Macadamia Nuts"] 	= true,
-								["Pistachios"]		= true,
-								["Cashews"]			= true,
-								["Almonds"]			= true,
-								["Pecans"]			= true,
-								["Walnuts"]			= true,
-								["Trail Mix"]		= true,
-								}
-
+-- Populate the ingredient list with the imported foods
 cookbook.ingredientList = {}
 local categories = {"common_ingredients", "meats", "fruits_and_veggies", "dairy", "nuts", "sauces", "seasonings", "starches"} 
 for i = 1,#categories,1 do
@@ -234,6 +41,7 @@ for i = 1,#categories,1 do
 		cookbook.ingredientList[food] = true
 	end
 end
+-- ========================================================
 
 
 

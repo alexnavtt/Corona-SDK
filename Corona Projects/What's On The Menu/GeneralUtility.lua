@@ -1,6 +1,7 @@
 -- Utilities File
 local util = {}
 
+-- Print all the elements in a table
 function util.printTable(T)
 	print("------------------------")
 	print("----------TABLE---------")
@@ -12,6 +13,7 @@ function util.printTable(T)
 	end
 end
 
+-- Busy Sleep
 function util.sleep(seconds)
 	local milliseconds = seconds*1000
 	local start_time = system.getTimer()
@@ -24,6 +26,7 @@ function util.sleep(seconds)
 
 end
 
+-- Return a table containing the sorted keys from an input table
 function util.sortTableKeys(table_input)
 	local sorted_keys = {}
 
@@ -71,6 +74,21 @@ function util.sortTableKeys(table_input)
 	end
 
 	return sorted_keys
+end
+
+function util.findID(table_obj, id)
+
+	if table_obj.numChildren then
+		table_length = table_obj.numChildren
+	else
+		table_length = #table_obj
+	end
+
+	for i = 1,table_length,1 do
+		if table_obj[i].id == id then
+			return(table_obj[i])
+		end
+	end
 end
 
 

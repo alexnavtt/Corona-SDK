@@ -9,6 +9,9 @@ local page_titles 	= {"BrowsePage", "FavouritesPage", "NewRecipePage", "Settings
 local icon_paths 	= {"Small-Recipe-App-Icon-Transparent.png", "Small-Star.png", "Small-Recipe-Card-Graphic.png", "Small-Settings-Graphic.png"}
 local num_tabs 		= #tab_titles
 
+tab_util.tab_height = 0.05*display.contentHeight
+
+
 -- Find the direction to transition in order to move pages naturally
 local function findDirection(last_name, this_name)
 	local last_index, this_index
@@ -38,7 +41,7 @@ end
 
 -- ------ Search Bar ------- --
 local function createSearchBar(event)
-	local tab_height = globalData.tab_height
+	local tab_height = tab_util.tab_height
 	local search_group = display.newGroup()
 	local options_group = display.newGroup()
 	search_group:insert(options_group)
@@ -95,7 +98,7 @@ end
 
 function tab_util.createTabBar()
 	local tab_group  = display.newGroup()
-	local tab_height = globalData.tab_height
+	local tab_height = tab_util.tab_height
 	local width = 0.8*display.contentWidth
 
 	local tab_bar = display.newRoundedRect(tab_group, display.contentCenterX, 0.5*tab_height, display.contentWidth, tab_height, 0.00*display.contentWidth)
@@ -205,7 +208,7 @@ end
 
 function tab_util.simpleTabBar(title, back_text, back_page, next_text, next_page)
 	local group = display.newGroup()
-	local tab_height = globalData.tab_height
+	local tab_height = tab_util.tab_height
 
 	local tab_bar = display.newRect(group, display.contentCenterX, 0.5*tab_height, display.contentWidth, tab_height)
 	tab_bar:setFillColor(unpack(app_colors.tab_bar.background))

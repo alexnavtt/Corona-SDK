@@ -234,7 +234,7 @@ function scene:create( event )
 	sceneGroup:insert(tab_bar)
 
 	local sb_options = {defaultText = "Search Ingredients...", radius = 0.025*display.contentHeight, tapOutside = false}
-	local search_bar = tinker.newTextField(display.contentCenterX, 1.7*globalData.tab_height, 0.8*display.contentWidth, 0.05*display.contentHeight, sb_options)
+	local search_bar = tinker.newTextField(display.contentCenterX, 1.7*tab_bar_util.tab_height, 0.8*display.contentWidth, 0.05*display.contentHeight, sb_options)
 	sceneGroup:insert(search_bar)
 
 	self.results_group = widget.newScrollView({	left = display.contentCenterX, 

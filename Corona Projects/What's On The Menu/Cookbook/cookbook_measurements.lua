@@ -1,3 +1,5 @@
+local cookbook = require("Cookbook.cookbook_main")
+
 local measurements = {}
 
 -- Density is measured in gram/Cup
@@ -79,5 +81,65 @@ measurements.convertFromGram = {g 	= 1,
 					   		kg 	= 0.001,
 					   		oz 	= 1/28.35,
 					   		lb  = 0.0022}
+
+function measurements.convertUnit(value, old_unit, new_unit, food_name)
+	-- Ensure consistent casing
+	old_unit = old_unit:lower()
+	new_unit = new_unit:lower()
+	food_name = food_name:lower()
+
+	-- Load conversion parameters
+	local volumes = cookbook.volumes
+	local masses  = cookbook.masses
+	local densities  = cookbook.densities	-- Measured in grams per cup
+
+	local convertFromCup  = cookbook.convertFromCup
+	local convertToCup    = {}
+	local convertFromGram = cookbook.convertFromGram
+	local convertToGram	  = {}
+
+	-- Create reciprocal conversion tables
+	for fieldname, value in pairs(convertFromCup) do
+		convertToCup[fieldname] = 1/convertFromCup[fieldname]
+	end
+
+	for fieldname, value in pairs(convertFromGram) do 
+		convertToGram[fieldname] = 1/convertFromGram[fieldname]
+	end
+
+	-- START CONVERSION --
+	local new_val 		-- output variable (nil until specified)
+
+	-- Consistent Conversions (Volume to Volume or Mass to Mass)
+	if volumes[old_unit] and volumes[new_unit] then
+		-- Converting from a volume
+		cup_val = value*convertToCup[old_unit]
+		new_val = cup_val*convertFromCup[new_unit]
+	
+	elseif masses[old_unit] and masses[new_unit] then
+		-- Converting to a mass
+		gram_val = value*convertToGram[old_unit]
+		new_val  = gram_val*convertFromGram[new_unit]
+	end
+
+	-- Convert beween Mass and Volume
+	if food_name and densities[food_name] then 	-- density information is required
+
+		-- Convert Volume to Mass
+		if volumes[old_unit] and masses[new_unit] then
+			cup_val  = value*convertToCup[old_unit]
+			gram_val = cup_val*densities[food_name]
+			new_val  = gram_val*convertFromGram[new_unit]
+
+		-- Convert Mass to Volume
+		elseif masses[old_unit] and volumes[new_unit] then
+			gram_val = value*convertToGram[old_unit]
+			cup_val  = gram_val/densities[food_name]
+			new_val  = cup_val*convertFromCup[new_unit]
+		end
+	end
+
+	return(new_val)		-- A failed conversion will return nil
+end
 
 return measurements

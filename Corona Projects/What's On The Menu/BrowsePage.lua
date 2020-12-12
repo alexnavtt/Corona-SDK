@@ -75,7 +75,7 @@ function scene:show( event )
 		for i = 1,#food_list,1 do
 			local new_panel_group = createFoodPanel(food_list[i], display.contentCenterX, panel_pos, panel_width, panel_height, self.clip_box, panel_color[1+iter], text_color[iter+1])
 	
-			local new_panel = cookbook.findID(new_panel_group, "panel")
+			local new_panel = util.findID(new_panel_group, "panel")
 			self.panels[food_list[i]] = new_panel
 			
 			panel_pos = panel_pos + 0.8*panel_height

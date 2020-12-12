@@ -7,10 +7,35 @@ local app_colors = require("AppColours")
 local transition = require("transition")
 local new_recipe_info = require("NewRecipeUtil.new_recipe_info")
 local tab_bar_util = require("TabBarUtil.tab_bar_util")
+local util = require("GeneralUtility")
  
 local scene = composer.newScene()
 
 local current_index
+
+local steps_text_field = native.newTextBox(-500,-500,100,100)
+steps_text_field.isEditable = true
+steps_text_field.anchorX = 0
+
+local steps_field_x = 0
+local steps_field_y = tab_bar_util.tab_height + 0.15*(display.contentHeight - tab_bar_util.tab_height)
+local steps_field_w = display.contentWidth
+local steps_field_h = 0.2*(display.contentHeight - tab_bar_util.tab_height)
+local steps_field_home = {steps_field_x, steps_field_y, steps_field_w, steps_field_h}
+
+local function relocateStepsField(x,y,width,height)
+	steps_text_field.x = x
+	steps_text_field.y = y
+	if width then
+		steps_text_field.width = width
+	end
+
+	if height then
+		steps_text_field.height = height
+	end
+
+	steps_text_field.size = globalData.titleFontSize
+end
  
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
@@ -67,7 +92,7 @@ local function updateStepText(event)
 
  	local non_indented_x = 0.05*display.contentWidth
  	local indented_x = 1.5*non_indented_x
- 	local Y = 0.05*(display.contentHeight - globalData.tab_height)
+ 	local Y = 0.05*(display.contentHeight - tab_bar_util.tab_height)
  	local dY = Y
 
  	for i = 1,scene.steps_scroll_view._collectorGroup.numChildren,1 do
@@ -113,7 +138,7 @@ local function updateStepText(event)
 
  		local function editStep()
  			current_index = i
- 			globalData.steps_text_field.text = new_recipe_info.newRecipeSteps[i]
+ 			steps_text_field.text = new_recipe_info.newRecipeSteps[i]
  		end
 
  		local edit_image = "Image Assets/White-Edit-Graphic.png"
@@ -183,11 +208,11 @@ end
 local function stepFieldInputListener(event)
 
  	if event.phase == "editing" then
- 		local STR = string.format("%q",globalData.steps_text_field.text)
+ 		local STR = string.format("%q",steps_text_field.text)
 
  		if STR:sub(#STR-4,#STR-2) == "\\r\\" or STR:sub(#STR-4,#STR-2) == "\\n\\" then
- 			table.insert(new_recipe_info.newRecipeSteps, globalData.steps_text_field.text)
- 			globalData.steps_text_field.text = ""
+ 			table.insert(new_recipe_info.newRecipeSteps, steps_text_field.text)
+ 			steps_text_field.text = ""
  			-- scene.glass_screen:toBack()
  			native.setKeyboardFocus(nil)
  			updateStepText()
@@ -204,14 +229,14 @@ function scene:create( event )
  
 	local sceneGroup = self.view
 
-	-- globalData.steps_text_field = native.newTextBox(-500,-500,100,100)
-	globalData.steps_text_field.isEditable = true
-	globalData.steps_text_field.anchorX = 0
-	globalData.steps_text_field:addEventListener("userInput", stepFieldInputListener)
+	-- steps_text_field = native.newTextBox(-500,-500,100,100)
+	steps_text_field.isEditable = true
+	steps_text_field.anchorX = 0
+	steps_text_field:addEventListener("userInput", stepFieldInputListener)
 
 	-- BACKGROUND GROUP DEFINITION
-	self.back_group = display.newContainer(sceneGroup, display.contentWidth, (display.contentHeight - globalData.tab_height))
- 	self.back_group.y = globalData.tab_height + 0.5*(display.contentHeight - globalData.tab_height)
+	self.back_group = display.newContainer(sceneGroup, display.contentWidth, (display.contentHeight - tab_bar_util.tab_height))
+ 	self.back_group.y = tab_bar_util.tab_height + 0.5*(display.contentHeight - tab_bar_util.tab_height)
  	self.back_group.x = display.contentCenterX
 
  	local background = display.newRect(self.back_group, display.contentCenterX, 0, 2*display.contentWidth, self.back_group.height)
@@ -228,12 +253,12 @@ function scene:create( event )
  	self.back_group:insert(insert_step_text)
 
  	local temp_tab = tab_bar_util.simpleTabBar("Insert Steps", "Back to Ingredients", "IngredientsPage", "Finish", "BrowsePage")
- 	local finalize_button = cookbook.findID(temp_tab, "BrowsePage")
+ 	local finalize_button = util.findID(temp_tab, "BrowsePage")
  	finalize_button:addEventListener("tap", finalizeRecipe)
  	sceneGroup:insert(temp_tab) 
 
  	local options = {left = -display.contentCenterX, top = -0.2*self.back_group.height, 
-					 width = display.contentWidth, height = 0.7*(display.contentHeight - globalData.tab_height),
+					 width = display.contentWidth, height = 0.7*(display.contentHeight - tab_bar_util.tab_height),
 					 horizontalScrollDisabled = true, 
 					 isBounceEnabled = false,
 					 backgroundColor = app_colors.steps.background,
@@ -252,19 +277,22 @@ function scene:show( event )
 	local phase = event.phase
  
 	if ( phase == "will" ) then
-		globalData.relocateSearchBar(-500,-500)
-		globalData.relocateStepsField(unpack(globalData.steps_field_home)) 
-		sceneGroup:insert(globalData.steps_text_field)
+		steps_text_field = native.newTextBox(-500,-500,100,100)
+		steps_text_field.isEditable = true
+		steps_text_field.anchorX = 0
+
+		relocateStepsField(unpack(steps_field_home)) 
+		sceneGroup:insert(steps_text_field)
 		updateStepText()
 		-- self.update_handle = timer.performWithDelay(100, updateStepText, -1)
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
  
 	elseif ( phase == "did" ) then
 		self.submit_button = display.newRect(sceneGroup, 
-										  globalData.steps_text_field.x, 
-										  globalData.steps_text_field.y + 0.5*globalData.steps_text_field.height,
-										  0.5*globalData.steps_text_field.width,
-										  0.5*(display.contentHeight - globalData.tab_height - self.steps_scroll_view.height - globalData.steps_text_field.height))
+										  steps_text_field.x, 
+										  steps_text_field.y + 0.5*steps_text_field.height,
+										  0.5*steps_text_field.width,
+										  0.5*(display.contentHeight - tab_bar_util.tab_height - self.steps_scroll_view.height - steps_text_field.height))
 		self.submit_button.anchorX = 0
 		self.submit_button.anchorY = 0
 		self.submit_button:setFillColor(unpack(app_colors.steps.title_bkgd))
@@ -286,9 +314,9 @@ function scene:show( event )
 				table.remove(new_recipe_info.newRecipeSteps, current_index)
 			end
 
- 			if globalData.steps_text_field.text ~= "" then
-	 			table.insert(new_recipe_info.newRecipeSteps, current_index, globalData.steps_text_field.text)
-	 			globalData.steps_text_field.text = ""
+ 			if steps_text_field.text ~= "" then
+	 			table.insert(new_recipe_info.newRecipeSteps, current_index, steps_text_field.text)
+	 			steps_text_field.text = ""
 	 			native.setKeyboardFocus(nil)
 	 			updateStepText()
 	 		end
@@ -299,8 +327,8 @@ function scene:show( event )
  		self.submit_button:addEventListener("tap", submitStep)
 
 		self.erase_button = display.newRect(sceneGroup,
-											self.submit_button.x + 0.5*globalData.steps_text_field.width, 
-											self.submit_button.y,-- + 0.5*globalData.steps_text_field.height,
+											self.submit_button.x + 0.5*steps_text_field.width, 
+											self.submit_button.y,-- + 0.5*steps_text_field.height,
 											self.submit_button.width, 
 											self.submit_button.height)
 		self.erase_button.anchorX = 0
@@ -325,7 +353,7 @@ function scene:show( event )
 
 		local function clearText(event)
 			current_index = nil
- 			globalData.steps_text_field.text = ""
+ 			steps_text_field.text = ""
  			return true
  		end
  		self.erase_button:addEventListener("tap", clearText)
@@ -348,7 +376,7 @@ function scene:hide( event )
  
 	elseif ( phase == "did" ) then
 		sceneGroup:remove(steps_text_field)
-		globalData.relocateStepsField(-1000, -1000)
+		relocateStepsField(-1000, -1000)
 		-- Code here runs immediately after the scene goes entirely off screen
  
 	end

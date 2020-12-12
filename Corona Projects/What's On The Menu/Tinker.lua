@@ -8,6 +8,7 @@ tinker.newTextField 	= require("Tinker.tinker_text_field")
 tinker.newButton 		= require("Tinker.tinker_button")
 tinker.newDot 			= require("Tinker.tinker_dot")
 tinker.numericKeyboard 	= require("Tinker.tinker_numeric_keyboard")
+tinker.newCheckBox 		= require("Tinker.tinker_check_box")
 
 function tinker.glass_screen(auto_destroy, group)
 	local glass_screen = display.newRect(Cx, Cy,2* W, 2*H)
@@ -34,27 +35,4 @@ function tinker.glass_screen(auto_destroy, group)
 end
 
 
-function tinker.printTable(T)
-	print("------------------------")
-	print("----------TABLE---------")
-	print("------------------------")
-	for key, value in pairs(T) do
-		print(key)
-		print(value)
-		print(" ")
-	end
-end
-
-
-function tinker.sleep(seconds)
-	local milliseconds = seconds*1000
-	local start_time = system.getTimer()
-	local finish_time = start_time + milliseconds
-	local finished = false
-
-	while system.getTimer() < finish_time do
-		-- print(system.getTimer)
-	end
-
-end
 return tinker

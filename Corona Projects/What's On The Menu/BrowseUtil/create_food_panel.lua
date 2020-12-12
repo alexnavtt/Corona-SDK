@@ -1,6 +1,7 @@
 local globalData = require("globalData")
 local cookbook = require("cookbook")
 local app_colors = require("AppColours")
+local composer = require("composer")
 
 local function createFoodPanel(title, x, y, width, height, parent, color, text_color)
 	local panel_group = display.newGroup()

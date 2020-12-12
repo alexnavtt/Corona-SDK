@@ -6,6 +6,7 @@ local tinker = require("Tinker")
 local colors = require("Palette")
 local app_colors = require("AppColours")
 local transition = require("transition")
+local new_recipe_info = require("NewRecipeUtil.new_recipe_info")
 
  
 local scene = composer.newScene()
@@ -19,9 +20,12 @@ local cook_time_text_field
 function scene:create( event )
  
 	local sceneGroup = self.view
+
+	-- Create Background
 	local background = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
 	background:setFillColor(unpack(app_colors.new_recipe.background))
 
+	-- Create text field for the name of the recipe
 	local field_height = 0.05*display.contentHeight
 	local text_field_params = {	radius = field_height/2,
 								defaultText = "Enter Recipe Name",
@@ -34,14 +38,17 @@ function scene:create( event )
 	name_text_field = tinker.newTextField(display.contentCenterX, 0.25*display.contentHeight, 0.8*display.contentWidth, 0.05*display.contentHeight, text_field_params)
 	sceneGroup:insert(name_text_field)
 
+	-- Create a text field for the prep time of the recipe
 	text_field_params.defaultText = "Prep Time"
 	prep_time_text_field = tinker.newTextField(0.5*display.contentCenterX, 0.37*display.contentHeight, 0.4*display.contentWidth, 0.05*display.contentHeight, text_field_params)
 	sceneGroup:insert(prep_time_text_field)
 
+	-- Create a text field for the cook time of the recipe
 	text_field_params.defaultText = "Cook Time"
 	cook_time_text_field = tinker.newTextField(1.5*display.contentCenterX, 0.37*display.contentHeight, 0.4*display.contentWidth, 0.05*display.contentHeight, text_field_params)
 	sceneGroup:insert(cook_time_text_field)
 
+	-- Show the title of the page up at the top
 	local title = display.newText({text = "Recipe Creator",
 								   x = display.contentCenterX,
 								   y = 0.15*display.contentHeight,
@@ -53,12 +60,14 @@ function scene:create( event )
 	sceneGroup:insert(title)
 	title:setFillColor(unpack(app_colors.new_recipe.title))
 
+	-- An image of a recipe for aesthetics
 	local image = display.newImageRect(sceneGroup, "Image Assets/Recipe-Card-Graphic.png", 0.8*display.contentWidth, 0.35*display.contentHeight)
 	image.x = display.contentCenterX
 	image.y = 0.65*display.contentHeight
 	image.strokeWidth = 10
 	image:setStrokeColor(unpack(app_colors.new_recipe.outline))
 
+	-- Proceed button to take the user to the next page
 	local begin_button = display.newRect(sceneGroup, display.contentCenterX, 0.95*display.contentHeight, display.contentWidth, 0.1*display.contentHeight)
 	begin_button:setFillColor(unpack(app_colors.new_recipe.start_button))
 	begin_button:setStrokeColor(unpack(app_colors.new_recipe.outline))
@@ -82,8 +91,6 @@ function scene:create( event )
 	end
 	begin_button:addEventListener("tap", begin_button)
 
-	-- self.tab_group = cookbook.createTabBar() 
-	-- sceneGroup:insert(self.tab_group)
 end
  
  
@@ -102,16 +109,16 @@ function scene:show( event )
 	end
  
 	if ( phase == "will" ) then
+		-- If the tab bar was previously hidden, show it again
 		transition.to(globalData.tab_bar, {alpha = 1, time = globalData.transition_time})
-		-- self.tab_group = cookbook.updateTabBar(self.tab_group)
+
+		-- Fill in the text fields if this is a recipe edit call
 		if name then name_text_field:replaceText(name) end
 		if prep_time then prep_time_text_field:replaceText(prep_time) end
 		if cook_time then cook_time_text_field:replaceText(cook_time) end
+
+		-- Set the editing key to false, which becomes true when proceeding to the next page
 		cookbook.is_editing = false
-		-- Code here runs when the scene is still off screen (but is about to come on screen)
- 
-	elseif ( phase == "did" ) then
-		-- Code here runs when the scene is entirely on screen
  
 	end
 end
@@ -124,21 +131,20 @@ function scene:hide( event )
 	local phase = event.phase
  
 	if ( phase == "will" ) then
+		-- Cut off the keyboard if it is in use
 		native.setKeyboardFocus(nil)
-		-- Code here runs when the scene is on screen (but is about to go off screen)
  
 	elseif ( phase == "did" ) then
 
 		if not cookbook.is_editing then 
-			-- composer.removeScene("NewRecipePage")
+			-- When leaving the page (not proceeding) clear all fields
 			name_text_field:replaceText("")
 			prep_time_text_field:replaceText("")
 			cook_time_text_field:replaceText("")
 			composer.removeScene("IngredientsPage")
 			composer.removeScene("InsertStepsPage") 
 		end
-		-- Code here runs immediately after the scene goes entirely off screen
- 
+
 	end
 end
  

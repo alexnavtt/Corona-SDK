@@ -309,7 +309,6 @@ function scene:create( event )
 					input_group:translate(0,-100)
 
 					native.setKeyboardFocus(nil)
-					print("Hidden")
 
 					return true
 				end

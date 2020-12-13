@@ -6,6 +6,7 @@ local composer = require("composer")
 local function createFoodPanel(title, x, y, width, height, parent, color, text_color)
 	local panel_group = display.newGroup()
 
+	-- Create the main background rectangle
 	local panel = display.newRoundedRect(panel_group, 0, 0, width, height, 0.1*height)
 	panel.id = "panel"
 	panel:setFillColor(unpack(color))
@@ -19,10 +20,19 @@ local function createFoodPanel(title, x, y, width, height, parent, color, text_c
 
 	end
 
+	-- Add a dark copy of the panel to appear as a shadow
 	local panel_shadow = display.newRoundedRect(panel_group, -0.015*display.contentWidth, 0.02*display.contentWidth, width, height, 0.1*height)
 	panel_shadow.id = "panel_shadow"
 	panel_shadow:setFillColor(0,0,0,0.4)
 
+	-- Add a faint background to text with an image to make it more readable
+	if has_image then
+		local front_shadow = display.newRoundedRect(panel_group, 0, 0, width, height, 0.1*height)
+		front_shadow.id = "panel_front_shadow"
+		front_shadow:setFillColor(0, 0, 0, 0.1)
+	end
+
+	-- Label the panel with the recipe title
 	local panel_text_params = {text = title,
 							   x = -0.47*panel.width,
 							   y = -0.15*panel.height,
@@ -35,7 +45,9 @@ local function createFoodPanel(title, x, y, width, height, parent, color, text_c
 	panel_text:setFillColor(has_image and 1 or unpack(app_colors.browse.recipe_title))
 	panel_text.anchorX = 0
 	panel_text.anchorY = 0
+	panel_group:insert(panel_text)
 
+	-- Show the prep time
 	local prep_text = globalData.menu[title].prep_time
 	if prep_text and prep_text ~= "" then
 		local prep_time = display.newText({	text = "Prep Time: " .. prep_text,
@@ -49,6 +61,7 @@ local function createFoodPanel(title, x, y, width, height, parent, color, text_c
 		panel_group:insert(prep_time)
 	end
 
+	-- Show the cook time
 	local cook_text = globalData.menu[title].cook_time
 	if cook_text and cook_text ~= "" then
 		local cook_time = display.newText({	text = "Cook Time: " .. cook_text,
@@ -62,9 +75,7 @@ local function createFoodPanel(title, x, y, width, height, parent, color, text_c
 		panel_group:insert(cook_time)
 	end
 
-	-- panel_group:insert(ingredient_text)
-	panel_group:insert(panel_text)
-
+	-- Add a favourite icon
 	local star = display.newImageRect("Image Assets/Small-Star.png", 0.07*panel.width, 0.07*panel.width)
 	star.x = 0.4*panel.width
 	star.y = 0.35*panel.height
@@ -75,10 +86,12 @@ local function createFoodPanel(title, x, y, width, height, parent, color, text_c
 	empty_star.y = star.y
 	panel_group:insert(empty_star)
 
+	-- Determine what state the star should be in (favourite or not favourite)
 	if not globalData.favourites[title] then
 		star.alpha = 0
 	end
 
+	-- Add tap function to add/remove the recipe from the favourites list
 	function empty_star:tap(event)
 
 		if globalData.favourites[title] then
@@ -128,6 +141,7 @@ local function createFoodPanel(title, x, y, width, height, parent, color, text_c
 	end
 	trash_icon:addEventListener("tap", trash_icon)
 
+	-- Function to add an image to a recipe
 	local function image_listener(event)
 
 		local function selectListener(event)
@@ -153,7 +167,7 @@ local function createFoodPanel(title, x, y, width, height, parent, color, text_c
 
 	local image_image = "Image Assets/Small-White-Camera-Graphic.png"
 	if app_colors.scheme == "light" and not has_image then image_image = "Image Assets/Small-Camera-Graphic.png" end
-	local image_params = {image = image_image, color = {0,0,0,0.01}, tap_func =  image_listener}
+	local image_params = {image = image_image, color = {0,0,0,0.01}, tap_func = image_listener}
 	local image_button = tinker.newButton(trash_icon.x - 0.15*width, trash_icon.y, trash_icon.width, trash_icon.height, image_params)
 	panel_group:insert(image_button)
 

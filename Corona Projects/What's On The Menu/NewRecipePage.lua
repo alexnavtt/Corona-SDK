@@ -33,7 +33,8 @@ function scene:create( event )
 								textColor = app_colors.new_recipe.info_text,
 								strokeColor = globalData.dark_grey,
 								strokeWidth = 2,
-								cursorColor = globalData.dark_grey}
+								cursorColor = globalData.dark_grey,
+								tapOutside  = true}
 	name_text_field = tinker.newTextField(display.contentCenterX, 0.25*display.contentHeight, 0.8*display.contentWidth, 0.05*display.contentHeight, text_field_params)
 	sceneGroup:insert(name_text_field)
 

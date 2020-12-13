@@ -12,6 +12,8 @@ local lfs 			= require("lfs")
 local app_colors 	= require("AppColours")
 local tab_bar_util  = require("TabBarUtil.tab_bar_util")
 
+system.setTapDelay(0.5)
+
 -- Data Storage
 globalData.menu 		= {}
 globalData.keywords 	= {}

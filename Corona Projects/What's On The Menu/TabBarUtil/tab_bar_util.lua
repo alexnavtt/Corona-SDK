@@ -69,17 +69,22 @@ local function createSearchBar(event)
 		end
 
 		local possible_foods = cookbook.searchMenu(event.text)
-		local delta_y = 1.5*search_bar.height
-		local y = 3*tab_height
+		local delta_y = 1.5*search_bar:getHeight()
+		local y = search_bar.y + delta_y
 		local count = 0
+		local strokeColor = {1}
+		if app_colors.color_scheme == "light" then strokeColor = {0} end
+
+		print("Delta_y: " .. delta_y)
 
 		for name, value in pairs(possible_foods) do
 			local function tap_func(event)
 				composer.gotoScene("ViewRecipePage", {effect = "slideRight", time = globalData.transition_time, params = {name = name}})
 			end
 
-			local params = {label = name, displayGroup = options_group, radius = 20, tap_func = tap_func}
-			local option = tinker.newButton(display.contentCenterX, y, search_bar.width, search_bar.height, params)
+			local params = {label = name, displayGroup = options_group, radius = 20, tap_func = tap_func, labelColor = app_colors.tab_bar.search_text,
+							color = app_colors.tab_bar.search_bkgd, strokeColor = app_colors.tab_bar.search_outline, strokeWidth = 5}
+			local option = tinker.newButton(display.contentCenterX, y, search_bar:getWidth(), search_bar:getHeight(), params)
 		
 			y = y + delta_y
 			count = count + 1

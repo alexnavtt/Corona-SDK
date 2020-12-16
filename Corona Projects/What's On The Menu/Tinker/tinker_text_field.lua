@@ -1,5 +1,3 @@
-local util = require("GeneralUtility")
-
 local H = display.contentHeight
 local W = display.contentWidth
 local Cx = display.contentCenterX
@@ -12,6 +10,7 @@ local function findWordBoundaries(text, index)
 	local end_index
 	local letter_count = #text
 
+	-- Find the letter index just before the word start
 	for i = index,0,-1 do
 		if text:sub(i,i) == " " or i == 0 then
 			start_index = i
@@ -19,6 +18,7 @@ local function findWordBoundaries(text, index)
 		end
 	end
 
+	-- Find the letter index of the last letter of the word
 	for i = index,letter_count,1 do
 		if text:sub(i,i) == " "  then
 			end_index = math.max(i - 1, 0)
@@ -55,8 +55,8 @@ local function newTextField(x, y, width, height, params)
 	local centered 			= params.centered
 	local displayGroup 		= params.displayGroup
 
-	local NTF = native.newTextField(-display.contentWidth, -display.contentHeight, 500, 100)  -- Native Text Field: Out of sight, out of mind
 	-- local NTF = native.newTextField(display.contentCenterX, display.contentCenterY, 500, 100)  -- Uncomment this for debugging
+	local NTF = native.newTextField(-display.contentWidth, -display.contentHeight, 500, 100)  -- Native Text Field: Out of sight, out of mind
 	local TTF = display.newGroup()  -- Tinker Text Field
 	TTF.x = x
 	TTF.y = y
@@ -87,6 +87,7 @@ local function newTextField(x, y, width, height, params)
 		local underline = display.newLine(TTF, line_x, line_y, -line_x, line_y)
 		underline:setStrokeColor(unpack(textColor), 0.5)
 		underline.strokeWidth = 2
+		TTF._underline = underline
 	end
 
 	-- Create Cursor
@@ -96,6 +97,7 @@ local function newTextField(x, y, width, height, params)
 	cursor:setStrokeColor(unpack(cursorColor))
 	cursor.strokeWidth = 1
 	cursor.alpha = 0
+	TTF._cursor = cursor
 
 	-- Make cursor blink
 	local function timerFunc(event)
@@ -103,13 +105,12 @@ local function newTextField(x, y, width, height, params)
 			cursor.alpha = 1 - cursor.alpha
 		end
 	end
-	NTF.timerHandle = timer.performWithDelay(500, timerFunc, -1)
-	timer.pause(NTF.timerHandle)
+	TTF._cursorTimerHandle = timer.performWithDelay(500, timerFunc, -1)
+	timer.pause(TTF._cursorTimerHandle)
 
 	-- Set default text
 	local align = centered or "left"
-
-	local text = display.newText({text = defaultText, 
+	local displayText = display.newText({text = defaultText, 
 								  x = line_x,
 								  y = line_y + 0.05*height,
 								  width = 0,
@@ -117,19 +118,27 @@ local function newTextField(x, y, width, height, params)
 								  font = font,
 								  fontSize = fontSize,
 								  align = align})
-	if centered then 
-		text.x = 0
-	else
-		text.anchorX = 0
-	end
-	text.anchorY = text.height
-	text.id = "text"
-	text:setFillColor(unpack(textColor))
-	TTF:insert(text)
-	text.alpha = 0.5
+	if centered then displayText.x = 0 else displayText.anchorX = 0 end
+	displayText.anchorY = displayText.height
+	displayText.id = "display_text"
+	displayText:setFillColor(unpack(textColor))
+	TTF:insert(displayText)
+	displayText.alpha = 0.5
+	TTF._displayTextObject = displayText
 
 	-- Set a variable for the average length of a character
-	local avg_length = text.width / #text.text
+	local avg_length = displayText.width / #displayText.text
+
+	-- Create a semi-transparent rect for text selection
+	TTF._selectionBox = display.newRect(TTF, 0, displayText.y - 0.5*displayText.height, 10, displayText.height)
+	TTF._selectionBox:setFillColor(unpack(selectColor))
+	TTF._selectionBox.alpha = 0
+	TTF._selectionBox.anchorX = 0
+	function TTF._selectionBox:show(x1,x2)
+		self.x = x1
+		self.width = x2-x1
+		self.alpha = 0.3
+	end
 
 	-- Ghost text is for measuring width
 	local ghostText = display.newText({text = "", 
@@ -142,6 +151,21 @@ local function newTextField(x, y, width, height, params)
 									  align = "left"})
 	ghostText.anchorX = 0
 
+	-- Create a touch panel to allow touching outside of the text field to remove keyboard focus
+	TTF._glassScreen = display.newRect(TTF, 0, 0, 2*display.contentWidth, 2*display.contentHeight)
+	TTF._glassScreen.alpha = 0
+
+	function TTF._glassScreen:tap(event)
+		native.setKeyboardFocus(nil)
+		self.alpha = 0
+		return true
+	end
+	TTF._glassScreen:addEventListener("tap", TTF._glassScreen)
+	TTF._glassScreen:toBack()
+
+
+
+
 	-- ################################## --
 	-- Text Field Functions and Listeners --
 	-- ################################## --
@@ -149,21 +173,23 @@ local function newTextField(x, y, width, height, params)
 	-- Find where to put the cursor, both on the native text 
 	-- field and the Tinker Text Field
 	local function findCursorLocation(selection_width)
+		-- Initialize outputs
+		local offset = 0						-- The distance from the left of the text to place the cursor
+		local letter_index = 0				 	-- Which letter index the cursor will be after
 
-		local letter_index = #ghostText.text
-		local original_text = ghostText.text
-		local avg_length = avg_length
-		local tried_width = 0
-		local offset = 0
+		local char_count = #ghostText.text 		-- The number of characters in the current text
+		local original_text = ghostText.text 	-- The original text, which will be used to reset it after changing
+		local avg_length = avg_length 			-- Update the average length of a single character
+		local tried_width = 0 					-- A test width to see if this is the correct value for the offset
 
-		-- If the tap is before the beginning of the text, place the cursor at the start
-		if selection_width < 0 or letter_index == 0 then
+		-- If the tap is before the beginning of the text or there is no text, place the cursor at the start
+		if selection_width < 0 or char_count == 0 then
 			return 1,0
 		end
 
 		-- Estimate where the cursor should be
 		local estimate_position = math.round(selection_width/avg_length)
-		if estimate_position > letter_index then estimate_position = letter_index end
+		if estimate_position > char_count then estimate_position = char_count end
 
 		-- Determine if the estimate is too far or not far enough
 		ghostText.text = original_text:sub(1,estimate_position)
@@ -175,8 +201,9 @@ local function newTextField(x, y, width, height, params)
 				ghostText.text = original_text:sub(1,i)
 				tried_width = ghostText.width - 0.5*avg_length
 
+				-- A successful match was found
 				if tried_width < selection_width then
-					letter_index = math.min(i+1, letter_index)
+					letter_index = math.min(i+1, char_count)
 					offset = ghostText.width
 					ghostText.text = original_text
 					return letter_index, offset
@@ -204,116 +231,92 @@ local function newTextField(x, y, width, height, params)
 		-- This section calls if a proper location isn't found
 		ghostText.text = original_text
 		offset = ghostText.width
+		letter_index = char_count
 
 		return letter_index, offset
 	end
 
 
 	-- Update TTF Text and Cursor Position
-	local glass_screen
+	-- local TTF._glassScreen
 	local function userInputListener(event)
 
 		if event.phase == "began" then
 			-- Make the cursor blink
-			timer.resume(NTF.timerHandle)
+			timer.resume(TTF._cursorTimerHandle)
 
 			-- Flag to indicate that there is no text in the text field
-			if NTF.text == "" then
-				NTF.fresh = true
-			end
+			if NTF.text == "" then TTF._noText = true end
 
 			-- Set up a tap field which removes focus from the text field when tapping away from it
-			if tapOutside == true and not (glass_screen and glass_screen.parent) then
-				glass_screen = display.newRect(TTF, 0, 0, 2*display.contentWidth, 2*display.contentHeight)
-				glass_screen.alpha = 0.01
-
-				function glass_screen:tap(event)
-					native.setKeyboardFocus(nil)
-					self:removeSelf()
-					self = nil
-					return true
-				end
-
-				glass_screen:addEventListener("tap", glass_screen)
-				glass_screen:toBack()
+			if tapOutside then
+				TTF:toFront()
+				TTF._glassScreen.alpha = 0.01
 			end
-		end
 
-		if event.phase == "editing" then
+		elseif event.phase == "editing" then
 			-- If the field is empty, place the default text and indiciate the field is empty
 			if NTF.text == "" then
-				text.text = defaultText
-				ghostText.text = ""
-				TTF.text = ""
-				text.alpha = 0.5
-				cursor.x = line_x
-				NTF.fresh = true
-
-				if centered then cursor.x = 0 end
+				TTF:replaceText("")
 
 			-- Field is not empty
 			else
 				-- Store the previous width of the text for help determining where the cursor should end up
-				local old_width = text.width
+				local old_width = displayText.width
 
 				-- Remove the default text if it exists and make the text show what the user has typed
-				text.alpha = 1
-				text.text = NTF.text
-				ghostText.text = text.text
-				TTF.text = text.text
+				displayText.alpha = 1
+				displayText.text  = NTF.text
+				ghostText.text    = NTF.text
+				TTF.text 		  = NTF.text
 
-				if NTF.fresh then
-					cursor.x = line_x + text.width
-					NTF.fresh = false
+				if TTF._noText then
+					cursor.x = line_x + displayText.width
+					TTF._noText = false
 					if centered then cursor.x = 0.5*(cursor.x - line_x) end
 				else
 					local offset_factor = 1
 					if centered then offset_factor = 0.5 end
-					cursor.x = cursor.x + offset_factor*(text.width - old_width)
+					cursor.x = cursor.x + offset_factor*(displayText.width - old_width)
 				end
 
 				if cursor.x < line_x then cursor.x = line_x end
 			end
 
-			-- There were mulitple characters selected
-			if bkgd.display_box then
+			-- If there were mulitple characters selected
+			if TTF._selectionBox.alpha ~= 0 then
+				print(TTF._selectionBox.alpha)
 				-- Determine if the input was a delete or input edit
-				if #ghostText.text == bkgd.text_letter_count - bkgd.selection_letter_count then
+				if #ghostText.text == TTF._totalLetterCount - TTF._selectionLetterCount then
 					-- Delete action: place the cursor where the start of the selection box is
-					cursor.x = bkgd.display_box.x
+					cursor.x = TTF._selectionBox.x
 				else
 					-- Edit action: place the cursor 1 character to the right of where the selection box is
-					ghostText.text = ghostText.text:sub(0, bkgd.start_index + 1)
+					ghostText.text = ghostText.text:sub(0, TTF._selectionStartIndex + 1)
 					cursor.x = line_x + ghostText.width
-					ghostText.text = text.text
+					ghostText.text = displayText.text
 				end
 
 				-- Remove the selection box
-				bkgd.display_box:removeSelf()
-				bkgd.display_box = nil
+				TTF._selectionBox.alpha = 0
 
 				-- Start the cursor blinking again
-				timer.resume(NTF.timerHandle)
+				timer.resume(TTF._cursorTimerHandle)
 				cursor.alpha = 1
 			end
-		end
+		
 
-		if event.phase == "ended" or event.phase == "submitted" then
+		elseif event.phase == "ended" or event.phase == "submitted" then
 			-- Hide the cursor and remove the keyboard
-			timer.pause(NTF.timerHandle)
+			timer.pause(TTF._cursorTimerHandle)
 			cursor.alpha = 0
 			native.setKeyboardFocus(nil)
 
-			-- Delete the selection box if it existed
-			if bkgd.display_box then
-				bkgd.display_box:removeSelf()
-				bkgd.display_box = nil
-			end
+			-- Hide the selection box
+			TTF._selectionBox.alpha = 0
 
-			if glass_screen and glass_screen.parent then 
-				glass_screen.parent:remove(glass_screen)
-				glass_screen = nil
-			end
+			-- Remove the outside tap field
+			TTF._glassScreen.alpha = 0
 
 		end
 	end -- userInputListener
@@ -340,6 +343,11 @@ local function newTextField(x, y, width, height, params)
 		end
 		native.setKeyboardFocus(NTF)
 
+		-- Remove text selections for single taps
+		if event.numTaps == 1 then
+			TTF:unselectText()
+		end
+
 		-- On double tap select the entire word
 		if event.numTaps == 2 then
 			local start_index, end_index = findWordBoundaries(NTF.text, letter_index)
@@ -361,35 +369,37 @@ local function newTextField(x, y, width, height, params)
 	-- ############# --
 
 	function TTF:selectText(start_index, end_index)
-		local original_text = ghostText.text
 		if #ghostText.text == 0 then return end
 
-		ghostText.text = original_text:sub(0,start_index)
+		ghostText.text = NTF.text:sub(0,start_index)
 		local small_x  = line_x + ghostText.width
 		if #ghostText.text == 0 then small_x = line_x end
 
-		ghostText.text = original_text:sub(0,end_index)
+		ghostText.text = NTF.text:sub(0,end_index)
 		local large_x  = line_x + ghostText.width
 
-		ghostText.text = original_text
+		ghostText.text = NTF.text
 
-		if bkgd.display_box then TTF:remove(bkgd.display_box) end
-		bkgd.display_box = display.newRect(TTF, small_x, text.y - 0.5*text.height, large_x - small_x, text.height)
-		bkgd.display_box:setFillColor(unpack(selectColor), 0.3)
-		bkgd.display_box.anchorX = 0
-		print("Display box created, starts at " .. bkgd.display_box.x .. " and ends at " .. bkgd.display_box.x + bkgd.display_box.width)
+		-- Show the selection area
+		TTF._selectionBox:show(small_x, large_x)
 
 		-- Set some variables to help figure out where to put the cursor after
-		bkgd.start_index = start_index
-		bkgd.end_index = end_index
-		bkgd.selection_letter_count = end_index - start_index
-		bkgd.text_letter_count = #original_text
+		TTF._selectionStartIndex  = start_index
+		TTF._selectionEndIndex    = end_index
+		TTF._selectionLetterCount = end_index - start_index
+		TTF._totalLetterCount = #NTF.text
 
 		NTF:setSelection(start_index, end_index)
-		timer.pause(NTF.timerHandle)
+		timer.pause(TTF._cursorTimerHandle)
 		cursor.alpha = 0
 
 		native.setKeyboardFocus(NTF)
+	end
+
+	function TTF:unselectText()
+		timer.resume(TTF._cursorTimerHandle)
+		cursor.alpha = 1
+		TTF._selectionBox.alpha = 0
 	end
 
 	function TTF:addEventListener(format, listener)
@@ -399,17 +409,20 @@ local function newTextField(x, y, width, height, params)
 
 	function TTF:replaceText(new_text)
 		NTF.text = new_text
-		text.text = new_text
 		TTF.text = new_text
 		ghostText.text = new_text
-		text.alpha = 1
+		displayText.text = new_text
+		displayText.alpha = 1
 
 		if new_text == "" then
 			cursor.x = line_x
-			text.text = defaultText
-			text.alpha = 0.5
+			displayText.text = defaultText
+			displayText.alpha = 0.5
+			TTF._noText = true
+			NTF:setSelection(0,0)
 		else
-			cursor.x = line_x + text.width
+			cursor.x = line_x + displayText.width
+			NTF:setSelection(#NTF.text, #NTF.text)
 		end
 	end
 
@@ -422,12 +435,20 @@ local function newTextField(x, y, width, height, params)
 	end
 
 	function TTF:removeSelf()
-		timer.cancel(NTF.timerHandle)
+		timer.cancel(TTF._cursorTimerHandle)
 		NTF:removeSelf()
 		for i = 1,TTF.numChildren,1 do
 			TTF:remove(1)
 		end
 		TTF = nil
+	end
+
+	function TTF:getWidth()
+		return width
+	end
+
+	function TTF:getHeight()
+		return height
 	end
 
 	return TTF

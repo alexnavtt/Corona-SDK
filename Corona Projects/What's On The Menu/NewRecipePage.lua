@@ -1,12 +1,17 @@
+-- Base Solar2D Packages
 local composer = require( "composer" )
 local globalData = require( "globalData" )
 local widget = require( "widget" )
+local transition = require("transition")
+
+-- Custom Packages
 local tinker = require("Tinker")
 local colors = require("Palette")
 local app_colors = require("AppColours")
-local transition = require("transition")
-local new_recipe_info = require("NewRecipeUtil.new_recipe_info")
+local util = require("GeneralUtility")
 
+-- Page Specific Info
+local new_recipe_info = require("NewRecipeUtil.new_recipe_info")
  
 local scene = composer.newScene()
 

@@ -83,7 +83,12 @@ function scene:show( event )
 			function new_panel:tap(event)
 				globalData.active_recipe = food_list[i]
 				print("Active recipe: " .. food_list[i])
-				composer.gotoScene("ViewRecipePage", {effect = "slideRight", time = globalData.transition_time, params = {name = food_list[i]}})
+				if globalData.settings.recipeStyle == "portrait" then
+					composer.gotoScene("ViewRecipePage", {effect = "slideRight", time = globalData.transition_time, params = {name = food_list[i]}})
+				else
+					composer.gotoScene("ViewLandscapeRecipe", {effect = "slideRight", time = globalData.transition_time, params = {name = food_list[i]}})
+				end
+
 				return true
 			end
 

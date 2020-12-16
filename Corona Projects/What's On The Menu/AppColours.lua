@@ -33,7 +33,8 @@ function colors.setColors()
 		button_text 	= p.white,
 		title 			= p.black,
 		search_text		= p.black,
-		search_bkgd 	= colors.contrast_color
+		search_bkgd 	= colors.contrast_color,
+		search_outline  = p.black
 	}
 
 	colors.settings = 
@@ -158,7 +159,8 @@ function colors.changeTo(color)
 
 		colors.settings.text = {0.2}
 
-		-- colors.tab_bar.button_text = p.black
+		colors.tab_bar.search_text = p.black
+		colors.tab_bar.search_outline = p.black
 
 		colors.steps.step_text = p.black
 
@@ -176,7 +178,9 @@ function colors.changeTo(color)
 		colors.settings.text = p.white
 
 		colors.tab_bar.button_text = p.white
-
+		colors.tab_bar.search_text = p.white
+		colors.tab_bar.search_outline = p.white
+		
 		colors.steps.step_text = p.white
 
 	end

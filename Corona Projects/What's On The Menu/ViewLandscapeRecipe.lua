@@ -13,6 +13,7 @@ local page_params = view_recipe_params.landscape
 
 local scene = composer.newScene()
 
+-- Device display variables
 local Cx = display.contentCenterX
 local Cy = display.contentCenterY
 local W  = display.contentWidth
@@ -40,7 +41,7 @@ function scene:create( event )
 	title_background:setFillColor(unpack(app_colors.recipe.title_bkgd))
 	title_background:rotate(90)
 
-	self.ingredient_panel = widget.newScrollView({x = pH/2, y = 0.15*H,
+	self.ingredient_panel = widget.newScrollView({x = pH/2, y = 0.01*H,
 											 	  width = 0.9*pH,
 											 	  height = 0.28*H,
 											 	  verticalScrollDisabled = true,
@@ -48,11 +49,66 @@ function scene:create( event )
 											  	  backgroundColor = app_colors.recipe.ing_background,
 											 	  hideBackground = true,
 											 	  bottomPadding = 0.1*display.contentWidth})
+	self.ingredient_panel.anchorY = 0
 	sceneGroup:insert(self.ingredient_panel)
 
 	local ingredient_bkgd = display.newRoundedRect(sceneGroup, self.ingredient_panel.x, self.ingredient_panel.y, self.ingredient_panel.width + 2*page_params.v_spacing, self.ingredient_panel.height, 0.05*W)
+	ingredient_bkgd.anchorY = 0
 	ingredient_bkgd:setFillColor(unpack(app_colors.recipe.ing_background))
 	ingredient_bkgd:toBack()
+
+	self.instruction_panel = widget.newScrollView({ x = self.ingredient_panel.x,
+													y = self.ingredient_panel.y + self.ingredient_panel.height + 0.02*H,
+												    width = self.ingredient_panel.width,
+												    height = 0.5*H,
+												    horizontalScrollDisabled = true,
+												    isBounceEnabled = false,
+												    backgroundColor = app_colors.recipe.step_bkgd,
+												    hideBackground = true,
+												    bottomPadding = 0.3*display.contentWidth})
+	self.instruction_panel.anchorY = 0
+	sceneGroup:insert(self.instruction_panel)
+
+	local instruction_bkgd = display.newRoundedRect(sceneGroup, self.instruction_panel.x, self.instruction_panel.y, self.instruction_panel.width + 2*page_params.v_spacing, self.instruction_panel.height, 0.05*W)
+	instruction_bkgd.anchorY = 0
+	instruction_bkgd:setFillColor(unpack(app_colors.recipe.step_bkgd))
+	instruction_bkgd:toBack()
+
+	local back_button = display.newRect(sceneGroup, W - 0.5*page_params.info_bar_height, 0.025*H, 0.25*W, 0.9*page_params.info_bar_height)
+	back_button.anchorX = 0
+	back_button.alpha = 0.01
+	back_button:rotate(90)
+
+	local back_arrow = display.newImageRect(sceneGroup, "Image Assets/Small-White-Up-Arrow-Graphic.png", 0.6*page_params.info_bar_height, 0.6*page_params.info_bar_height)
+	back_arrow.x = back_button.x
+	back_arrow.y = back_button.y + 0.6*back_arrow.width
+
+	local back_text = display.newText({	text = "Return",
+										x = back_arrow.x,
+										y = back_arrow.y + back_arrow.width,
+										fontSize = globalData.titleFontSize,
+										align = "left"})
+	back_text.anchorX = 0
+	back_text:setFillColor(1)
+	back_text:rotate(90)
+	sceneGroup:insert(back_text)
+
+	local function goBack(event)
+		composer.gotoScene(globalData.activeScene, {effect = "slideLeft", time = globalData.transition_time})
+	end
+	back_button:addEventListener("tap", goBack)
+
+	-- Options Popout
+	local options_icon = display.newGroup()
+	sceneGroup:insert(options_icon)
+
+	options_background = display.newRect(options_icon, W - 0.5*page_params.info_bar_height, 0.95*H, 0.06*W, page_params.info_bar_height)
+	options_background.alpha = 0.01
+
+	for i = 1,3,1 do
+		local L = display.newLine(options_icon, W - i*0.25*page_params.info_bar_height, 0.96*H, W - i*0.25*page_params.info_bar_height, 0.98*H)
+		L.strokeWidth = 5
+	end
 
  	background:toBack()
 end

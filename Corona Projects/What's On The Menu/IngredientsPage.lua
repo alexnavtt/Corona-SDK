@@ -51,10 +51,10 @@ local function inputIngredientAmount(name)
 	group:insert(glass_screen)
 
 	---- Create Basic GUI ----
-	local background = display.newRect(group, Cx, 0.65*H, 0.85*W, 0.67*H)
+	local background = display.newRect(group, Cx, 0.55*H, 0.85*W, 0.72*H)
 	background:setFillColor(unpack(app_colors.ingredients.panel_bkgd))
 
-	local ingredient_panel = display.newRect(group, Cx, 0.4*H, 0.8*W, 0.15*H)
+	local ingredient_panel = display.newRect(group, Cx, 0.285*H, 0.8*W, 0.15*H)
 	ingredient_panel:setFillColor(unpack(app_colors.ingredients.panel_fore))
 	ingredient_panel:setStrokeColor(unpack(app_colors.ingredients.units))
 	ingredient_panel.strokeWidth = 3
@@ -85,7 +85,7 @@ local function inputIngredientAmount(name)
 	local text_objects = {int.label, num.label, den.label}
 
 	local keyboard_params = {X_func = function(event) int:replaceLabel("") end, radius = 100, backgroundColor = app_colors.ingredients.panel_bkgd, keyColor = app_colors.ingredients.key_color}
-	local keyboard = tinker.numericKeyboard(Cx, 0.925*display.contentHeight, nil, nil, keyboard_params)
+	local keyboard = tinker.numericKeyboard(Cx, 0.85*display.contentHeight, nil, nil, keyboard_params)
 	keyboard.index = 1
 	keyboard.anchorY = keyboard.height
 	keyboard:attachTextObject(int.label)
@@ -138,9 +138,13 @@ local function inputIngredientAmount(name)
 	---- Create Unit Tab Bar ----
 	local unit_group = display.newGroup()
 	local left_x = ingredient_panel.x - 0.5*ingredient_panel.width
+	local upper_count = math.ceil(#cookbook.essential_units/2)
+	local lower_count = math.floor(#cookbook.essential_units/2)
+	local total_count = upper_count + lower_count
 
-	for i = 1,#cookbook.essential_units,1 do
-		local new_unit_rect = display.newRect(unit_group, left_x, ingredient_panel.y + 0.625*ingredient_panel.height, (1/#cookbook.essential_units)*ingredient_panel.width, 0.35*ingredient_panel.height)
+	-- Upper Bar
+	for i = 1,upper_count,1 do
+		local new_unit_rect = display.newRect(unit_group, left_x, ingredient_panel.y + 0.625*ingredient_panel.height, (1/upper_count)*ingredient_panel.width, 0.35*ingredient_panel.height)
 		new_unit_rect:setFillColor(unpack(app_colors.ingredients.units))
 		new_unit_rect:setStrokeColor(unpack(app_colors.ingredients.panel_bkgd))
 		new_unit_rect.anchorX = 0
@@ -155,7 +159,29 @@ local function inputIngredientAmount(name)
 		end
 		new_unit_rect:addEventListener("tap", new_unit_rect)
 
-		left_x = left_x + (1/#cookbook.essential_units)*ingredient_panel.width
+		left_x = left_x + (1/upper_count)*ingredient_panel.width
+	end
+
+	left_x = ingredient_panel.x - 0.5*ingredient_panel.width
+
+	-- Lower Bar
+	for i = upper_count+1,total_count,1 do
+		local new_unit_rect = display.newRect(unit_group, left_x, ingredient_panel.y + 0.955*ingredient_panel.height, (1/lower_count)*ingredient_panel.width, 0.35*ingredient_panel.height)
+		new_unit_rect:setFillColor(unpack(app_colors.ingredients.units))
+		new_unit_rect:setStrokeColor(unpack(app_colors.ingredients.panel_bkgd))
+		new_unit_rect.anchorX = 0
+		new_unit_rect.strokeWidth = 2
+
+		local new_unit_text = display.newText({text = cookbook.essential_units[i], x = left_x + 0.5*new_unit_rect.width, y = new_unit_rect.y, width = new_unit_rect.width, fontSize = globalData.smallFontSize, align = "center"})
+		new_unit_text:setFillColor(unpack(app_colors.ingredients.panel_text))
+		unit_group:insert(new_unit_text)
+
+		function new_unit_rect:tap(event)
+			unit_rect:replaceLabel(new_unit_text.text)
+		end
+		new_unit_rect:addEventListener("tap", new_unit_rect)
+
+		left_x = left_x + (1/lower_count)*ingredient_panel.width
 	end
 	group:insert(unit_group)
 	----

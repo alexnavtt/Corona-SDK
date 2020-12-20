@@ -46,7 +46,7 @@ measurements.densities  =  {["flour"]			= 120,
 							["water"] 			= 227,
 							["yeast"] 			= (1/2.25)*48*7}
 
-measurements.essential_units = {"cup", "tsp", "tbsp", "fl oz", "ml", "g", "oz", "lb", "count"}
+measurements.essential_units = {"cup", "tsp", "tbsp", "fl oz", "ml", "g", "oz", "lb", "count", "pinch", "dash"}
 
 measurements.volumes =  {cup 	= true,
 					 tsp 	= true,
@@ -58,7 +58,8 @@ measurements.volumes =  {cup 	= true,
 					 quart 	= true,
 					 gallon = true,
 					 dash 	= true,
-					 pinch 	= true}
+					 pinch 	= true,
+					 smidgen = true}
 
 measurements.masses =  {g  = true,
 					oz = true,

@@ -36,9 +36,9 @@ local function insertIngredient(ingredient, amount, unit, amount_number, ingredi
 
 	-- Ingredient Text
 	ingredient_text_params = {text = ingredient,
-							  x = 0.2*scroll_view_width_1,
+							  x = 0.1*scroll_view_width_1,
 							  y = ingredient_level,
-							  width = 0.5*scroll_view_width_1,
+							  width = 0.55*scroll_view_width_1,
 							  height = 0,
 							  font = native.systemFont,
 							  fontSize = 0.022*display.contentHeight,
@@ -51,11 +51,32 @@ local function insertIngredient(ingredient, amount, unit, amount_number, ingredi
 		ingredient_word.size = 0.9*ingredient_word.size
 	end
 
-	local checkBox = tinker.newCheckBox(0.11*scroll_view_width_1, ingredient_level, 0.025*W)
-	ingredient_group:insert(checkBox)
+	-- Strikethrough line
+	local strikethrough = display.newGroup()
+	local x1 = ingredient_word.x - 0.03*ingredient_word.width
+	local x2 = ingredient_word.x + 1.06*ingredient_word.width
+
+	-- Determine if it is a 1 or 2 line ingredient
+	if ingredient_word.height < 0.55*bkgd.height then
+		local line1 = display.newLine(strikethrough, x1, ingredient_word.y, x2, ingredient_word.y)
+	else
+		local y1 = ingredient_word.y - 0.25*ingredient_word.height
+		local y2 = ingredient_word.y + 0.25*ingredient_word.height
+		local line1 = display.newLine(strikethrough, x1, y1, x2, y1)
+		local line2 = display.newLine(strikethrough, x1, y2, x2, y2)
+	end
+
+	for i = 1,strikethrough.numChildren,1 do
+		strikethrough[i].strokeWidth = 2
+		strikethrough[i]:setStrokeColor(unpack(app_colors.recipe.ing_text))
+	end
+	
+	ingredient_group:insert(strikethrough)
+	strikethrough.alpha = 0
 
 	function bkgd:tap(event)
-		checkBox.listener:dispatchEvent({name = "tap"})
+		strikethrough.alpha = 0.5 - strikethrough.alpha
+		ingredient_word.alpha = 1.5 - ingredient_word.alpha
 	end
 	bkgd:addEventListener("tap", bkgd)
 
@@ -67,7 +88,7 @@ local function insertIngredient(ingredient, amount, unit, amount_number, ingredi
 	end
 
 	local amount_text_params = {text = amount .. space .. unit,
-								x = 0.85*scroll_view_width_1,
+								x = 0.8*scroll_view_width_1,
 								y = ingredient_level,
 								width = 0.3*scroll_view_width_1,
 								height = 0,
@@ -87,14 +108,7 @@ local function insertIngredient(ingredient, amount, unit, amount_number, ingredi
 			return true
 		end
 
-		local old_value = self.value
-		local old_unit  = self.unit
-		local food_name = self.food
-
-		local abs_x, abs_y = self:localToContent(self.x, self.y)
-		print(display.contentHeight)
-		print(string.format("(%d,%d)",abs_x,abs_y))
-		showUnitCircle(old_unit, self, old_value, food_name)
+		showUnitCircle(self.unit, self, self.value, self.food)
 		return true
 	end
 	ingredient_amount:addEventListener("tap", ingredient_amount)

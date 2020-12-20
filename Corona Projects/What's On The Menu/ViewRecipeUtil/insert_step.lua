@@ -10,7 +10,7 @@ local function insertStep(step_text, step_level, step_level_delta, step_count)
 	end
 
 	local step_title_params = {text = "Step " .. step_count,
-						 x = 0.13*(display.contentWidth - params.div_x2),
+						 x = 0.05*(display.contentWidth - params.div_x2),
 						 y = step_level,
 						 width = 0,--0.8*(display.contentWidth - div_x2),
 						 height = 0,
@@ -38,16 +38,27 @@ local function insertStep(step_text, step_level, step_level_delta, step_count)
 	step_text_paragraph.anchorX = 0
 	step_text_paragraph.anchorY = 0
 
-	local checkBox = tinker.newCheckBox(0.5*(step_title.x), step_title.y, 0.33*(step_title.x))
+	-- Strikethrough line
+	-- local strikethrough = display.newLine(step_title.x - 0.05*step_title.width, step_title.y, step_title.x + 1.05*step_title.width, step_title.y)
+	local strikethrough = display.newRect(step_title.x - 0.05*step_title.width, step_title.y, 1.05*step_title.width, 2)
+	strikethrough.alpha = 0
+	strikethrough.anchorX = 0
+	strikethrough:setFillColor(unpack(app_colors.recipe.step_text))
+
+	print("Created line for step " .. step_count .. " at x = " .. step_title.x - 0.05*step_title.width)
 
 	function step_title:tap(event)
-		checkBox.listener:dispatchEvent({name = "tap"})
+		strikethrough.alpha = 0.5 - strikethrough.alpha
+		step_title.alpha = 1.5 - step_title.alpha
+		step_text_paragraph.alpha = 1.5 - step_text_paragraph.alpha
 	end
 	step_title:addEventListener("tap", step_title)
 
-	step_group:insert(checkBox)
 	step_group:insert(step_title)
 	step_group:insert(step_text_paragraph)
+	step_group:insert(strikethrough)
+
+	strikethrough:toFront()
 
 	return step_group
 end

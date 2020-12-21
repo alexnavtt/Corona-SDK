@@ -27,8 +27,9 @@ function util.sleep(seconds)
 end
 
 -- Return a table containing the sorted keys from an input table
-function util.sortTableKeys(table_input)
+function util.sortTableKeys(table_input, reverse)
 	local sorted_keys = {}
+	local reverse = reverse or false
 
 	local function stringLessThan(a,b)
 		for i = 1,#a,1 do
@@ -39,14 +40,21 @@ function util.sortTableKeys(table_input)
 			letter1 = a:sub(i,i):lower()
 			letter2 = b:sub(i,i):lower()
 
+			local answer
 			if letter1 < letter2 then
-				return true
+				answer =  true
 
 			elseif letter1 > letter2 then
-				return false
+				answer =  false
 
 			elseif i == #a then
-				return true
+				answer = true
+			end
+
+			if reverse then
+				return not answer
+			else
+				return answer
 			end
 		end
 	end

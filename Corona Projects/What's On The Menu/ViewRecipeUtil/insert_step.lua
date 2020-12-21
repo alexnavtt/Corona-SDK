@@ -1,8 +1,7 @@
 local globalData = require("globalData")
-local params = require("ViewRecipeUtil.view_recipe_shared_params")
 local app_colors = require("AppColours")
 
-local function insertStep(step_text, step_level, step_level_delta, step_count)
+local function insertStep(step_text, step_level_delta, step_count, params)
 	local step_group = display.newGroup()
 
 	if step_text == "" or step_text == nil then
@@ -10,27 +9,26 @@ local function insertStep(step_text, step_level, step_level_delta, step_count)
 	end
 
 	local step_title_params = {text = "Step " .. step_count,
-						 x = 0.05*(display.contentWidth - params.div_x2),
-						 y = step_level,
-						 width = 0,--0.8*(display.contentWidth - div_x2),
+						 x = 0,
+						 y = 0,
+						 width = 0,
 						 height = 0,
 						 font = native.systemFontBold,
 						 fontSize = globalData.titleFontSize,
 						 align = "center"}
 	local step_title = display.newText(step_title_params)
-
-	step_level = step_level + step_level_delta + step_title.height/2.0
+	step_title.id = "step_title " .. step_count
 
 	local step_text_params = {text = step_text,
-						x = 0.12*(display.contentWidth - params.div_x2),
-						y = step_level,
+						x = 0.07*(display.contentWidth - params.div_x2),
+						y = step_level_delta + step_title.height/2.0,
 						width = 0.8*params.scroll_view_width_2,
 						height = 0,
 						font = native.systemFont,
 						fontSize = 0.025*display.contentHeight}
 
 	local step_text_paragraph = display.newText(step_text_params)
-	step_text_paragraph.id = "step_text"
+	step_text_paragraph.id = "step_text " .. step_count
 
 	step_title:setFillColor(unpack(app_colors.recipe.step_text))
 	step_title.anchorX = 0
@@ -39,7 +37,6 @@ local function insertStep(step_text, step_level, step_level_delta, step_count)
 	step_text_paragraph.anchorY = 0
 
 	-- Strikethrough line
-	-- local strikethrough = display.newLine(step_title.x - 0.05*step_title.width, step_title.y, step_title.x + 1.05*step_title.width, step_title.y)
 	local strikethrough = display.newRect(step_title.x - 0.05*step_title.width, step_title.y, 1.05*step_title.width, 2)
 	strikethrough.alpha = 0
 	strikethrough.anchorX = 0

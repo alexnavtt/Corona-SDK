@@ -1,5 +1,4 @@
 local tinker = require("Tinker")
-local params = require("ViewRecipeUtil.view_recipe_shared_params")
 local cookbook = require("cookbook")
 local app_colors = require("AppColours")
 
@@ -10,9 +9,9 @@ local cY = display.contentCenterY
 
 local showUnitCircle = require("ViewRecipeUtil.show_unit_circle")
 
-local function insertIngredient(ingredient, amount, unit, amount_number, ingredient_level, ingredient_level_delta, color)
+local function insertIngredient(ingredient, amount, unit, amount_number, ingredient_level_delta, color, params)
 	local ingredient_group = display.newGroup()
-	local scroll_view_width_1 = params.scroll_view_width_1
+	local scroll_view_width_1 = params.ingredient_width
 	local width = 0.9*scroll_view_width_1
 
 	-- Make it look pretty
@@ -30,15 +29,16 @@ local function insertIngredient(ingredient, amount, unit, amount_number, ingredi
 		unit = string.upper(unit:sub(1,1)) .. unit:sub(2)
 	end
 
-	local bkgd = display.newRoundedRect(ingredient_group, 0.05*scroll_view_width_1, ingredient_level, width, 0.6*ingredient_level_delta, 0.1*ingredient_level_delta)
+	-- local bkgd = display.newRoundedRect(ingredient_group, 0.05*scroll_view_width_1, ingredient_level, width, 0.6*ingredient_level_delta, 0.1*ingredient_level_delta)
+	local bkgd = display.newRoundedRect(ingredient_group, 0, 0, width, 0.6*ingredient_level_delta, 0.1*ingredient_level_delta)
 	bkgd:setFillColor(unpack(color))
 	bkgd.anchorX = 0
 
 	-- Ingredient Text
 	ingredient_text_params = {text = ingredient,
-							  x = 0.1*scroll_view_width_1,
-							  y = ingredient_level,
-							  width = 0.55*scroll_view_width_1,
+							  x = 0.05*bkgd.width,
+							  y = 0,
+							  width = 0.65*bkgd.width,
 							  height = 0,
 							  font = native.systemFont,
 							  fontSize = 0.022*display.contentHeight,
@@ -70,7 +70,7 @@ local function insertIngredient(ingredient, amount, unit, amount_number, ingredi
 		strikethrough[i].strokeWidth = 2
 		strikethrough[i]:setStrokeColor(unpack(app_colors.recipe.ing_text))
 	end
-	
+
 	ingredient_group:insert(strikethrough)
 	strikethrough.alpha = 0
 
@@ -88,18 +88,19 @@ local function insertIngredient(ingredient, amount, unit, amount_number, ingredi
 	end
 
 	local amount_text_params = {text = amount .. space .. unit,
-								x = 0.8*scroll_view_width_1,
-								y = ingredient_level,
-								width = 0.3*scroll_view_width_1,
+								x = bkgd.x + 0.97*bkgd.width,
+								y = 0,
+								width = 0.3*bkgd.width,
 								height = 0,
 								font = native.systemFont,
 								fontSize = 0.02*display.contentHeight,
-								align = "center"}
+								align = "right"}
 	local ingredient_amount = display.newText(amount_text_params)
 	ingredient_amount:setFillColor(unpack(app_colors.recipe.ing_text))
 	ingredient_amount.value = amount_number
 	ingredient_amount.unit  = unit
 	ingredient_amount.food  = ingredient
+	ingredient_amount.anchorX = ingredient_amount.width
 
 	if amount == "0" then ingredient_amount.text = "" end
 
@@ -108,7 +109,12 @@ local function insertIngredient(ingredient, amount, unit, amount_number, ingredi
 			return true
 		end
 
-		showUnitCircle(self.unit, self, self.value, self.food)
+		local unit_circle = showUnitCircle(self.unit, self, self.value, self.food)
+		if unit_circle then
+			unit_circle.x = cX
+			unit_circle.y = cY
+			unit_circle:rotate(ingredient_group.rotation)
+		end
 		return true
 	end
 	ingredient_amount:addEventListener("tap", ingredient_amount)

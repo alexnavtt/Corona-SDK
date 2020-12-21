@@ -173,9 +173,6 @@ function scene:show( event )
 		scale_text:setFillColor(unpack(app_colors.recipe.title_text))
 		self.recipe_group:insert(scale_text)
 
-		print("view page:")
-		print(globalData.active_recipe)
-
 		local ing_colors = {app_colors.recipe.ingredient_1, app_colors.recipe.ingredient_2}
 		local i = 0
 
@@ -193,7 +190,6 @@ function scene:show( event )
 			local table_val = ingredients[ingredient_names[sorted_ingredients[j]]]
 
 			local text_amount = table_val.text_amount
-			print("THIS" .. text_amount)
 			local amount = table_val.amount
 
 			if scaling_factor ~= 1 then
@@ -203,16 +199,20 @@ function scene:show( event )
 				end
 			end
 
-			local new_ingredient = insertIngredient(table_val.name, text_amount, table_val.unit, amount, ingredient_level, ingredient_level_delta, ing_colors[i+1])
+			local new_ingredient = insertIngredient(table_val.name, text_amount, table_val.unit, amount, ingredient_level_delta, ing_colors[i+1], page_params)
+			new_ingredient.y = ingredient_level
+			new_ingredient.x = 0.05*page_params.scroll_view_width_1
 			self.ingredient_panel:insert(new_ingredient)
 
 			ingredient_level = ingredient_level + ingredient_level_delta
 			i = 1 - i
 		end
 
-
+		-- Insert each step 1 by 1
 		for index, table_val in pairs(globalData.menu[name].steps) do
-			local new_step = insertStep(table_val, step_level, step_level_delta, index)
+			local new_step = insertStep(table_val, step_level_delta, index, page_params)
+			new_step.y = step_level
+			new_step.x = 0.05*(display.contentWidth - page_params.div_x2)
 			self.instruction_panel:insert(new_step)
 
 			step_level = step_level + step_level_delta + new_step.height

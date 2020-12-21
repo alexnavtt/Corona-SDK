@@ -115,7 +115,7 @@ function scene:create( event )
 		globalData.writeSettings()
 		portraitOption.alpha = 0.2
 		landscapeOption.alpha = 0.5
-		native.showAlert("What's On The Menu", "This doesn't actually do anything yet", {"OK"})
+		-- native.showAlert("What's On The Menu", "This doesn't actually do anything yet", {"OK"})
 	end
 
 	portraitOption:addEventListener("tap", tapPortrait)

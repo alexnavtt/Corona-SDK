@@ -79,7 +79,9 @@ local function createSearchBar(event)
 
 		for name, value in pairs(possible_foods) do
 			local function tap_func(event)
-				composer.gotoScene("ViewRecipePage", {effect = "slideRight", time = globalData.transition_time, params = {name = name}})
+				local page = "ViewRecipePage"
+				if globalData.settings.recipeStyle == "landscape" then page = "ViewLandscapeRecipe" end
+				composer.gotoScene(page, {effect = "slideRight", time = globalData.transition_time, params = {name = name}})
 			end
 
 			local params = {label = name, displayGroup = options_group, radius = 20, tap_func = tap_func, labelColor = app_colors.tab_bar.search_text,

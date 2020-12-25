@@ -1,5 +1,6 @@
 local globalData = require("globalData")
 local json = require("json")
+local defaultMenu = require("DefaultMenu")
 
 local image_io = {}
 
@@ -76,8 +77,8 @@ function image_io.cleanupFoodImages()
 				end
 			end
 
-			if not globalData.menu[foodname] then
-				native.showAlert("What's on the Menu", "Recipe Not Found For Image '" .. foodname .. "'. Delete image?", {"OK", "No, keep it"}, deleteListener)
+			if not globalData.menu[foodname] and not defaultMenu[foodname] then
+				native.showAlert("What's on the Menu", "Recipe Not Found For Image '" .. foodname .. "'. Delete saved image?", {"OK", "No, keep it"}, deleteListener)
 			end
 		end
 	end

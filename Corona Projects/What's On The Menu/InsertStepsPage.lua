@@ -86,6 +86,8 @@ local function finalizeRecipe(event)
 	composer.removeScene('NewRecipePage')
 	composer.removeScene('IngredientsPage')
 	composer.removeScene('InsertStepsPage')
+
+	globalData.tab_bar:update()
 end
  
 local function updateStepText(event)
@@ -377,8 +379,8 @@ function scene:hide( event )
 	elseif ( phase == "did" ) then
 		sceneGroup:remove(steps_text_field)
 		relocateStepsField(-1000, -1000)
-		-- Code here runs immediately after the scene goes entirely off screen
- 
+
+		globalData.lastScene = "InsertStepsPage" 
 	end
 end
  

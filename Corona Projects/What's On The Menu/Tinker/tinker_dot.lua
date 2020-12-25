@@ -30,6 +30,7 @@ local function newDot(x,y,radius,params)
 	dot:setFillColor(unpack(color))
 	dot:setStrokeColor(unpack(strokeColor))
 	dot.stokeWidth = strokeWidth
+	dot.id = "button"
 
 	local function fitText()
 		if image then 

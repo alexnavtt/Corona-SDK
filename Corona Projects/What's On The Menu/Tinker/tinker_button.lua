@@ -43,6 +43,7 @@ local function newButton(x, y, width, height, params)
 	local button = display.newRoundedRect(group, 0, 0, width, height, radius)
 	button:setFillColor(unpack(color))
 	button:setStrokeColor(unpack(strokeColor))
+	button.id = "button"
 	button.strokeWidth = strokeWidth
 	group._bkgdColor = color
 	group._button = button

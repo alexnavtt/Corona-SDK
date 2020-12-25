@@ -3,14 +3,17 @@
 -- main.lua
 --
 -----------------------------------------------------------------------------------------
-local composer 		= require("composer")
-local globalData 	= require("globalData")
-local json 			= require("json")
-local cookbook 		= require("cookbook")
-local colors 		= require("Palette")
-local lfs 			= require("lfs")
-local app_colors 	= require("AppColours")
-local tab_bar_util  = require("TabBarUtil.tab_bar_util")
+local composer 		  = require("composer")
+local json 			  = require("json")
+local lfs 			  = require("lfs")
+
+local globalData 	  = require("globalData")
+local cookbook 		  = require("cookbook")
+local colors 		  = require("Palette")
+local app_colors 	  = require("AppColours")
+local tab_bar_util    = require("TabBarUtil.tab_bar_util")
+local util            = require("GeneralUtility")
+local app_transitions = require("AppTransitions")
 
 system.setTapDelay(0.5)
 
@@ -24,29 +27,23 @@ globalData.textures 	= {}
 globalData.settings 	= {}
 
 -- List of all composer scenes in the project
-globalData.all_scenes = {"BrowsePage", "FavouritesPage", "NewRecipePage", "IngredientsPage", "InsertStepsPage","ViewRecipePage"}
+globalData.all_scenes = {"BrowsePage", "FavouritesPage", "NewRecipePage", "IngredientsPage", "InsertStepsPage","ViewRecipePage","ViewLandscapeRecipe"}
 
 -- Default Settings for the App
 globalData.defaultSettings = {
 	colorScheme 		= "blue",
 	showDefaultRecipes 	= true,
 	recipeStyle 		= "portrait",
+	allow_idle_timeout  = true
 }
 
 -- Private Parameters
 globalData.info_received = false
-globalData.colorOptions = {blue = "blue", red = "red", light = "white", dark = "purple", bright = "green"}
 
 -- Visual Parameters
 globalData.smallFontSize  = 0.02*display.contentHeight
 globalData.mediumFontSize =	0.0225*display.contentHeight
 globalData.titleFontSize  = 0.025*display.contentHeight
-
--- Geometry Parameters
-globalData.panel_width 	= 0.9*display.contentWidth
-globalData.panel_height = 0.2*display.contentHeight
-globalData.label_height = 0.05*display.contentHeight
-globalData.label_width  = 0.45*display.contentWidth
 
 -- Text Field Parameters
 local tab_height = tab_bar_util.tab_height
@@ -111,23 +108,38 @@ function globalData.reloadApp()
 	end
 end
 
--- globalData.info_received = true
-local test = false
+-- Overwrite the back button on the phone
+function globalData.goBack(event)
+	if (event.keyName == "back" and event.phase == "down") then
+		local last_scene = composer.getSceneName("previous")
+		local current_scene = composer.getSceneName("current")
+
+		-- Notable exceptions
+		if last_scene == "InsertStepsPage" and current_scene == "BrowsePage"    then return globalData.tab_bar:update() end
+		if last_scene == "IngredientsPage" and current_scene == "NewRecipePage" then return globalData.tab_bar:update() end
+
+		app_transitions.moveTo(last_scene, globalData.activeRecipe)
+		globalData.tab_bar:update()
+	end
+
+	return true
+end
+Runtime:addEventListener("key", globalData.goBack)
+
+-- Start the app
 globalData.readSettings()
 globalData.readFavourites()
 globalData.readCustomMenu()
--- test = globalData.readWebMenu();
-if globalData.settings.showDefaultRecipes then globalData.readDefaultMenu() end
+if globalData.settings.showDefaultRecipes then 
+	globalData.readDefaultMenu() 
+end
+
 globalData.loadMenuImages()
 globalData.cleanupFoodImages()
 app_colors.changeTo(globalData.settings.colorScheme or "blue")
-if not app_colors.browse then
-	app_colors.changeTo("blue")
-end
--- app_colors.changeTo("light")
 
-if not test then
-	globalData.activeScene = "BrowsePage"
-	globalData.tab_bar = tab_bar_util.createTabBar()
-	composer.gotoScene("BrowsePage")
-end
+
+globalData.activeScene = "BrowsePage"
+globalData.lastScene = "BrowsePage"
+globalData.tab_bar = tab_bar_util.createTabBar()
+composer.gotoScene("BrowsePage")

@@ -6,6 +6,7 @@ local widget = require("widget")
 local tinker = require("Tinker")
 local app_colors = require("AppColours")
 local transition = require("transition")
+local app_transitions = require("AppTransitions")
  
 local scene = composer.newScene()
 
@@ -13,7 +14,6 @@ local W = display.contentWidth
 local H = display.contentHeight
 local cX = display.contentCenterX
 local cY = display.contentCenterY
-local y_level
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
@@ -26,6 +26,7 @@ local settings_list =  {"Panel Colour",
  						"Clear Favourite Data",
  						"Clear Recipe Data"}
  
+globalData.colorOptions = {blue = "blue", red = "red", light = "white", dark = "purple", bright = "green"}
  
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -37,13 +38,11 @@ function scene:create( event )
 	local sceneGroup = self.view
 	local background = display.newRect(sceneGroup, cX, cY, W, H)
 	background:setFillColor(unpack(app_colors.settings.background))
-	-- local paint = {type = "image", filename = "Image Assets/Cheese-Graphic.png"}
-	-- background.fill = paint 
+	background:addEventListener("touch", app_transitions.swipeLeft)
 
-	-- self.tab_group = cookbook.createTabBar()
-	-- sceneGroup:insert(self.tab_group)
+	local y_level = 0.12*H
+	local x_level = 0.08*W
 
-	y_level = 0.15*H
 	local title = display.newText({text = "General Settings", x = 0.05*W, y = y_level, fontSize = 1.5*globalData.titleFontSize, font = native.systemFontBold})
 	title.anchorX = 0
 	title:setFillColor(unpack(app_colors.settings.text))
@@ -54,7 +53,7 @@ function scene:create( event )
 	---------------------
 	-- DEFAULT RECIPES --
 	---------------------
-	local showDefaultRecipes = display.newText({text = "Show Default Recipes", x = 0.08*W, y = y_level, fontSize = globalData.mediumFontSize})
+	local showDefaultRecipes = display.newText({text = "Show Default Recipes", x = x_level, y = y_level, fontSize = globalData.mediumFontSize})
 	showDefaultRecipes.anchorX = 0
 	showDefaultRecipes:setFillColor(unpack(app_colors.settings.text))
 	sceneGroup:insert(showDefaultRecipes)
@@ -73,107 +72,128 @@ function scene:create( event )
 		end
 	end
 
-	local showDefaultRecipesSwitch = widget.newSwitch({x = 0.9*W, y = y_level, initialSwitchState = globalData.settings.showDefaultRecipes, onPress = defaultRecipeOnPress})
-	showDefaultRecipesSwitch:scale(1.5,1.5)
-	sceneGroup:insert(showDefaultRecipesSwitch)
+	local default_switch_params = {defaultState = globalData.settings.showDefaultRecipes, tap_func = defaultRecipeOnPress, displayGroup = sceneGroup}
+	local showDefaultRecipesSwitch = tinker.newSlidingSwitch(0.9*W, y_level, default_switch_params)
 
 	y_level = y_level + 0.1*H
 
 	--------------------------------
 	-- RECIPE DISPLAY MODE SCHEME --
 	--------------------------------
-	local recipeDisplay = display.newText({text = "Recipe Display Orientation", x = 0.08*W, y = y_level, fontSize = globalData.mediumFontSize})
+	local recipeDisplay = display.newText({text = "Default Recipe Display to Landscape", x = x_level, y = y_level, fontSize = globalData.mediumFontSize})
 	recipeDisplay.anchorX = 0
 	recipeDisplay:setFillColor(unpack(app_colors.settings.text))
 	sceneGroup:insert(recipeDisplay)
 
-	local color = 1
-	if app_colors.scheme == "light" then color = 0 end
-	local params = {color = color, label = "Portrait", displayGroup = sceneGroup}
-	local portraitOption = tinker.newButton(0.7*W, y_level, 0.15*W, 0.03*H, params)
-
-	params.label = "Landscape"
-	local landscapeOption = tinker.newButton(portraitOption.x + 1.1*portraitOption.width, y_level, portraitOption.width, portraitOption.height, params)
-
-	if globalData.settings.recipeStyle == "portrait" then
-		portraitOption.alpha = 0.5
-		landscapeOption.alpha = 0.2
-	else
-		portraitOption.alpha = 0.2
-		landscapeOption.alpha = 0.5
-	end
-
-	local function tapPortrait(event)
-		globalData.settings.recipeStyle = "portrait"
+	local function tapRecipeStyle(event)
+		if globalData.settings.recipeStyle == "portrait" then
+			globalData.settings.recipeStyle = "landscape"
+		else
+			globalData.settings.recipeStyle = "portrait"
+		end
 		globalData.writeSettings()
-		portraitOption.alpha = 0.5
-		landscapeOption.alpha = 0.2
+		return true
 	end
 
-	local function tapLandscape(event)
-		globalData.settings.recipeStyle = "landscape"
+	local showLandscape = globalData.settings.recipeStyle == "landscape"
+	local recipe_style_switch_params = {defaultState = showLandscape, tap_func = tapRecipeStyle, displayGroup = sceneGroup}
+	local recipe_style_switch = tinker.newSlidingSwitch(showDefaultRecipesSwitch.x, y_level, recipe_style_switch_params)
+
+	y_level = y_level + 0.1*H
+
+	-----------------
+	-- SCREEN LOCK --
+	-----------------
+
+	local screenLock = display.newText({text = "Prevent Idle Screen Lock", x = x_level, y = y_level, fontSize = globalData.mediumFontSize})
+	screenLock.anchorX = 0
+	screenLock:setFillColor(unpack(app_colors.settings.text))
+	sceneGroup:insert(screenLock)
+
+	local function tapScreenLock(event)
+		globalData.settings.allow_idle_timeout = not globalData.settings.allow_idle_timeout
+		if not globalData.settings.allow_idle_timeout then
+			system.setIdleTimer(false)
+		else
+			system.setIdleTimer(true)
+		end
 		globalData.writeSettings()
-		portraitOption.alpha = 0.2
-		landscapeOption.alpha = 0.5
-		-- native.showAlert("What's On The Menu", "This doesn't actually do anything yet", {"OK"})
 	end
 
-	portraitOption:addEventListener("tap", tapPortrait)
-	landscapeOption:addEventListener("tap", tapLandscape)
+	local prevent_screen_lock = not globalData.settings.allow_idle_timeout
+	local screen_lock_params = {defaultState = prevent_screen_lock, tap_func = tapScreenLock, displayGroup = sceneGroup}
+	local screen_lock_switch = tinker.newSlidingSwitch(recipe_style_switch.x, y_level, screen_lock_params)
 
+	y_level = y_level + 0.1*H
 
 	------------------
 	-- COLOR SCHEME --
 	------------------
-	y_level = y_level + 0.1*H
-
-	local colorScheme = display.newText({text = "Color Scheme", x = 0.08*W, y = y_level, fontSize = globalData.mediumFontSize})
+	local colorScheme = display.newText({text = "Color Scheme", x = x_level, y = y_level, fontSize = globalData.mediumFontSize})
 	colorScheme.anchorX = 0
 	colorScheme:setFillColor(unpack(app_colors.settings.text))
 	sceneGroup:insert(colorScheme)
 
-	local colorBox = display.newRect(sceneGroup, showDefaultRecipesSwitch.x, y_level, 0.05*W, 0.05*W)
-	colorBox:setFillColor(unpack(colors[globalData.colorOptions[globalData.settings.colorScheme]]))
-	colorBox.strokeWidth = 10
-	colorBox:setStrokeColor(unpack(app_colors.settings.color_border))
+	local colorDropdown = display.newImageRect(sceneGroup, "Image Assets/White-Dropdown-Arrow-Graphic.png", 0.05*W, 0.05*W)
+	colorDropdown.rotation = 180
+	colorDropdown.x = recipe_style_switch.x
+	colorDropdown.y = y_level
 
-	local function showColorOptions(event)
-		local group = display.newGroup()
-		group.x = cX
-		group.y = cY
+	local names = {"Blueberry Blast", "Pastel Paradise", "Plumb Purple", "Tropical Trouble", "Raspberrry Red"}
+	local official_names = {"blue", "light", "dark", "bright", "red"}
+	local colorGroups = {visible = true}
 
-		local glassScreen = display.newRect(group, 0, 0, W, H)
-		glassScreen:setFillColor(0,0,0,0.5)
-		glassScreen:addEventListener("tap", function(event) group:removeSelf(); return true end)
+	local start_y = y_level
+	local indented_x = x_level + 0.04*H
+	local dt = 500
 
-		print(#globalData.colorOptions)
-		local bkgd = display.newRect(group, 0, 0, 5*0.1*W, 0.1*W)
-		bkgd:setFillColor(0.5)
-		bkgd:addEventListener("tap", function(e) return true end)
+	for i = 1,#names,1 do
+		local newGroup = display.newGroup()
+		newGroup.y = start_y + i*0.07*H
 
-		local x = -bkgd.width/2 + 0.05*W
+		local new_text = display.newText({parent = newGroup, text = names[i], fontSize = globalData.smallFontSize, x = indented_x, y = 0})
+		new_text:setFillColor(unpack(app_colors.settings.text))
+		new_text.anchorX = 0
 
-		for colorScheme, color in pairs(globalData.colorOptions) do
-			local option = display.newRect(group, x, 0, 0.07*W, 0.07*W)
-			option:setFillColor(unpack(colors[color]))
+		newGroup.home = newGroup.y
 
-			x = x + 0.1*W
-			if colorScheme == globalData.settings.colorScheme then
-				option.strokeWidth = 10
-				option:setStrokeColor(0,0,0,0.5)
+		function newGroup.appear()
+			transition.to(newGroup, {y = newGroup.home, alpha = 1, time = dt})
+		end
+
+		function newGroup.hide()
+			transition.to(newGroup, {y = start_y, alpha = 0, time = dt})
+		end
+
+		function newGroup:tap(event)
+			local colorScheme = official_names[i]
+			app_colors.changeTo(colorScheme)
+			globalData.reloadApp()
+			globalData.settings.colorScheme = colorScheme
+			globalData.writeSettings()
+		end
+		newGroup:addEventListener("tap", newGroup)
+
+		sceneGroup:insert(newGroup)
+		colorGroups[i] = newGroup
+	end
+
+	function colorDropdown:tap(event)
+		colorGroups.visible = not colorGroups.visible
+		transition.to(colorDropdown, {rotation = 180, time = dt, delta = true})
+		if colorGroups.visible then
+			for i = 1,#colorGroups,1 do
+				colorGroups[i]:appear()
 			end
-
-			local function onTap(event)
-				group:removeSelf()
-				app_colors.changeTo(colorScheme)
-				globalData.reloadApp()
-				globalData.settings.colorScheme = colorScheme
-				globalData.writeSettings()
+		else
+			for i = 1,#colorGroups,1 do
+				colorGroups[i].hide()
 			end
-			option:addEventListener("tap", onTap)
 		end
 	end
-	colorBox:addEventListener("tap", showColorOptions)
+	colorDropdown:addEventListener("tap", colorDropdown)
+
+	y_level = y_level + 0.1*H
 end
  
  

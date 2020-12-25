@@ -7,6 +7,7 @@ local tinker = require("Tinker")
 local app_colors = require("AppColours")
 local transition = require("transition")
 local util = require("GeneralUtility")
+local app_transitions = require("AppTransitions")
 
 local scene = composer.newScene()
 
@@ -107,7 +108,7 @@ function scene:create( event )
 	sceneGroup:insert(back_text)
 
 	local function goBack(event)
-		composer.gotoScene(globalData.activeScene, {effect = "slideLeft", time = globalData.transition_time})
+		app_transitions.moveTo(globalData.activeScene)
 	end
 	back_button:addEventListener("tap", goBack)
 
@@ -247,18 +248,8 @@ function scene:hide( event )
 	if ( phase == "will" ) then
  
 	elseif ( phase == "did" ) then
-		for i = 1,self.ingredient_panel._collectorGroup.numChildren,1 do
-			self.ingredient_panel:remove(1)
-		end
-
-		for i = 1,self.instruction_panel._collectorGroup.numChildren,1 do
-			self.instruction_panel:remove(1)
-		end
-
-		self.recipe_group:removeSelf()
-
-		options:removeSelf()
-		options_background:removeEventListener("tap", tapOptions)
+		composer.removeScene("ViewRecipePage")
+		
 	end
 end
  

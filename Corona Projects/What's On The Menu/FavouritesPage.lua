@@ -4,6 +4,7 @@ local widget   	 = require("widget")
 local globalData = require("globalData")
 local app_colors = require("AppColours")
 local util = require("GeneralUtility")
+local app_transitions = require("AppTransitions")
 
 local scene = composer.newScene()
 
@@ -28,9 +29,12 @@ function scene:create( event )
 
 	local opt = globalData.scroll_options()
 	opt.backgroundColor = app_colors.browse.background
-	self.clip_box = widget.newScrollView(opt)
+	self.scroll_view = widget.newScrollView(opt)
 
-	sceneGroup:insert(self.clip_box)
+	self.scroll_view._view:addEventListener("touch", app_transitions.swipeRight)
+	self.scroll_view._view:addEventListener("touch", app_transitions.swipeLeft)
+
+	sceneGroup:insert(self.scroll_view)
 	-- sceneGroup:insert(self.tab_group)
 
 	globalData.loadMenuImages() 
@@ -46,7 +50,6 @@ function scene:show( event )
 	if ( phase == "will" ) then
 		-- self.tab_group = cookbook.updateTabBar(self.tab_group)
 		transition.to(globalData.tab_bar, {alpha = 1, time = 0.7*globalData.transition_time})
-		self.panels = {}
 		
 		local panel_group = display.newGroup()
 
@@ -71,37 +74,20 @@ function scene:show( event )
 
 		for i = 1,#food_list,1 do
 			if globalData.menu[food_list[i]] then
-				local new_panel_group = createFoodPanel(food_list[i], display.contentCenterX, panel_pos, panel_width, panel_height, self.clip_box, panel_color[iter+1], text_color[iter+1])
-				
-				local new_panel = util.findID(new_panel_group, "panel")
-				self.panels[food_list[i]] = new_panel
+				local new_panel_group = createFoodPanel(food_list[i], display.contentCenterX, panel_pos, panel_width, panel_height, self.scroll_view, panel_color[iter+1], text_color[iter+1])
 
 				panel_pos = panel_pos + 0.8*panel_height
 
-				function new_panel:tap(event)
-					globalData.active_recipe = food_list[i]
-					composer.gotoScene("ViewRecipePage", {effect = "slideRight", time = globalData.transition_time, params = {name = food_list[i]}})
-				end
-
-				new_panel:addEventListener("tap", new_panel)
 				panel_group:insert(new_panel_group)
 				new_panel_group:toBack()
 				iter = 1 - iter
 			end
 		end
 
-		self.clip_box:insert(panel_group)
+		self.scroll_view:insert(panel_group)
 	
 	elseif phase == "did" then
-		-- for foodname, panel in pairs(self.panels) do
 
-		-- 	if globalData.gallery[foodname] then
-
-		-- 		panel.fill = {	type 		= "image",
-		-- 						filename 	= globalData.textures[foodname].filename,
-		-- 						baseDir 	= globalData.textures[foodname].baseDir}
-		-- 	end
-		-- end
 	end
 end
  
@@ -116,13 +102,14 @@ function scene:hide( event )
 		-- Code here runs when the scene is on screen (but is about to go off screen)
  
 	elseif ( phase == "did" ) then
-		if self.clip_box then
-			for i = 1,self.clip_box._collectorGroup.numChildren,1 do
-				self.clip_box:remove(1)
+		if self.scroll_view then
+			for i = 1,self.scroll_view._collectorGroup.numChildren,1 do
+				self.scroll_view:remove(1)
 			end
 		end
-		-- Code here runs immediately after the scene goes entirely off screen
- 
+
+		globalData.lastScene = "FavouritesPage"
+
 	end
 end
  

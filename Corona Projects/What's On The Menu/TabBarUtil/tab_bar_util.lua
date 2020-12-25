@@ -2,6 +2,8 @@ local cookbook = require("cookbook")
 local globalData = require("globalData")
 local app_colors = require("AppColours")
 local composer = require("composer")
+local util = require("GeneralUtility")
+local app_transitions = require("AppTransitions")
 
 local tab_util = {}
 local tab_titles 	= {'Cookbook','Favourites','New Recipe'} --,'Settings'} --'Custom Search'
@@ -13,7 +15,7 @@ tab_util.tab_height = 0.05*display.contentHeight
 
 
 -- Find the direction to transition in order to move pages naturally
-local function findDirection(last_name, this_name)
+function tab_util.findDirection(last_name, this_name)
 	local last_index, this_index
 
 	if this_name == "Settings" then return "slideRight" end
@@ -79,9 +81,10 @@ local function createSearchBar(event)
 
 		for name, value in pairs(possible_foods) do
 			local function tap_func(event)
+				globalData.activeRecipe = name
 				local page = "ViewRecipePage"
 				if globalData.settings.recipeStyle == "landscape" then page = "ViewLandscapeRecipe" end
-				composer.gotoScene(page, {effect = "slideRight", time = globalData.transition_time, params = {name = name}})
+				app_transitions.moveTo(page, name)
 			end
 
 			local params = {label = name, displayGroup = options_group, radius = 20, tap_func = tap_func, labelColor = app_colors.tab_bar.search_text,
@@ -135,7 +138,6 @@ function tab_util.createTabBar()
 
 		local function onTap(event)
 			local old_one = globalData.activeScene
-			if old_one == page_titles[i] then return true end
 
 			globalData.activeScene = page_titles[i]
 			for i = 1,#buttons,1 do
@@ -143,7 +145,9 @@ function tab_util.createTabBar()
 				if i == #buttons then buttons[i]:setBackgroundColor({1,1,1,0.01}) end
 			end
 			button:setBackgroundColor({1,1,1,0.2})
-			composer.gotoScene(page_titles[i], {effect = findDirection(old_one, page_titles[i]), time = globalData.transition_time})
+
+			if old_one == page_titles[i] then return true end
+			app_transitions.moveTo(page_titles[i])
 			return true
 		end 
 
@@ -159,21 +163,19 @@ function tab_util.createTabBar()
 
 	local settings_button
 	local function goToSettings(event)
-		if globalData.activeScene == "Settings" then return true end
-
-		globalData.activeScene = "Settings"
 		for i = 1,#buttons,1 do
 			buttons[i]:setBackgroundColor({1,1,1,0.1})
 		end
 		settings_button:setBackgroundColor({1,1,1,0.2})
 
+		if globalData.activeScene == "Settings" then return true end
+
 		globalData.activeScene = "Settings"
-		composer.gotoScene("Settings", {effect = "slideLeft", time = globalData.transition_time})
+		app_transitions.moveTo("Settings")
 		return true
 	end 
 
 	local options = {image = "Image Assets/Small-Settings-Graphic.png", tap_func = goToSettings, displayGroup = tab_group, color = {0,0,0,0.01}}
-	-- settings_button = tinker.newButton(0.95*display.contentWidth, 0.5*tab_height, 0.8*tab_height, 0.8*tab_height, options)
 	settings_button = tinker.newDot(0.95*display.contentWidth, 0.5*tab_height, 0.4*tab_height, options)
 	settings_button.id = "bkgd-Settings"
 	table.insert(buttons, settings_button)
@@ -188,6 +190,17 @@ function tab_util.createTabBar()
 
 	local options = {image = "Image Assets/Small-Magnifying-Glass-Graphic.png", tap_func = createSearchBar, displayGroup = tab_group, color = {0,0,0,0.01}}
 	search_button = tinker.newButton(settings_button.x - settings_button.width, settings_button.y, settings_button.width, settings_button.height, options)
+
+	-- Update the tab bar so that it is at the current scene
+	function tab_group:update()
+		local current_scene = composer.getSceneName("current")
+		local button = util.findID(self, "bkgd-" .. current_scene)
+		if button then
+			local tap_listener = util.findID(button, "button")
+			tap_listener:dispatchEvent({name = "tap"})
+		end
+		return true
+	end
 
 	return tab_group
 end

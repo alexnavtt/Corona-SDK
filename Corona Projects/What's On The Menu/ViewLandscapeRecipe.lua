@@ -8,6 +8,7 @@ local globalData = require("globalData")
 local app_colors = require("AppColours")
 local cookbook   = require("cookbook")
 local util       = require("GeneralUtility")
+local app_transitions = require("AppTransitions")
 
 -- Page includes
 local view_recipe_params = require("ViewRecipeUtil.view_recipe_shared_params")
@@ -110,8 +111,7 @@ function scene:create( event )
 	sceneGroup:insert(back_text)
 
 	local function goBack(event)
-		composer.gotoScene(globalData.activeScene, {effect = "slideLeft", time = globalData.transition_time})
-		composer.removeScene('ViewLandscapeRecipe')
+		app_transitions.moveTo(globalData.activeScene)
 	end
 	back_button:addEventListener("tap", goBack)
 
@@ -271,15 +271,8 @@ function scene:hide( event )
 	local phase = event.phase
  
 	if ( phase == "did" ) then
-		for i = 1,self.ingredient_panel._collectorGroup.numChildren,1 do
-			self.ingredient_panel:remove(1)
-		end
+		composer.removeScene('ViewLandscapeRecipe')
 
-		for i = 1,self.instruction_panel._collectorGroup.numChildren,1 do
-			self.instruction_panel:remove(1)
-		end
-
-		self.recipe_group:removeSelf()
 	end
 end
  

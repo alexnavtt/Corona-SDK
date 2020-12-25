@@ -9,6 +9,7 @@ local tinker = require("Tinker")
 local colors = require("Palette")
 local app_colors = require("AppColours")
 local util = require("GeneralUtility")
+local app_transitions = require("AppTransitions")
 
 -- Page Specific Info
 local new_recipe_info = require("NewRecipeUtil.new_recipe_info")
@@ -28,6 +29,9 @@ function scene:create( event )
 	-- Create Background
 	local background = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
 	background:setFillColor(unpack(app_colors.new_recipe.background))
+
+	background:addEventListener("touch", app_transitions.swipeRight)
+	background:addEventListener("touch", app_transitions.swipeLeft)
 
 	-- Create text field for the name of the recipe
 	local field_height = 0.05*display.contentHeight
@@ -149,6 +153,8 @@ function scene:hide( event )
 			composer.removeScene("IngredientsPage")
 			composer.removeScene("InsertStepsPage") 
 		end
+
+		globalData.lastScene = "NewRecipePage"
 
 	end
 end

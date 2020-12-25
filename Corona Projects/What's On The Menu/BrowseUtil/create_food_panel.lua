@@ -1,6 +1,7 @@
 local globalData = require("globalData")
 local cookbook = require("cookbook")
 local app_colors = require("AppColours")
+local app_transitions = require("AppTransitions")
 local composer = require("composer")
 
 local function createFoodPanel(title, x, y, width, height, parent, color, text_color)
@@ -19,6 +20,16 @@ local function createFoodPanel(title, x, y, width, height, parent, color, text_c
 						baseDir 	= globalData.textures[title].baseDir}
 
 	end
+
+	function panel:tap(event)
+		globalData.activeRecipe = title
+		if globalData.settings.recipeStyle == "portrait" then
+			app_transitions.moveTo("ViewRecipePage", title)
+		else
+			app_transitions.moveTo("ViewLandscapeRecipe", title)
+		end
+	end
+	panel:addEventListener("tap", panel)
 
 	-- Add a dark copy of the panel to appear as a shadow
 	local panel_shadow = display.newRoundedRect(panel_group, -0.015*display.contentWidth, 0.02*display.contentWidth, width, height, 0.1*height)

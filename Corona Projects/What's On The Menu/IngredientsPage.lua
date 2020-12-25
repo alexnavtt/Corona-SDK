@@ -402,8 +402,8 @@ function scene:hide( event )
  
 	elseif ( phase == "did" ) then
 		-- timer.pause(self.timerHandle)
-		-- Code here runs immediately after the scene goes entirely off screen
- 
+
+		globalData.lastScene = "IngredientsPage" 
 	end
 end
 

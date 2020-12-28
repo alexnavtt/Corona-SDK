@@ -2,14 +2,21 @@
 local util = {}
 
 -- Print all the elements in a table
-function util.printTable(T)
-	print("------------------------")
-	print("----------TABLE---------")
-	print("------------------------")
+function util.printTable(T, recursive, level)
+	
+	if not level then level = 0 end
+	local indent = string.rep("...", level)
+
 	for key, value in pairs(T) do
-		print(key)
-		print(value)
 		print(" ")
+		print(indent .. key)
+		if type(value) == "table" and recursive then
+			util.printTable(value, true, level + 1)
+		elseif recursive then
+			print(indent .. value)
+		else
+			print(value)
+		end
 	end
 end
 
@@ -97,6 +104,38 @@ function util.findID(table_obj, id)
 			return(table_obj[i])
 		end
 	end
+end
+
+function util.tableEquals(T1, T2)
+	if T1 == T2 then return true end
+	if not (type(T1) == "table" and type(T2) == "table") then return false end
+
+	for key, value in pairs(T1) do
+		if type(value) == "table" then
+			-- Check for recrusive reference
+			if value == T2 or value == T1 then return false end
+
+			-- Recursively check equality
+			if not util.tableEquals(T2[key], value) then
+				return false
+			end
+
+		else
+			-- Compare non-table values directly
+			if not (value == T2[key]) then
+				return false
+			end
+		end
+	end
+	return true
+end
+
+function util.time()
+	return os.time(os.date('*t'))
+end
+
+function util.timeElapsed(time)
+	return util.time() - time
 end
 
 

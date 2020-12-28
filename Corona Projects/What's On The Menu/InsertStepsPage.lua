@@ -43,8 +43,10 @@ end
 -- -----------------------------------------------------------------------------------
  
 local function finalizeRecipe(event)
+	util.printTable(new_recipe_info)
+
 	local recipe_title
-	if not globalData.menu[new_recipe_info.newRecipeTitle] then
+	if globalData.menu[new_recipe_info.newRecipeTitle] == nil then
 		recipe_title = new_recipe_info.newRecipeTitle
 	else
 		for i = 1,10000,1 do
@@ -56,28 +58,28 @@ local function finalizeRecipe(event)
 	end
 
 	-- Overwrite Value if editing
-	if new_recipe_info.is_editing then recipe_title = new_recipe_info.newRecipeTitle end
+	if new_recipe_info.edit_existing_recipe then recipe_title = new_recipe_info.newRecipeTitle end
 
 	globalData.menu[recipe_title] = {ingredients = {}, steps = {}}
 
 	for ingredient_name, values in pairs(new_recipe_info.newRecipeIngredientList) do
 		table.insert(globalData.menu[recipe_title].ingredients, {name = ingredient_name, amount = values.amount, unit = values.unit, text_amount = values.text_amount})
-		print("Added Ingredient:\n\tName: " .. ingredient_name .. "\n\tAmount: " .. values.amount .. "\n\tUnit: " .. values.unit .. "\n\tText Amount " .. values.text_amount)
 	end
 
 	for index, step_text in pairs(new_recipe_info.newRecipeSteps) do
 		table.insert(globalData.menu[recipe_title].steps, step_text)
-		print("Added step: " .. step_text)
 	end
 
 	globalData.menu[recipe_title].cook_time = new_recipe_info.newRecipeParams.cook_time
 	globalData.menu[recipe_title].prep_time = new_recipe_info.newRecipeParams.prep_time
+	globalData.menu[recipe_title].timestamp = util.time()
 
 	new_recipe_info.newRecipeIngredients = {}
 	new_recipe_info.newRecipeSteps = {}
 	new_recipe_info.newRecipeTitle = nil
 	new_recipe_info.newRecipeParams = {}
 	new_recipe_info.is_editing = false
+	new_recipe_info.edit_existing_recipe = false
 
 	globalData.writeCustomMenu()
 

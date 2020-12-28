@@ -150,6 +150,7 @@ function scene:hide( event )
 			name_text_field:replaceText("")
 			prep_time_text_field:replaceText("")
 			cook_time_text_field:replaceText("")
+			new_recipe_info.edit_existing_recipe = false
 			composer.removeScene("IngredientsPage")
 			composer.removeScene("InsertStepsPage") 
 		end

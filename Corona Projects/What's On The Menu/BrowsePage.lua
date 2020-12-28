@@ -36,6 +36,7 @@ function scene:create( event )
  	sceneGroup:insert(self.scroll_view)
 
  	self.scroll_view._view:addEventListener("touch", app_transitions.swipeRight)
+ 	self.scroll_view._view._background:addEventListener("touch", app_transitions.swipeRight)
 
 	globalData.loadMenuImages()
 end
@@ -51,7 +52,6 @@ function scene:show( event )
  
 	if ( phase == "will" ) then
 
-		-- self.tab_group = cookbook.updateTabBar(self.tab_group)
 		transition.to(globalData.tab_bar, {alpha = 1, time = 0.8*globalData.transition_time})
 
 		local panel_width  = display.contentWidth --globalData.panel_width

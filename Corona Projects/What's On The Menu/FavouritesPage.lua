@@ -33,9 +33,10 @@ function scene:create( event )
 
 	self.scroll_view._view:addEventListener("touch", app_transitions.swipeRight)
 	self.scroll_view._view:addEventListener("touch", app_transitions.swipeLeft)
+	self.scroll_view._view._background:addEventListener("touch", app_transitions.swipeRight)
+	self.scroll_view._view._background:addEventListener("touch", app_transitions.swipeLeft)
 
 	sceneGroup:insert(self.scroll_view)
-	-- sceneGroup:insert(self.tab_group)
 
 	globalData.loadMenuImages() 
 end

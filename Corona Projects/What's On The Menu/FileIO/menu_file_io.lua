@@ -1,6 +1,7 @@
 local globalData 	= require("globalData")
 local defaultMenu   = require("DefaultMenu")
 local json 			= require("json")
+local util          = require("GeneralUtility")
 
 local menu_io = {}
 
@@ -8,17 +9,26 @@ function menu_io.writeCustomMenu()
 	local path = system.pathForFile(globalData.custom_recipes_file, system.DocumentsDirectory)
 	local file = io.open(path, "w+")
 
+	-- Remove default menu before we save
+	for name, value in pairs(defaultMenu) do
+		if util.tableEquals(globalData.menu[name], value) then
+			print("Removed " .. name)
+			globalData.menu[name] = nil
+		end
+	end
+
 	file:write(json.encode(globalData.menu, {indent = true}))
 
 	io.close(file)
 	file = nil
+
+	-- Re-add the default menu
+	menu_io.readDefaultMenu()
 end
 
 function menu_io.readCustomMenu()
 	local path = system.pathForFile(globalData.custom_recipes_file, system.DocumentsDirectory)
 	local file = io.open(path, "r")
-
-	print("Loading file")
 
 	if not file then
 		print("File did not exist, creating now...")
@@ -32,8 +42,6 @@ function menu_io.readCustomMenu()
 		jsonString = jsonString .. "\n" .. data
 	end
 
-	-- print(jsonString)
-
 	if jsonString ~= "" then
 		globalData.menu = json.decode(jsonString)
 	else
@@ -42,12 +50,6 @@ function menu_io.readCustomMenu()
 
 	io.close(file)
 	file = nil
-
-	-- for name, value in pairs(globalData.menu) do
-	-- 	print(" ")
-	-- 	print(name)
-	-- 	print(value)
-	-- end
 end
 
 function menu_io.deleteCustomMenu()
@@ -58,6 +60,7 @@ function menu_io.deleteCustomMenu()
 end
 
 function menu_io.readDefaultMenu()
+	if not globalData.settings.showDefaultRecipes then return true end
 	for name, value in pairs(defaultMenu) do
 		if not globalData.menu[name] then
 			globalData.menu[name] = value

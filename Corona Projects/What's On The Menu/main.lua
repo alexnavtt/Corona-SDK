@@ -16,6 +16,7 @@ local util            = require("GeneralUtility")
 local app_transitions = require("AppTransitions")
 
 system.setTapDelay(0.5)
+globalData.app_name = "What's On the Menu"
 
 -- Data Storage
 globalData.menu 		= {}
@@ -34,7 +35,8 @@ globalData.defaultSettings = {
 	colorScheme 		= "blue",
 	showDefaultRecipes 	= true,
 	recipeStyle 		= "portrait",
-	allow_idle_timeout  = true
+	allow_idle_timeout  = true,
+	network_is_enabled  = false
 }
 
 -- Private Parameters
@@ -69,6 +71,7 @@ globalData.favourites_file 		= "Favourites.txt"
 globalData.custom_recipes_file 	= "CustomRecipes.txt"
 globalData.images_file 			= "FoodImages.txt"
 globalData.settings_file 		= "AppSettings.txt"
+globalData.network_config_file  = "NetworkConfig.txt"
 
 -- Other
 globalData.transition_time = 300
@@ -99,7 +102,7 @@ globalData.deleteSettings = settings_io.deleteSettings
 
 function globalData.reloadApp()
 	composer.removeScene(globalData.activeScene)
-	composer.gotoScene(globalData.activeScene)
+	composer.gotoScene(globalData.activeScene, {params = {reload = true}})
 	globalData.tab_bar:removeSelf()
 	globalData.tab_bar = tab_bar_util.createTabBar()
 
@@ -130,9 +133,7 @@ Runtime:addEventListener("key", globalData.goBack)
 globalData.readSettings()
 globalData.readFavourites()
 globalData.readCustomMenu()
-if globalData.settings.showDefaultRecipes then 
-	globalData.readDefaultMenu() 
-end
+globalData.readDefaultMenu() 
 
 globalData.loadMenuImages()
 globalData.cleanupFoodImages()
@@ -143,3 +144,11 @@ globalData.activeScene = "BrowsePage"
 globalData.lastScene = "BrowsePage"
 globalData.tab_bar = tab_bar_util.createTabBar()
 composer.gotoScene("BrowsePage")
+
+-- Test Network stuff
+-- local app_network = require("AppNetwork")
+-- local crypto = require("crypto")
+-- app_network.username = "TestUpload"
+-- app_network.encrypted_password = crypto.hmac( crypto.md5, "TestPassword", "" )
+-- app_network.uploadData(false)
+-- app_network.syncData()

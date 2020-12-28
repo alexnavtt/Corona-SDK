@@ -47,6 +47,8 @@ local page_height = W - title_banner_height -- page height (the height of the me
 function scene:create( event )
  
 	local sceneGroup = self.view
+	local ingredient_count = #globalData.menu[event.params.name].ingredients
+	local excess_ingredients = math.max(ingredient_count - 8, 0)
 
 	local background = display.newRect(sceneGroup, Cx, Cy, W, H)
 	background:setFillColor(unpack(page_background_color))
@@ -64,7 +66,7 @@ function scene:create( event )
 											 	  isBounceEnabled = false,
 											  	  backgroundColor = ingredient_background_color,
 											 	  hideBackground = true,
-											 	  rightPadding = 0.1*display.contentWidth})
+											 	  leftPadding = excess_ingredients*0.07*page_height})
 	self.ingredient_panel.anchorY = 0
 	sceneGroup:insert(self.ingredient_panel)
 
@@ -140,17 +142,13 @@ function scene:show( event )
 	local scaling_factor = math.max(0.25,math.min(event.params.scaling_factor or 1, 4))
 
 	local ingredient_level_delta = ingredient_spacing
-	local ingredient_level = 0.5*ingredient_level_delta
+	local ingredient_level = ingredient_level_delta
 	local step_level_delta = step_spacing
 	local step_level = 2*step_level_delta
  
 	if ( phase == "will" ) then
 		transition.to(globalData.tab_bar, {alpha = 0, time = 0.8*globalData.transition_time})
-		local ingredient_group = display.newGroup()
-		local step_group = display.newGroup()
 		self.recipe_group = display.newGroup()
-		self.recipe_group:insert(ingredient_group)
-		self.recipe_group:insert(step_group)
 		sceneGroup:insert(self.recipe_group)
 
 		-- Section Title Generation --
@@ -193,11 +191,13 @@ function scene:show( event )
 		for j = 1,#ingredients,1 do
 			ingredient_names[ingredients[j].name] = j
 		end
-		local sorted_ingredients = util.sortTableKeys(ingredient_names, true)
+		local sorted_ingredients = util.sortTableKeys(ingredient_names)
+		local ingredient_count   = #sorted_ingredients
 
 		-- Insert Each Ingredient 1 by 1
+		local testGroup = display.newGroup()
 		local side = "left"
-		for j = 1,#sorted_ingredients,1 do
+		for j = 1,ingredient_count,1 do
 			local table_val = ingredients[ingredient_names[sorted_ingredients[j]]]
 
 			local text_amount = table_val.text_amount
@@ -211,30 +211,36 @@ function scene:show( event )
 			end
 
 			local new_ingredient = insertIngredient(table_val.name, text_amount, table_val.unit, amount, ingredient_level_delta, ing_colors[i+1], page_params)
-			new_ingredient.x = ingredient_level
-			new_ingredient.y = 0.02*ingredient_view_width
-			new_ingredient:rotate(90)
-			self.ingredient_panel:insert(new_ingredient)
-
+			new_ingredient.x = 0.03*ingredient_view_width
+			new_ingredient.y = ingredient_level
+			testGroup:insert(new_ingredient)
 
 			-- Manage placement in two rows
 			if side == "right" then
 				side = "left"
 
-				new_ingredient.y = 0.52*ingredient_view_width
+				new_ingredient.x = 0.51*ingredient_view_width
 				ingredient_level = ingredient_level + ingredient_level_delta
 				i = 1 - i
 			else
 				side = "right"
 			end
 		end
-		if side == "left" then
-			self.ingredient_panel:setScrollWidth(ingredient_level - ingredient_spacing)
-			self.ingredient_panel:scrollToPosition({x = -ingredient_level + page_height - 0.5*ingredient_spacing, time = 0})
+
+		-- Situate the ingredients properly in the scroll view
+		testGroup:rotate(90)
+		if testGroup.height < self.ingredient_panel.width then 
+			testGroup:translate(self.ingredient_panel.width + 0.5*ingredient_level_delta, 0)
+			self.ingredient_panel:setIsLocked(true)
+			self.ingredient_panel:insert(testGroup)
 		else
-			self.ingredient_panel:setScrollWidth(ingredient_level)
-			self.ingredient_panel:scrollToPosition({x = -ingredient_level + page_height - 1.5*ingredient_spacing, time = 0})
+			self.ingredient_panel:insert(testGroup)
+			testGroup:translate(testGroup.height + 0.5*ingredient_level_delta, 0)
+			self.ingredient_panel:setScrollWidth(testGroup.height)
+			self.ingredient_panel:scrollToPosition({time = 0, x = -(testGroup.height - self.ingredient_panel.width)})
 		end
+
+
 
 		-- Insert each step 1 by 1
 		local step_1 = {}

@@ -60,12 +60,11 @@ local function showUnitCircle(unit, amount_text, amount, foodname)
 			return true
 		end
 
-		local params = {color = app_colors.recipe.title_bkgd, label = label, hasShadow = true, tap_func = replaceText, labelColor = app_colors.recipe.ing_text}
+		local params = {displayGroup = group, color = app_colors.recipe.title_bkgd, label = label, hasShadow = true, tap_func = replaceText, labelColor = app_colors.recipe.ing_text}
 		local offset = 0.35*display.contentWidth
 		local x =  offset*math.sin((iter-1)*2*math.pi/#labels)
 		local y = -offset*math.cos((iter-1)*2*math.pi/#labels)
 		local dot = tinker.newDot(0,0,0.07*display.contentWidth, params)
-		group:insert(dot)
 
 		transition.to(dot, {time = 200, x = x, y = y})
 		iter = iter + 1
@@ -80,20 +79,19 @@ local function showUnitCircle(unit, amount_text, amount, foodname)
 			end
 		end
 
-		local params = {color = app_colors.recipe.title_bkgd, label = foodname, hasShadow = true, labelColor = app_colors.recipe.ing_text, tap_func = function(event) return true end}
+		local params = {displayGroup = group, color = app_colors.recipe.title_bkgd, label = foodname, hasShadow = true, labelColor = app_colors.recipe.ing_text, tap_func = function(event) return true end}
 		local offset = 0.35*display.contentWidth
 		local dot = tinker.newDot(0,0,0.1*display.contentWidth, params)
-		group:insert(dot)
 	end
 
 	spawnLabel()
 	spawnDot()
-	timer.performWithDelay(50, spawnDot, #labels-1)
+	timer_handle = timer.performWithDelay(50, spawnDot, #labels-1)
 
 	local glass_screen = display.newRect(group, 0,0,2*display.contentWidth, 2*display.contentHeight)
 	glass_screen:setFillColor(0,0,0,0.3)
 	glass_screen:toBack()
-	glass_screen:addEventListener("tap", function(event) group:removeSelf(); return true end)
+	glass_screen:addEventListener("tap", function(event) group:removeSelf(); timer.cancel(timer_handle); return true end)
 
 	return group
 end

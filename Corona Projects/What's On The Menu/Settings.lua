@@ -6,7 +6,9 @@ local widget = require("widget")
 local tinker = require("Tinker")
 local app_colors = require("AppColours")
 local transition = require("transition")
+local util = require("GeneralUtility")
 local app_transitions = require("AppTransitions")
+local app_network = require("AppNetwork")
  
 local scene = composer.newScene()
 
@@ -19,13 +21,6 @@ local cY = display.contentCenterY
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
  
-local settings_list =  {"Panel Colour",
- 						"Background Colour",
- 						"Recipe Colour",
- 						"Recipe Mode",
- 						"Clear Favourite Data",
- 						"Clear Recipe Data"}
- 
 globalData.colorOptions = {blue = "blue", red = "red", light = "white", dark = "purple", bright = "green"}
  
 -- -----------------------------------------------------------------------------------
@@ -34,6 +29,7 @@ globalData.colorOptions = {blue = "blue", red = "red", light = "white", dark = "
  
 -- create()
 function scene:create( event )
+	local params = event.params or {}
  
 	local sceneGroup = self.view
 	local background = display.newRect(sceneGroup, cX, cY, W, H)
@@ -127,6 +123,44 @@ function scene:create( event )
 	y_level = y_level + 0.1*H
 
 	------------------
+	-- DATA SYNCING -- 
+	------------------
+	local dataSync = display.newText({text = "Store data on the cloud", x = x_level, y = y_level, fontSize = globalData.mediumFontSize})
+	dataSync.anchorX = 0
+	dataSync:setFillColor(unpack(app_colors.settings.text))
+	sceneGroup:insert(dataSync)
+
+	local function tapDataSync(event)
+		globalData.settings.network_is_enabled = not globalData.settings.network_is_enabled
+		globalData.writeSettings()
+
+		-- Make sure that all entries have a timestamp for networking
+		if globalData.settings.network_is_enabled then
+			for key, value in pairs(globalData.menu) do
+				if not value.timestamp then
+					value.timestamp = os.time(os.date('*t'))
+				end
+			end
+
+			local function firstTimeListener(event)
+				if event.index == 1 then
+					app_network.createProfile()
+				end
+				return true
+			end
+
+			if app_network.config.first_time then
+				native.showAlert(globalData.app_name, "Hey! This is your fist time connecting to the cloud\nLet's get started by making a profile for you!", {"OK", "Cancel"}, firstTimeListener)
+			end
+		end
+	end
+
+	local enable_data_sync_params = {defaultState = globalData.settings.network_is_enabled, tap_func = tapDataSync, displayGroup = sceneGroup}
+	local enable_data_sync = tinker.newSlidingSwitch(screen_lock_switch.x, y_level, enable_data_sync_params)
+
+	y_level = y_level + 0.1*H
+
+	------------------
 	-- COLOR SCHEME --
 	------------------
 	local colorScheme = display.newText({text = "Color Scheme", x = x_level, y = y_level, fontSize = globalData.mediumFontSize})
@@ -135,33 +169,34 @@ function scene:create( event )
 	sceneGroup:insert(colorScheme)
 
 	local colorDropdown = display.newImageRect(sceneGroup, "Image Assets/White-Dropdown-Arrow-Graphic.png", 0.05*W, 0.05*W)
-	colorDropdown.rotation = 180
 	colorDropdown.x = recipe_style_switch.x
 	colorDropdown.y = y_level
+	colorDropdown.id = "colorDropdown"
+	colorDropdown.visible = false
 
 	local names = {"Blueberry Blast", "Pastel Paradise", "Plumb Purple", "Tropical Trouble", "Raspberrry Red"}
 	local official_names = {"blue", "light", "dark", "bright", "red"}
-	local colorGroups = {visible = true}
+	local colorGroups = {}
 
 	local start_y = y_level
 	local indented_x = x_level + 0.04*H
-	local dt = 500
+	local delta_t = 500
 
 	for i = 1,#names,1 do
 		local newGroup = display.newGroup()
-		newGroup.y = start_y + i*0.07*H
+		newGroup.y     = start_y
+		newGroup.alpha = 0
+		newGroup.home  = start_y + i*0.05*H
 
 		local new_text = display.newText({parent = newGroup, text = names[i], fontSize = globalData.smallFontSize, x = indented_x, y = 0})
 		new_text:setFillColor(unpack(app_colors.settings.text))
 		new_text.anchorX = 0
 
-		newGroup.home = newGroup.y
-
-		function newGroup.appear()
+		function newGroup.appear(dt)
 			transition.to(newGroup, {y = newGroup.home, alpha = 1, time = dt})
 		end
 
-		function newGroup.hide()
+		function newGroup.hide(dt)
 			transition.to(newGroup, {y = start_y, alpha = 0, time = dt})
 		end
 
@@ -179,17 +214,22 @@ function scene:create( event )
 	end
 
 	function colorDropdown:tap(event)
-		colorGroups.visible = not colorGroups.visible
+		local dt = event.dt or delta_t
+
+		colorDropdown.visible = not colorDropdown.visible
 		transition.to(colorDropdown, {rotation = 180, time = dt, delta = true})
-		if colorGroups.visible then
+		
+		if colorDropdown.visible then
 			for i = 1,#colorGroups,1 do
-				colorGroups[i]:appear()
+				colorGroups[i].appear(dt)
 			end
 		else
 			for i = 1,#colorGroups,1 do
-				colorGroups[i].hide()
+				colorGroups[i].hide(dt)
 			end
 		end
+
+		return true
 	end
 	colorDropdown:addEventListener("tap", colorDropdown)
 
@@ -202,13 +242,14 @@ function scene:show( event )
  
 	local sceneGroup = self.view
 	local phase = event.phase
+	local params = event.params or {}
  
 	if ( phase == "will" ) then
+		local colorDropdown = util.findID(sceneGroup, "colorDropdown")
+		if params.reload then colorDropdown:dispatchEvent({name = "tap", dt = 0}) end
 
 	elseif ( phase == "did" ) then
 		transition.to(globalData.tab_bar, {alpha = 1, time = globalData.transition_time})
-		-- self.tab_group = cookbook.updateTabBar(self.tab_group)
-		-- Code here runs when the scene is entirely on screen
  
 	end
 end
@@ -219,9 +260,11 @@ function scene:hide( event )
  
 	local sceneGroup = self.view
 	local phase = event.phase
+	if not sceneGroup then return true end
  
 	if ( phase == "will" ) then
-		-- Code here runs when the scene is on screen (but is about to go off screen)
+		local colorDropdown = util.findID(sceneGroup, "colorDropdown")
+		if colorDropdown.visible then colorDropdown:dispatchEvent({name = "tap"}) end
  
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen

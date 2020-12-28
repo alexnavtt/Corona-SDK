@@ -47,7 +47,7 @@ landscape.ingredient_level_delta = params.ingredient_level_delta
 landscape.step_level_delta = params.step_level_delta
 
 landscape.scroll_view_width_1 = 0.48*display.contentHeight
-landscape.scroll_view_width_2 = 0.48*display.contentHeight
+landscape.scroll_view_width_2 = 0.50*display.contentHeight
 
 landscape.v_spacing = params.v_spacing
 landscape.h_spacing = (display.contentHeight - landscape.scroll_view_width_1 - landscape.scroll_view_width_2)/4

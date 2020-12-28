@@ -59,6 +59,7 @@ cookbook.searchIngredients = menu_parser.searchIngredients
 
 -- Edit an existing recipe --------------------------------
 function cookbook.editRecipe(title)
+	new_recipe_info.edit_existing_recipe = true
 	new_recipe_info.newRecipeTitle = title
 	new_recipe_info.newRecipeIngredientList = {}
 	new_recipe_info.newRecipeSteps = {}
@@ -74,7 +75,8 @@ function cookbook.editRecipe(title)
 
 	new_recipe_info.newRecipeParams = {cook_time = globalData.menu[title].cook_time, prep_time = globalData.menu[title].prep_time}
 	globalData.activeScene = "NewRecipePage"
-	composer.gotoScene("NewRecipePage", {params = {name = title, prep_time = globalData.menu[title].cook_time, cook_time = globalData.menu[title].prep_time}})
+	composer.gotoScene("NewRecipePage", {params = {name = title, prep_time = globalData.menu[title].prep_time, cook_time = globalData.menu[title].cook_time}})
+	globalData.tab_bar:update()
 	return true
 end
 -- ========================================================

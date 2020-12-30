@@ -13,6 +13,7 @@ local colors 		  = require("Palette")
 local app_colors 	  = require("AppColours")
 local tab_bar_util    = require("TabBarUtil.tab_bar_util")
 local util            = require("GeneralUtility")
+local app_network     = require("AppNetwork")
 local app_transitions = require("AppTransitions")
 
 system.setTapDelay(0.5)
@@ -28,7 +29,7 @@ globalData.textures 	= {}
 globalData.settings 	= {}
 
 -- List of all composer scenes in the project
-globalData.all_scenes = {"BrowsePage", "FavouritesPage", "NewRecipePage", "IngredientsPage", "InsertStepsPage","ViewRecipePage","ViewLandscapeRecipe"}
+globalData.all_scenes = {"BrowsePage", "FavouritesPage", "NewRecipePage", "IngredientsPage", "InsertStepsPage","ViewRecipePage","ViewLandscapeRecipe", "NetworkProfile"}
 
 -- Default Settings for the App
 globalData.defaultSettings = {
@@ -99,6 +100,11 @@ globalData.writeSettings  = settings_io.writeSettings
 globalData.readSettings   = settings_io.readSettings
 globalData.deleteSettings = settings_io.deleteSettings
 
+local network_io = require("FileIO.network_file_io")
+globalData.writeNetwork  = network_io.writeNetworkConfig
+globalData.readNetwork   = network_io.readNetworkConfig
+globalData.deleteNetwork = network_io.deleteNetworkConfig
+
 
 function globalData.reloadApp()
 	composer.removeScene(globalData.activeScene)
@@ -134,21 +140,24 @@ globalData.readSettings()
 globalData.readFavourites()
 globalData.readCustomMenu()
 globalData.readDefaultMenu() 
+globalData.readNetwork()
 
 globalData.loadMenuImages()
 globalData.cleanupFoodImages()
 app_colors.changeTo(globalData.settings.colorScheme or "blue")
 
+-- Runs only the first time the app is loaded
+if not globalData.settings.initialized then
+	globalData.settings.unique_id = math.random(0, 1000000000)
+	globalData.settings.initialized = true
+	globalData.writeSettings()
+end
+
+if globalData.settings.network_is_enabled and app_network.config.logged_in then
+	app_network.syncData()
+end
 
 globalData.activeScene = "BrowsePage"
 globalData.lastScene = "BrowsePage"
 globalData.tab_bar = tab_bar_util.createTabBar()
 composer.gotoScene("BrowsePage")
-
--- Test Network stuff
--- local app_network = require("AppNetwork")
--- local crypto = require("crypto")
--- app_network.username = "TestUpload"
--- app_network.encrypted_password = crypto.hmac( crypto.md5, "TestPassword", "" )
--- app_network.uploadData(false)
--- app_network.syncData()

@@ -1,5 +1,5 @@
 local globalData = require("globalData")
-local app_network = require("NetworkUtil.network_main")
+local app_network = require("AppNetwork")
 local json = require("json")
 
 local file_io = {}

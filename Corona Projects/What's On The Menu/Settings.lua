@@ -142,6 +142,10 @@ function scene:create( event )
 				end
 			end
 
+			if app_network.config.logged_in then
+				app_network.syncData()
+			end
+
 			local function firstTimeListener(event)
 				if event.index == 1 then
 					app_network.createProfile()
@@ -157,6 +161,26 @@ function scene:create( event )
 
 	local enable_data_sync_params = {defaultState = globalData.settings.network_is_enabled, tap_func = tapDataSync, displayGroup = sceneGroup}
 	local enable_data_sync = tinker.newSlidingSwitch(screen_lock_switch.x, y_level, enable_data_sync_params)
+
+	y_level = y_level + 0.1*H
+
+	---------------------
+	-- NETWORK PROFILE --
+	---------------------
+
+	local Profile = display.newText({text = "User Profile", x = x_level, y = y_level, fontSize = globalData.mediumFontSize, parent = sceneGroup})
+	Profile.anchorX = 0
+	Profile:setFillColor(unpack(app_colors.settings.text))
+
+	local proceedToProfile = display.newImageRect(sceneGroup, "Image Assets/White-Dropdown-Arrow-Graphic.png", 0.05*W, 0.05*W)
+	proceedToProfile.x = recipe_style_switch.x
+	proceedToProfile.y = y_level
+	proceedToProfile:rotate(-90)
+
+	local function moveToProfile(event)
+		app_transitions.moveTo("NetworkProfile")
+	end
+	proceedToProfile:addEventListener("tap", moveToProfile)
 
 	y_level = y_level + 0.1*H
 

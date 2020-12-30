@@ -13,7 +13,7 @@ function util.printTable(T, recursive, level)
 		if type(value) == "table" and recursive then
 			util.printTable(value, true, level + 1)
 		elseif recursive then
-			print(indent .. value)
+			print(indent .. tostring(value))
 		else
 			print(value)
 		end

@@ -243,7 +243,7 @@ function scene:show( event )
 
 
 		-- Insert each step 1 by 1
-		local step_1 = {}
+		local step_1 = {x = 0}
 		for index = 1,#globalData.menu[name].steps,1 do
 			local table_val = globalData.menu[name].steps[index]
 			local new_step = insertStep(table_val, step_level_delta, index, page_params)

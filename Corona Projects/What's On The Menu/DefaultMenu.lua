@@ -17,7 +17,8 @@ steps = {"Sift together flour, sugar, baking powder, and salt",
 		 "Cook in waffle maker until golden brown"},
 
 prep_time = "5 min",
-cook_time = "15 min"
+cook_time = "15 min",
+timestamp = 0
 }
 
 defaultMenu["Banana Bread"] = 
@@ -36,7 +37,8 @@ steps = {"Preheat oven to 350 degrees F (175 degrees C). Lightly grease a 9x5 in
 		 "Bake in preheated oven for 60 to 65 minutes, until a toothpick inserted into center of the loaf comes out clean. Let bread cool in pan for 10 minutes, then turn out onto a wire rack"},
 
 prep_time = "10 min",
-cook_time = "65 min"
+cook_time = "65 min",
+timestamp = 0
 }
 
 defaultMenu["Hot Chocolate"] = 
@@ -53,7 +55,8 @@ steps = {"Place milk, cocoa powder and sugar in a small saucepan. Heat over medi
 		 "Whisk in vanilla extract, serve immediately"},
 
 prep_time = "1 min",
-cook_time = "10 min"
+cook_time = "10 min",
+timestamp = 0
 }
 
 return defaultMenu

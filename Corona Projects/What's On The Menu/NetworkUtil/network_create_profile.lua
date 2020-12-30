@@ -2,6 +2,7 @@ local app_network = require("NetworkUtil.network_main")
 local globalData = require("globalData")
 local tinker = require("Tinker")
 local crypto = require("crypto")
+local palette = require("Palette")
 
 local function createProfile()
 	local cX = display.contentCenterX
@@ -21,14 +22,14 @@ local function createProfile()
 	glass_screen:addEventListener("tap", tapProof)
 	glass_screen:addEventListener("touch", tapProof)
 
-	local form = display.newRoundedRect(group, cX, cY, W/2, H/2, W/10)
+	local form = display.newRoundedRect(group, cX, cY, 3*W/4, H/2, W/10)
 	form:setStrokeColor(0)
 	form.strokeWidth = 5
 
 	local title = display.newText({text = "Create Profile", x = cX, y = form.y - 0.4*form.height, fontSize = globalData.titleFontSize, align = "center", parent = group})
 	title:setFillColor(0)
 
-	local username_field = native.newTextField(cX, cY - 0.3*form.height, 3*W/8, H/25)
+	local username_field = native.newTextField(cX, cY - 0.3*form.height, 0.9*form.width, H/25)
 	username_field.placeholder = "Username"
 
 	local password_field = native.newTextField(cX, username_field.y + 2*username_field.height, username_field.width, username_field.height)
@@ -39,14 +40,32 @@ local function createProfile()
 	confirm_password_field.placeholder = "Confirm Password"
 	confirm_password_field.isSecure = true
 
-	local function destroyGroup(event)
+	local query_text = display.newText({text = "Already have an account?  ", x = form.x - 0.45*form.width, y = confirm_password_field.y + 2*confirm_password_field.height, fontSize = globalData.smallFontSize})
+	query_text.anchorX = 0
+	query_text:setFillColor(0)
+	group:insert(query_text)
+
+	local login_text = display.newText({text = "Log in", x = query_text.x + query_text.width, y = query_text.y, fontSize = globalData.mediumFontSize, parent = group})
+	login_text.anchorX = 0
+	login_text:setFillColor(unpack(palette.dark.blue))
+
+	local function destroyGroup()
 		username_field:removeSelf()
 		password_field:removeSelf()
 		confirm_password_field:removeSelf()
 		group:removeSelf()
 		return true
 	end
-	local back_button_params = {displayGroup = group, tap_func = destroyGroup, label = "Cancel", strokeWidth = 3, strokeColor = {0}, radius = 0.05*form.height}
+
+	local function tapBack(event)
+		app_network.onComplete = nil
+		destroyGroup()
+	end
+
+	login_text:addEventListener("tap", function(event) app_network.createLoginPanel(); destroyGroup(); return true; end)
+
+
+	local back_button_params = {displayGroup = group, tap_func = tapBack, label = "Cancel", strokeWidth = 3, strokeColor = {0}, radius = 0.05*form.height}
 	local back_button = tinker.newButton(cX - 0.05*form.width, cY + 0.4*form.height, 0.3*form.width, 0.1*form.height, back_button_params)
 	back_button.anchorX = back_button.width
 
@@ -70,13 +89,8 @@ local function createProfile()
 				if not app_network.username_free then
 					native.showAlert(globalData.app_name, "That username is already taken", {"OK"})
 				else
-					-- Store details and create profile
-					app_network.config.username = username_field.text
-					app_network.config.encrypted_password = crypto.hmac( crypto.md5, password_field.text, "" )
-					app_network.new_user = true
-					-- globalData.writeNetworkConfig()
+					app_network.sendNewProfileRequest(username_field.text, password_field.text)
 					destroyGroup()
-					app_network.uploadData()
 				end
 			end
 			return true 

@@ -1,18 +1,17 @@
 local json = require("json")
+local util = require("GeneralUtility")
 local globalData = require("globalData")
 local app_network = require("NetworkUtil.network_main")
 
-local function createHttpRequest(direction, new_user)
+local function createHttpRequest(action, password)
 		-- Set up HTTP package
-		local body = {username = app_network.config.username, password = app_network.config.encrypted_password}
+		local body = {username = app_network.config.username, password = password, token = app_network.config.auth_token, 
+					  action = action, timestamp = util.time(), last_timestamp = app_network.config.last_upload_time, device_id = globalData.settings.unique_id}
 
-		if direction == "upload" then
+		if action == "upload" then
 			body.data = json.encode(globalData.menu)
-			body.friends = json.encode(app_network.config.friends)
-			body.new_user = app_network.new_user
 		end
 
-		if not body.new_user then body.new_user = false end
 		body = json.encode(body)
 
 		local headers = {}

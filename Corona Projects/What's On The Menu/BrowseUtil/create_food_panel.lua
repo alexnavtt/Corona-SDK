@@ -1,8 +1,10 @@
 local globalData = require("globalData")
 local cookbook = require("cookbook")
 local app_colors = require("AppColours")
+local app_network = require("AppNetwork")
 local app_transitions = require("AppTransitions")
 local composer = require("composer")
+local util = require("GeneralUtility")
 
 local function createFoodPanel(title, x, y, width, height, parent, color, text_color)
 	local panel_group = display.newGroup()
@@ -142,8 +144,13 @@ local function createFoodPanel(title, x, y, width, height, parent, color, text_c
 				globalData.favourites[title] = nil
 				globalData.writeCustomMenu()
 				globalData.deleteFoodImage(title)
-				composer.gotoScene(globalData.activeScene)
 
+				if app_network.config.logged_in and globalData.settings.network_is_enabled then
+					app_network.uploadData()
+					globalData.writeNetwork()
+				end
+
+				composer.gotoScene(globalData.activeScene)
 			end
 		end
 		native.showAlert("What's On The Menu", "Are you sure you want to delete \"" .. title .. "\"?", {"Yes, I'm Sure", "Cancel"}, trash_listener )

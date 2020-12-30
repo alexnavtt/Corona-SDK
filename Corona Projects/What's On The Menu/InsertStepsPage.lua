@@ -8,6 +8,7 @@ local transition = require("transition")
 local new_recipe_info = require("NewRecipeUtil.new_recipe_info")
 local tab_bar_util = require("TabBarUtil.tab_bar_util")
 local util = require("GeneralUtility")
+local app_network = require("AppNetwork")
  
 local scene = composer.newScene()
 
@@ -74,6 +75,8 @@ local function finalizeRecipe(event)
 	globalData.menu[recipe_title].prep_time = new_recipe_info.newRecipeParams.prep_time
 	globalData.menu[recipe_title].timestamp = util.time()
 
+	app_network.config.last_update_time = util.time()
+
 	new_recipe_info.newRecipeIngredients = {}
 	new_recipe_info.newRecipeSteps = {}
 	new_recipe_info.newRecipeTitle = nil
@@ -82,7 +85,10 @@ local function finalizeRecipe(event)
 	new_recipe_info.edit_existing_recipe = false
 
 	globalData.writeCustomMenu()
-
+	if app_network.config.logged_in and globalData.settings.network_is_enabled then
+		app_network.uploadData()
+	end
+	
 	globalData.activeScene = 'BrowsePage'
 	composer.gotoScene('BrowsePage')
 	composer.removeScene('NewRecipePage')

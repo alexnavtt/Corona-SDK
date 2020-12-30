@@ -42,8 +42,6 @@ local function insertStep(step_text, step_level_delta, step_count, params)
 	strikethrough.anchorX = 0
 	strikethrough:setFillColor(unpack(app_colors.recipe.step_text))
 
-	print("Created line for step " .. step_count .. " at x = " .. step_title.x - 0.05*step_title.width)
-
 	function step_title:tap(event)
 		strikethrough.alpha = 0.5 - strikethrough.alpha
 		step_title.alpha = 1.5 - step_title.alpha

@@ -77,8 +77,6 @@ local function createSearchBar(event)
 		local strokeColor = {1}
 		if app_colors.color_scheme == "light" then strokeColor = {0} end
 
-		print("Delta_y: " .. delta_y)
-
 		for name, value in pairs(possible_foods) do
 			local function tap_func(event)
 				globalData.activeRecipe = name
@@ -204,27 +202,6 @@ function tab_util.createTabBar()
 
 	return tab_group
 end
-
--- function cookbook.updateTabBar(tab_group)
--- 	for i = 1,tab_group.numChildren,1 do
--- 		if tab_group[i].id then
--- 			-- print(tab_group[i].id:sub(6))
--- 			if tab_group[i].id:sub(6) == globalData.activeScene then
--- 				tab_group[i]:setBackgroundColor({0,0,0,0.1})
--- 				-- tab_group[i]:setFillColor(unpack(app_colors.tab_bar.selected))
--- 				-- print("Colour Filled")
-
--- 			elseif tab_group[i].id:sub(1,4) == "bkgd" then
--- 				tab_group[i]:setBackgroundColor({0,0,0,0.01})
--- 				-- tab_group[i]:setFillColor(unpack(app_colors.tab_bar.background))
--- 				-- print("Set to invis")
-
--- 			end
--- 		end
--- 	end
-
--- 	return tab_group
--- end
 
 function tab_util.simpleTabBar(title, back_text, back_page, next_text, next_page)
 	local group = display.newGroup()

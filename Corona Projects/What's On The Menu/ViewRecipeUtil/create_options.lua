@@ -41,7 +41,9 @@ local function createOptions(name, scaling_factor, scene)
 	ypp()
 
 	-- Back Button
-	local back = display.newImageRect(options, "Image Assets/Small-Black-Up-Arrow-Graphic.png", 0.1*width, 0.1*width)
+	local arrow_image = "Image Assets/Small-Black-Up-Arrow-Graphic.png"
+	if app_colors.scheme == "dark" then arrow_image = "Image Assets/Small-White-Up-Arrow-Graphic.png" end
+	local back = display.newImageRect(options,arrow_image, 0.1*width, 0.1*width)
 	back.x = back.width
 	back.y = y_level
 	back:rotate(270)
@@ -77,11 +79,10 @@ local function createOptions(name, scaling_factor, scene)
 
 	ypp(spacing/2 + food_title.height)
 
-	-- globalData.menu[name].calories = 210
-	-- globalData.menu[name].servings = 4
+	
 
 	-- Food Info
-	if globalData.menu[name].calories then
+	if globalData.menu[name].calories and globalData.menu[name].calories ~= "" then
 		local calories = display.newText({	text = "- Calories: " .. globalData.menu[name].calories .. " kCal",
 											x = 0.5*width, 
 											y = y_level,
@@ -95,7 +96,7 @@ local function createOptions(name, scaling_factor, scene)
 		ypp(calories.height)
 	end
 
-	if globalData.menu[name].servings then
+	if globalData.menu[name].servings and globalData.menu[name].servings ~= "" then
 		local servings = display.newText({	text = "- Serves:   " .. globalData.menu[name].servings,
 											x = 0.5*width,
 											y = y_level,
@@ -162,6 +163,23 @@ local function createOptions(name, scaling_factor, scene)
 	edit_icon.y = y_level
 
 	edit_icon:addEventListener("tap", function(event) scene.glass_screen:dispatchEvent({name = "tap"}); return cookbook.editRecipe(name) end)
+
+	ypp(2*spacing)
+
+	-- Send to a Friend Icon
+	local send = display.newText({text = "Send to a Friend", 
+								  x = edit.x, y = y_level,
+								  width = edit.width, 
+								  font = native.systemFontBold,
+								  fontSize = globalData.mediumFontSize})
+	send:setFillColor(unpack(app_colors.recipe.ing_text))
+	send.anchorX = 0
+	options:insert(send)
+
+	local send_image = "Image Assets/Cheese-Graphic.png"
+	local send_icon  = display.newImageRect(options, send_image, star.width, star.height)
+	send_icon.x = star.x
+	send_icon.y = y_level
 
 	ypp(3*spacing)
 

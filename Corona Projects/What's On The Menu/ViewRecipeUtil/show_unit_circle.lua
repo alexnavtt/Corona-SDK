@@ -66,6 +66,10 @@ local function showUnitCircle(unit, amount_text, amount, foodname)
 		local y = -offset*math.cos((iter-1)*2*math.pi/#labels)
 		local dot = tinker.newDot(0,0,0.07*display.contentWidth, params)
 
+		if globalData.settings.recipeStyle == "landscape" then
+			dot.rotation = 90
+		end
+
 		transition.to(dot, {time = 200, x = x, y = y})
 		iter = iter + 1
 	end
@@ -82,6 +86,10 @@ local function showUnitCircle(unit, amount_text, amount, foodname)
 		local params = {displayGroup = group, color = app_colors.recipe.title_bkgd, label = foodname, hasShadow = true, labelColor = app_colors.recipe.ing_text, tap_func = function(event) return true end}
 		local offset = 0.35*display.contentWidth
 		local dot = tinker.newDot(0,0,0.1*display.contentWidth, params)
+
+		if globalData.settings.recipeStyle == "landscape" then
+			dot.rotation = 90
+		end
 	end
 
 	spawnLabel()

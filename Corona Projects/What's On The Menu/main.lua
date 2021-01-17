@@ -1,35 +1,15 @@
------------------------------------------------------------------------------------------
---
--- main.lua
---
------------------------------------------------------------------------------------------
 local composer 		  = require("composer")
 local json 			  = require("json")
-local lfs 			  = require("lfs")
 
 local globalData 	  = require("globalData")
 local cookbook 		  = require("cookbook")
-local colors 		  = require("Palette")
 local app_colors 	  = require("AppColours")
 local tab_bar_util    = require("TabBarUtil.tab_bar_util")
 local util            = require("GeneralUtility")
 local app_network     = require("AppNetwork")
 local app_transitions = require("AppTransitions")
 
-system.setTapDelay(0.5)
 globalData.app_name = "What's On the Menu"
-
--- Data Storage
-globalData.menu 		= {}
-globalData.keywords 	= {}
-globalData.favourites 	= {}
-globalData.custom_menu 	= {}
-globalData.gallery 		= {}
-globalData.textures 	= {}
-globalData.settings 	= {}
-
--- List of all composer scenes in the project
-globalData.all_scenes = {"BrowsePage", "FavouritesPage", "NewRecipePage", "IngredientsPage", "InsertStepsPage","ViewRecipePage","ViewLandscapeRecipe", "NetworkProfile"}
 
 -- Default Settings for the App
 globalData.defaultSettings = {
@@ -39,19 +19,18 @@ globalData.defaultSettings = {
 	allow_idle_timeout  = true,
 	network_is_enabled  = false
 }
+globalData.textures = {}
 
--- Private Parameters
-globalData.info_received = false
+-- List of all composer scenes in the project
+globalData.all_scenes = {"BrowsePage", "FavouritesPage", "NewRecipePage", "IngredientsPage", "InsertStepsPage","ViewRecipePage","ViewLandscapeRecipe", "NetworkProfile"}
 
 -- Visual Parameters
 globalData.smallFontSize  = 0.02*display.contentHeight
 globalData.mediumFontSize =	0.0225*display.contentHeight
 globalData.titleFontSize  = 0.025*display.contentHeight
 
--- Text Field Parameters
-local tab_height = tab_bar_util.tab_height
-
 -- Scrollview Parmameters
+local tab_height = tab_bar_util.tab_height
 function globalData.scroll_options()
 
 	M ={x = display.contentCenterX, 
@@ -73,6 +52,7 @@ globalData.custom_recipes_file 	= "CustomRecipes.txt"
 globalData.images_file 			= "FoodImages.txt"
 globalData.settings_file 		= "AppSettings.txt"
 globalData.network_config_file  = "NetworkConfig.txt"
+globalData.network_log_file     = "NetworkLog.txt"
 
 -- Other
 globalData.transition_time = 300
@@ -90,9 +70,9 @@ globalData.readFavourites   = favourites_io.readFavourites
 globalData.deleteFavourites = favourites_io.deleteFavourites 
 
 local image_io = require("FileIO.food_image_io")
-globalData.saveMenuImages  = image_io.saveMenuImages
-globalData.loadMenuImages  = image_io.loadMenuImages
-globalData.deleteFoodImage = image_io.deleteFoodImage
+globalData.saveMenuImages    = image_io.saveMenuImages
+globalData.loadMenuImages    = image_io.loadMenuImages
+globalData.deleteFoodImage   = image_io.deleteFoodImage
 globalData.cleanupFoodImages = image_io.cleanupFoodImages
 
 local settings_io = require("FileIO.settings_io")
@@ -104,6 +84,11 @@ local network_io = require("FileIO.network_file_io")
 globalData.writeNetwork  = network_io.writeNetworkConfig
 globalData.readNetwork   = network_io.readNetworkConfig
 globalData.deleteNetwork = network_io.deleteNetworkConfig
+
+local log_io = require("FileIO.network_log_file_io")
+globalData.writeNetworkLog  = log_io.writeNetworkLog
+globalData.readNetworkLog   = log_io.readNetworkLog
+globalData.deleteNetworkLog = log_io.deleteNetworkLog
 
 
 function globalData.reloadApp()
@@ -124,6 +109,7 @@ function globalData.goBack(event)
 		local current_scene = composer.getSceneName("current")
 
 		-- Notable exceptions
+		if last_scene == nil then return true end
 		if last_scene == "InsertStepsPage" and current_scene == "BrowsePage"    then return globalData.tab_bar:update() end
 		if last_scene == "IngredientsPage" and current_scene == "NewRecipePage" then return globalData.tab_bar:update() end
 
@@ -148,16 +134,24 @@ app_colors.changeTo(globalData.settings.colorScheme or "blue")
 
 -- Runs only the first time the app is loaded
 if not globalData.settings.initialized then
-	globalData.settings.unique_id = math.random(0, 1000000000)
 	globalData.settings.initialized = true
 	globalData.writeSettings()
 end
 
 if globalData.settings.network_is_enabled and app_network.config.logged_in then
+	globalData.writeNetworkLog("---- NEW SESSION ----")
 	app_network.syncData()
 end
+
+-- print(app_network.config.username)
+-- print(app_network.config.auth_token)
+-- print(globalData.settings.device_id)
+
 
 globalData.activeScene = "BrowsePage"
 globalData.lastScene = "BrowsePage"
 globalData.tab_bar = tab_bar_util.createTabBar()
+
 composer.gotoScene("BrowsePage")
+
+-- require("NetworkUtil.network_upload_image")

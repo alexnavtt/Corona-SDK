@@ -11,7 +11,25 @@ local cY = display.contentCenterY
 local W  = display.contentWidth
 local H  = display.contentHeight
 
-local function queryKeepRecipes(new_recipes, full_menu)
+local function insertRecipe(name, scrollView, y_level)
+	local text = display.newText({text = name, x = 0.05*scrollView.width, y = y_level, width = 0.8*scrollView.width, fontSize = globalData.mediumFontSize})
+	text:setFillColor(0)
+	text.anchorX = 0
+	scrollView:insert(text)
+
+	local switch_params = {defaultState = "on"}
+	local switch = tinker.newSlidingSwitch(0.9*scrollView.width, y_level, switch_params)
+	scrollView:insert(switch)
+
+	return text.height
+end
+
+local function queryKeepRecipes(new_recipes, to_delete, full_menu, delete)
+	if #new_recipes == 0 and #to_delete == 0 then
+		app_network.uploadData()
+		return true
+	end
+
 	local group = display.newGroup()
 
 	Runtime:removeEventListener("key", globalData.goBack)
@@ -57,31 +75,72 @@ local function queryKeepRecipes(new_recipes, full_menu)
 	local x_level = 0.05*form.width
 
 	for index, name in pairs(new_recipes) do
-		local text = display.newText({text = name, x = x_level, y = y_level, width = 0.8*form.width, fontSize = globalData.mediumFontSize})
-		text:setFillColor(0)
-		text.anchorX = 0
-		form:insert(text)
-
-		local switch_params = {defaultState = true}
-		local switch = tinker.newSlidingSwitch(0.9*form.width, y_level, switch_params)
-		form:insert(switch)
-
-		y_level = y_level + text.height + 0.05*H
+		local dH = insertRecipe(name, form, y_level)
+		y_level = y_level + dH + 0.05*H
 	end
 
+	-- Forward decleration of button and listeners
+	local ok_button = {}
+	local onOK, onOKDelete
+
+	-- If we're querying which ones to keep
 	local function onOK(event)
 		local scrollview = form._collectorGroup
-		for i = 1,scrollview.numChildren,1 do
-			print(scrollview[i]._state)
-			if scrollview[i].id == "Tinker_Sliding_Switch" and scrollview[i]._state == 1 then
+		for i = 2,scrollview.numChildren,2 do
+			if scrollview[i]:getState() == 1 then
 				globalData.menu[scrollview[i-1].text] = full_menu[scrollview[i-1].text]
 			end
 		end
 		app_network.uploadData()
+
+		if #to_delete > 0 then
+			title.text = "These Recipes Were Deleted on Another Device\nWould You Like To Save Any Of Them?"
+
+			for i = 1,scrollview.numChildren,1 do
+				form:remove(scrollview[i])
+			end
+
+			local y_level = 0.1*form.height
+			for name, value in pairs(to_delete) do
+				local dH = insertRecipe(name, form, y_level)
+				y_level = y_level + dH + 0.05*H
+			end
+
+			ok_button:removeEventListener("tap", onOK)
+			ok_button:addEventListener("tap", onOKDelete)
+		else
+			composer.gotoScene(composer.getSceneName("current"))
+			group:removeSelf()
+		end
+	end
+
+	-- If we're querying which ones to delete
+	local function onOKDelete(event)
+		local scrollview = form._collectorGroup
+		for i = 2,scrollview.numChildren,2 do
+			if scrollview[i]:getState() ~= 1 then
+				globalData.menu[scrollview[i-1].text] = nil
+			end
+		end
+		app_network.uploadData()
+		globalData.writeCustomMenu()
 		group:removeSelf()
 		composer.gotoScene(composer.getSceneName("current"))
 	end
+
 	local ok_params = {label = "OK", color = {0,0,0,0.01}, labelColor = {0}, displayGroup = group, tap_func = onOK}
+	
+	-- If there is nothing to add but stuff to delete
+	if #new_recipes == 0 then 
+		title.text = "These Recipes Were Deleted on Another Device\nWould You Like To Save Any Of Them?"
+		for key, value in pairs(to_delete) do
+			local dH = insertRecipe(name, form, y_level)
+			y_level = y_level + dH + 0.05*H
+		end
+		ok_params.tap_func = onOKDelete
+	end
+
+
 	local ok_button = tinker.newButton(cX, bkgd.y + 0.45*bkgd.height, 0.5*bkgd.width, 0.08*bkgd.height, ok_params)
 
 	return group
@@ -89,6 +148,8 @@ end
 
 local function mergeRecipes(server_recipes)
 	local new_server_recipes = {}
+	local to_delete = {}
+	local to_update = {}
 
 	-- Search for new recipes
 	for key, value in pairs(server_recipes) do
@@ -97,13 +158,6 @@ local function mergeRecipes(server_recipes)
 		end
 	end
 
-	-- Query which ones to keep
-	if #new_server_recipes > 0 then
-		util.printTable(new_server_recipes)
-		queryKeepRecipes(new_server_recipes, server_recipes)
-	end
-
-	local to_delete = {}
 	for key, value in pairs(globalData.menu) do
 		-- Search for outdated recipes
 		local local_timestamp = value.timestamp
@@ -113,25 +167,25 @@ local function mergeRecipes(server_recipes)
 		
 			-- Update recipes if remote timestamp is more recent
 			if local_timestamp < remote_timestamp then
-				print("Updated " .. key)
-				value = server_recipes[key]
+				to_update[key] = true
 			end
 		else
 			-- Find recipes that have been deleted
-			if value.timestamp < app_network.config.last_upload_time then
-				print("Deleted " .. key .. " from server")
-				table.insert(to_delete, key)
+			if local_timestamp < app_network.config.last_upload_time then
+				to_delete[key] = true
 			end
 
 		end
 	end
 
-	for i = 1,#to_delete,1 do
-		globalData.menu[to_delete[i]] = nil
+	for key, value in pairs(to_update) do
+		globalData.writeNetworkLog("Updated Recipe: " .. key)
+		globalData.menu[key] = server_recipes[key]
 	end
 	globalData.writeCustomMenu()
-	composer.gotoScene(composer.getSceneName("current"))
 
+	-- Query which ones to keep and which ones to delete
+	queryKeepRecipes(new_server_recipes, to_delete, server_recipes)
 
 
 end

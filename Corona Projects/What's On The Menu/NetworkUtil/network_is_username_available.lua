@@ -18,7 +18,6 @@ local function isUsernameAvailable(name)
 			native.showAlert(globalData.app_name, "Cannot connect to server", {"OK"})
 			native.setActivityIndicator(false)
 		else
-			print(event.response)
 			if event.response == "1" then
 				app_network.username_free = true
 			end

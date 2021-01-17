@@ -26,18 +26,18 @@ local function uploadData()
 	-- HTTP POST event callback
 	local function POSTListener(event)
 		if event.isError then
-			app_network.connnectionError()
+			app_network.connectionError()
 		else
 			local response = json.decode(event.response)
-			if not response then return true end
+			if not response then response = {} end
 
-			if response.message then
-				native.showAlert(globalData.app_name, response.message, {"OK"})
-			end
+			app_network.log(response)
 
 			if response.success then
 				app_network.config.last_upload_time = timestamp
 				globalData.writeNetwork()
+			else
+				native.showAlert("Network Error", tostring(response.message), {"OK"})
 			end
 		end
 	end

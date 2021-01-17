@@ -3,30 +3,32 @@ local globalData = require("globalData")
 local json = require("json")
 local util = require("GeneralUtility")
 
-local function sendNewProfileRequest(username, password)
+local function sendNewProfileRequest(email, username, password)
 	app_network.config.username = username
+	app_network.config.email = email
 	local params = app_network.createHttpRequest("create profile", password)
 
 	local function networkListener(event)
 		if event.isError then
 			app_network.connectionError()
 		else
-			print(event.response)
 			local response = json.decode(event.response)
 			if not response then response = {} end
 
-			if response and response.message then
-				print("Response message for '" .. response.type .. "': " .. response.message)
-				-- native.showAlert(globalData.app_name, response.message, {"OK"})
-			end
+			app_network.log(response)
 
 			if response.success then
+				globalData.settings.device_id = response.device_id
+				globalData.writeSettings()
+
 				app_network.config.auth_token = response.token
 				app_network.config.first_time = false
 				app_network.config.logged_in = true
 				globalData.writeNetwork()
 
 				app_network.uploadData()
+			else
+				native.showAlert("Network Error", tostring(response.message), {"OK"})
 			end
 
 			if app_network.onComplete then

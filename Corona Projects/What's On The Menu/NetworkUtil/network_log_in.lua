@@ -2,8 +2,8 @@ local app_network = require("NetworkUtil.network_main")
 local globalData = require("globalData")
 local json = require("json")
 
-local function logIn(username, password)
-	app_network.config.username = username
+local function logIn(email, password)
+	app_network.config.email = email
 	local params = app_network.createHttpRequest("login", password)
 
 	local function networkListener(event)
@@ -14,19 +14,17 @@ local function logIn(username, password)
 			local response = json.decode(event.response)
 			if not response then response = {} end
 
-			if response.message then 
-				print(string.format("NETWORK: '%s' => %s", response.type, response.message))
-				-- native.showAlert(globalData.app_name, response.message, {"OK"})
-			end
-
 			if response.success then
 				app_network.config.auth_token = response.token
 				app_network.config.logged_in = true
 				app_network.config.first_time = false
 				globalData.writeNetwork()
 				app_network.syncData()
-				print("HI")
+			else
+				native.showAlert("Login Error", tostring(response.message), {"OK"})
 			end
+
+			app_network.log(response)
 		end
 
 		if app_network.onComplete then 

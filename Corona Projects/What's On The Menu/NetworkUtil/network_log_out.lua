@@ -14,8 +14,7 @@ local function logOut()
 			if not response then response = {} end
 
 			if response.message then 
-				print(string.format("NETWORK: '%s' => %s", response.type, response.message))
-				-- native.showAlert(globalData.app_name, response.message, {"OK"})
+				app_network.log(response)
 			end
 			
 		end

@@ -15,10 +15,7 @@ local function changePassword(old_password, new_password)
 		else
 			local response = json.decode(event.response)
 			if not response then return true end
-
-			if response and response.message then
-				native.showAlert(globalData.app_name, response.message, {"OK"})
-			end
+			app_network.log(response)
 
 			if response.success then
 				app_network.config.auth_token = response.token

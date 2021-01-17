@@ -27,16 +27,16 @@ local function createLoginPanel()
 	local title = display.newText({text = "Log In", x = cX, y = form.y - 0.4*form.height, fontSize = globalData.titleFontSize, align = "center", parent = group})
 	title:setFillColor(0)
 
-	local username_field = native.newTextField(cX, cY - 0.3*form.height, 0.9*form.width, H/25)
-	username_field.placeholder = "Username"
-	username_field.text = app_network.config.username
+	local email_field = native.newTextField(cX, cY - 0.3*form.height, 0.9*form.width, H/25)
+	email_field.placeholder = "Email"
+	email_field.text = app_network.config.email
 
-	local password_field = native.newTextField(cX, username_field.y + 2*username_field.height, username_field.width, username_field.height)
+	local password_field = native.newTextField(cX, email_field.y + 2*email_field.height, email_field.width, email_field.height)
 	password_field.placeholder = "Password"
 	password_field.isSecure = true
 
 	local function destroyGroup()
-		username_field:removeSelf()
+		email_field:removeSelf()
 		password_field:removeSelf()
 		if group.onComplete then group.onComplete() end
 		group:removeSelf()
@@ -52,12 +52,12 @@ local function createLoginPanel()
 	back_button.anchorX = back_button.width
 
 	local function submit(event)
-		if username_field.text == "" then
-			native.showAlert(globalData.app_name, "Username cannot be empty", {"OK"})
+		if email_field.text == "" then
+			native.showAlert(globalData.app_name, "Email cannot be empty", {"OK"})
 			return true
 		end
 
-		app_network.logIn(username_field.text, password_field.text)
+		app_network.logIn(email_field.text, password_field.text)
 		destroyGroup()
 	end
 	local submit_button_params = {displayGroup = group, tap_func = submit, label = "Submit", strokeWidth = 3, strokeColor = {0}, radius = back_button_params.radius}

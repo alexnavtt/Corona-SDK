@@ -19,18 +19,18 @@ local function syncData()
             local response = json.decode(event.response)
             if not response then response = {} end
 
-            if response.message then 
-                print(string.format("NETWORK: '%s' => %s", response.type, response.message))
-            	-- native.showAlert(globalData.app_name, response.message, {"OK"})
-            end
+            app_network.log(response)
 
             if response.success then
                 if response.data and response.data.Menu then
+                    -- Promt the user to select which recipes to keep
                 	app_network.mergeRecipes(json.decode(response.data.Menu))
                 else
+                    -- If there is no menu data, publish what is on the device
                     app_network.uploadData()
                 end
             else
+                native.showAlert("Network Error", tostring(response.message), {"OK"})
                 app_network.config.logged_in = false
                 globalData.writeNetwork()
             end
@@ -39,6 +39,7 @@ local function syncData()
         end
 	end
 	network.request(app_network.url, "POST", networkListener, params)
+    -- print("Send request with auth ID " .. app_network.config.auth_token)
 end
 
 return syncData

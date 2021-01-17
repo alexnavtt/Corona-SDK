@@ -14,11 +14,8 @@ local function changeUsername(new_username)
 			app_network.connectionError()
 		else
 			local response = json.decode(event.response)
-			if not response then return true end
-
-			if response and response.message then
-				native.showAlert(globalData.app_name, response.message, {"OK"})
-			end
+			if not response then response = {} end
+			app_network.log(response)
 
 			if response.success then
 				app_network.config.username = new_username

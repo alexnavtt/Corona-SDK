@@ -12,7 +12,7 @@ local function createProfile()
 
 	local group = display.newGroup()
 
-	-- Create a background to prevent undesired 
+	-- Create a background to prevent undesired touches/taps
 	local glass_screen = display.newRect(group, cX, cY, W, H)
 	glass_screen:setFillColor(0)
 	glass_screen.alpha = 0.3
@@ -29,8 +29,11 @@ local function createProfile()
 	local title = display.newText({text = "Create Profile", x = cX, y = form.y - 0.4*form.height, fontSize = globalData.titleFontSize, align = "center", parent = group})
 	title:setFillColor(0)
 
-	local username_field = native.newTextField(cX, cY - 0.3*form.height, 0.9*form.width, H/25)
-	username_field.placeholder = "Username"
+	local email_field = native.newTextField(cX, cY - 0.3*form.height, 0.9*form.width, H/25)
+	email_field.placeholder = "Email"
+
+	local username_field = native.newTextField(cX, email_field.y + 2*email_field.height, email_field.width, email_field.height)
+	username_field.placeholder = "Nickname: What your frinds will see"
 
 	local password_field = native.newTextField(cX, username_field.y + 2*username_field.height, username_field.width, username_field.height)
 	password_field.placeholder = "Password"
@@ -40,7 +43,7 @@ local function createProfile()
 	confirm_password_field.placeholder = "Confirm Password"
 	confirm_password_field.isSecure = true
 
-	local query_text = display.newText({text = "Already have an account?  ", x = form.x - 0.45*form.width, y = confirm_password_field.y + 2*confirm_password_field.height, fontSize = globalData.smallFontSize})
+	local query_text = display.newText({text = "Already have an account?  ", x = form.x - 0.45*form.width, y = confirm_password_field.y + confirm_password_field.height, fontSize = globalData.smallFontSize})
 	query_text.anchorX = 0
 	query_text:setFillColor(0)
 	group:insert(query_text)
@@ -50,6 +53,7 @@ local function createProfile()
 	login_text:setFillColor(unpack(palette.dark.blue))
 
 	local function destroyGroup()
+		email_field:removeSelf()
 		username_field:removeSelf()
 		password_field:removeSelf()
 		confirm_password_field:removeSelf()
@@ -70,12 +74,31 @@ local function createProfile()
 	back_button.anchorX = back_button.width
 
 	local function submit(event)
+		-- Make sure that the email at least resembles a valid email
+		local has_at, has_point
+		local email = email_field.text
+		for i = 1,#email do
+			if email:sub(i,i) == "@" then
+				has_at = true
+			elseif has_at and email:sub(i,i) == "." then
+				has_point = true
+			end
+		end
+		if not has_at or not has_point then
+			native.showAlert(globalData.app_name, "Please enter a valid E-mail", {"OK"})
+			return true
+		end
+
+		-- Make sure the passwords match
+		local password = password_field.text
 		if password_field.text ~= confirm_password_field.text then
 			native.showAlert(globalData.app_name, "Passwords do not match", {"OK"})
 			return true
 		end	
 
-		if username_field.text == "" then
+		-- Make sure there is a username
+		local username = username_field.text
+		if username == "" then
 			native.showAlert(globalData.app_name, "Username cannot be empty", {"OK"})
 			return true
 		end
@@ -89,7 +112,7 @@ local function createProfile()
 				if not app_network.username_free then
 					native.showAlert(globalData.app_name, "That username is already taken", {"OK"})
 				else
-					app_network.sendNewProfileRequest(username_field.text, password_field.text)
+					app_network.sendNewProfileRequest(email, username, password)
 					destroyGroup()
 				end
 			end

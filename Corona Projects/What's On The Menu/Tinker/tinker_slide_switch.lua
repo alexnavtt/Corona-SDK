@@ -15,6 +15,7 @@ local function newSlidingSwitch(x, y, params)
 	local onColor      = params.onColor        or {0.3, 0.8, 0.3}
 	local offColor     = params.offColor       or {0.5}
 	local defaultState = params.defaultState   or "off"
+	local touchScale   = params.touchScale     or 1
 	local tap_func     = params.tap_func       or function(event) return true end
 	local displayGroup = params.displayGroup
 
@@ -43,6 +44,10 @@ local function newSlidingSwitch(x, y, params)
 		off_bkgd.alpha = 0
 	end
 
+	local tappable_area = display.newRect(group, 0, 0, touchScale*width, touchScale*height)
+	tappable_area.isVisible = false
+	tappable_area.isHitTestable = true
+
 	-- The sliding portion of the switch
 	local switch = display.newCircle(group, -0.25*width + group._state*0.5*width, 0, radius)
 
@@ -66,6 +71,10 @@ local function newSlidingSwitch(x, y, params)
 
 	group:addEventListener("tap", group)
 	group:addEventListener("tap", tap_func)
+
+	function group:getState()
+		return group._state
+	end
 
 	return group
 

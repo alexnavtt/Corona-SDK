@@ -59,7 +59,14 @@ local function finalizeRecipe(event)
 	end
 
 	-- Overwrite Value if editing
-	if new_recipe_info.edit_existing_recipe then recipe_title = new_recipe_info.newRecipeTitle end
+	if new_recipe_info.edit_existing_recipe then 
+		recipe_title = new_recipe_info.newRecipeTitle  
+
+		-- Delete old one in the event of a rename event
+		if recipe_title ~= new_recipe_info.oldRecipeTitle then
+			globalData.menu[new_recipe_info.oldRecipeTitle] = nil
+		end
+	end
 
 	globalData.menu[recipe_title] = {ingredients = {}, steps = {}}
 
@@ -73,6 +80,8 @@ local function finalizeRecipe(event)
 
 	globalData.menu[recipe_title].cook_time = new_recipe_info.newRecipeParams.cook_time
 	globalData.menu[recipe_title].prep_time = new_recipe_info.newRecipeParams.prep_time
+	globalData.menu[recipe_title].servings  = new_recipe_info.newRecipeParams.servings
+	globalData.menu[recipe_title].calories  = new_recipe_info.newRecipeParams.calories
 	globalData.menu[recipe_title].timestamp = util.time()
 
 	app_network.config.last_update_time = util.time()
@@ -80,13 +89,14 @@ local function finalizeRecipe(event)
 	new_recipe_info.newRecipeIngredients = {}
 	new_recipe_info.newRecipeSteps = {}
 	new_recipe_info.newRecipeTitle = nil
+	new_recipe_info.oldRecipeTitle = nil
 	new_recipe_info.newRecipeParams = {}
 	new_recipe_info.is_editing = false
 	new_recipe_info.edit_existing_recipe = false
 
 	globalData.writeCustomMenu()
 	if app_network.config.logged_in and globalData.settings.network_is_enabled then
-		app_network.uploadData()
+		app_network.syncData()
 	end
 	
 	globalData.activeScene = 'BrowsePage'

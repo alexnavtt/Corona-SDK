@@ -19,6 +19,7 @@ local scene = composer.newScene()
 local name_text_field
 local prep_time_text_field
 local cook_time_text_field 
+local serves_text_field
 
  
 -- create()
@@ -43,19 +44,25 @@ function scene:create( event )
 								strokeColor = globalData.dark_grey,
 								strokeWidth = 2,
 								cursorColor = globalData.dark_grey,
+								displayGroup = sceneGroup,
 								tapOutside  = true}
 	name_text_field = tinker.newTextField(display.contentCenterX, 0.25*display.contentHeight, 0.8*display.contentWidth, 0.05*display.contentHeight, text_field_params)
-	sceneGroup:insert(name_text_field)
 
 	-- Create a text field for the prep time of the recipe
 	text_field_params.defaultText = "Prep Time"
 	prep_time_text_field = tinker.newTextField(0.5*display.contentCenterX, 0.37*display.contentHeight, 0.4*display.contentWidth, 0.05*display.contentHeight, text_field_params)
-	sceneGroup:insert(prep_time_text_field)
 
 	-- Create a text field for the cook time of the recipe
 	text_field_params.defaultText = "Cook Time"
 	cook_time_text_field = tinker.newTextField(1.5*display.contentCenterX, 0.37*display.contentHeight, 0.4*display.contentWidth, 0.05*display.contentHeight, text_field_params)
-	sceneGroup:insert(cook_time_text_field)
+
+	-- Create a text field for the serving amount of the recipe
+	text_field_params.defaultText = "Serves"
+	serves_text_field = tinker.newTextField(0.5*display.contentCenterX, display.contentCenterY, 0.4*display.contentWidth, 0.05*display.contentHeight, text_field_params)
+
+	-- Create a text field for the amount of calories in the dish
+	text_field_params.defaultText = "Calories"
+	calories_text_field = tinker.newTextField(1.5*display.contentCenterX, display.contentCenterY, 0.4*display.contentWidth, 0.05*display.contentHeight, text_field_params)
 
 	-- Show the title of the page up at the top
 	local title = display.newText({text = "Recipe Creator",
@@ -70,9 +77,9 @@ function scene:create( event )
 	title:setFillColor(unpack(app_colors.new_recipe.title))
 
 	-- An image of a recipe for aesthetics
-	local image = display.newImageRect(sceneGroup, "Image Assets/Recipe-Card-Graphic.png", 0.8*display.contentWidth, 0.35*display.contentHeight)
+	local image = display.newImageRect(sceneGroup, "Image Assets/Recipe-Card-Graphic.png", 0.65*display.contentWidth, 0.3*display.contentHeight)
 	image.x = display.contentCenterX
-	image.y = 0.65*display.contentHeight
+	image.y = 0.71*display.contentHeight
 	image.strokeWidth = 10
 	image:setStrokeColor(unpack(app_colors.new_recipe.outline))
 
@@ -95,7 +102,7 @@ function scene:create( event )
 	function begin_button:tap(event)
 		new_recipe_info.is_editing = true
 		new_recipe_info.newRecipeTitle = name_text_field.text
-		new_recipe_info.newRecipeParams = {cook_time = cook_time_text_field.text, prep_time = prep_time_text_field.text}
+		new_recipe_info.newRecipeParams = {cook_time = cook_time_text_field.text, prep_time = prep_time_text_field.text, servings = serves_text_field.text, calories = calories_text_field.text}
 		composer.gotoScene("IngredientsPage", {effect = "slideUp", time = globalData.transition_time})
 	end
 	begin_button:addEventListener("tap", begin_button)

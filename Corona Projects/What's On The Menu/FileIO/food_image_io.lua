@@ -1,5 +1,6 @@
-local globalData = require("globalData")
+local lfs = require("lfs")
 local json = require("json")
+local globalData = require("globalData")
 local defaultMenu = require("DefaultMenu")
 
 local image_io = {}

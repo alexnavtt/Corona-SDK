@@ -12,7 +12,6 @@ function menu_io.writeCustomMenu()
 	-- Remove default menu before we save
 	for name, value in pairs(defaultMenu) do
 		if util.tableEquals(globalData.menu[name], value) then
-			print("Removed " .. name)
 			globalData.menu[name] = nil
 		end
 	end
@@ -31,7 +30,6 @@ function menu_io.readCustomMenu()
 	local file = io.open(path, "r")
 
 	if not file then
-		print("File did not exist, creating now...")
 		file = io.open(path, "w+")
 		io.close(file)
 		file = io.open(path, "r")

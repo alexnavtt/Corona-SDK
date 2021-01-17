@@ -4,6 +4,8 @@ local composer = require("composer")
 
 local url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSsYVoMs9cpnRWNg-B7usduhVjY8GYzOb74rutaGxwtBhG8BcT7wdqKJ_3q34R2CtFCV8TagJktLVVO/pub?output=csv"
 
+globalData.info_received = falses
+
 -- Add keyword to food
 local function appendKeyword(keyword, value)
 	keyword = string.lower(keyword)

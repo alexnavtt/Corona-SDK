@@ -29,6 +29,12 @@ app_network.syncData              = require("NetworkUtil.network_sync_data")
 app_network.mergeRecipes          = require("NetworkUtil.network_merge_recipes")
 app_network.createLoginPanel      = require("NetworkUtil.network_login_panel")
 app_network.changePasswordPanel   = require("NetworkUtil.network_change_password_panel")
+app_network.log                   = require("NetworkUtil.network_log")
+
+-- Friends
+app_network.friends = {}
+app_network.friend_url = "http://www.recipes.bulldogtt.com/friend_listener.php"
+app_network.sendFriendRequest = require("NetworkUtil.network_send_friend_request")
 
 function app_network.connectionError()
 	native.showAlert(globalData.app_name, "Cannot connect to server, please check your network connection", {"OK"})

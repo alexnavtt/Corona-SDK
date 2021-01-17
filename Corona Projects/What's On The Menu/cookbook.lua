@@ -61,6 +61,7 @@ cookbook.searchIngredients = menu_parser.searchIngredients
 function cookbook.editRecipe(title)
 	new_recipe_info.edit_existing_recipe = true
 	new_recipe_info.newRecipeTitle = title
+	new_recipe_info.oldRecipeTitle = title
 	new_recipe_info.newRecipeIngredientList = {}
 	new_recipe_info.newRecipeSteps = {}
 	new_recipe_info.newRecipeParams = {}
@@ -98,6 +99,8 @@ function cookbook.captureFoodImage(title)
 	local filename = "Food_Images__"..title..".png"
 	local function recordImage(event) 
 		local test_image = display.newImage(filename, system.DocumentsDirectory)
+		if not test_image then return true end
+
 		globalData.gallery[title] = {width = test_image.width, height = test_image.height, source = "camera"}
 		test_image:removeSelf()
 
@@ -107,14 +110,11 @@ function cookbook.captureFoodImage(title)
 		end
 		composer.removeScene(globalData.activeScene)
 
-		-- globalData.textures[title] = graphics.newTexture({type = "image", filename = filename, baseDir = system.DocumentsDirectory})
 		globalData.saveMenuImages()
-		-- globalData.textures[title]:preload()
 		
 		composer.gotoScene(globalData.activeScene)
 	end
 
-	-- recordImage({target = display.newRect(0,0,100,100)})
 	media.capturePhoto( { listener = recordImage, destination = {baseDir = system.DocumentsDirectory, filename = filename }} )
 end
 
@@ -124,6 +124,8 @@ function cookbook.selectFoodImage(title)
 	local filename = "Food_Images__"..title..".png"
 	local function recordImage(event)
 		local test_image = display.newImage(filename, system.DocumentsDirectory)
+		if not test_image then return true end
+
 		globalData.gallery[title] = {width = test_image.width, height = test_image.height, source = "gallery"}
 		test_image:removeSelf()
 
@@ -133,9 +135,7 @@ function cookbook.selectFoodImage(title)
 		end
 		composer.removeScene(globalData.activeScene)
 
-		-- globalData.textures[title] = graphics.newTexture({type = "image", filename = filename, baseDir = system.DocumentsDirectory})
 		globalData.saveMenuImages()
-		-- globalData.textures[title]:preload()
 
 		composer.gotoScene(globalData.activeScene)
 	end

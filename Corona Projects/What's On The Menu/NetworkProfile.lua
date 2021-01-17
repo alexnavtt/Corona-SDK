@@ -21,7 +21,7 @@ function scene:create( event )
 	local y_level = 0.12*H
 	local x_level = 0.08*W
 
-	local title = display.newText({text = "User Profile", x = 0.05*W, y = y_level, fontSize = 1.5*globalData.titleFontSize, font = native.systemFontBold})
+	local title = display.newText({text = "Network Settings", x = 0.05*W, y = y_level, fontSize = 1.5*globalData.titleFontSize, font = native.systemFontBold})
 	title.anchorX = 0
 	title:setFillColor(unpack(app_colors.settings.text))
 	sceneGroup:insert(title)
@@ -88,6 +88,29 @@ function scene:create( event )
 	passwordText:addEventListener("tap", function(event) app_network.changePasswordPanel(); return true; end)
 
 	y_level = y_level + 0.1*H
+
+	------------------
+	-- ADD A FRIEND --
+	------------------
+
+	local friend_text = display.newText({text = "Add A Friend", x = x_level, y = y_level, fontSize = globalData.mediumFontSize, parent = sceneGroup})
+	friend_text.anchorX = 0
+	friend_text:setFillColor(unpack(app_colors.settings.text))
+
+	local function addFriend(e)
+		local friend_field = native.newTextField(cX, cY, 0.9*W, 0.05*H)
+		local function onUserInput(event)
+			if event.phase == "submitted" or event.phase == "cancelled" then
+				app_network.sendFriendRequest(friend_field.text)
+				friend_field:removeSelf()
+			end
+		end
+		friend_field:addEventListener("userInput", onUserInput)
+	end
+
+	friend_text:addEventListener("tap", addFriend)
+
+	y_level = y_level + 0.1*H
 	--------------------
 	-- CREATE PROFILE --
 	--------------------
@@ -105,6 +128,26 @@ function scene:create( event )
 	createProfile:addEventListener("tap", tapCreateProfile)
 
 	y_level = y_level + 0.1*H
+
+	--------------
+	-- SHOW LOG --
+	--------------
+
+	local showNetworkLog = display.newText({text = "Show Network Log", x = x_level, y = y_level, fontSize = globalData.mediumFontSize, parent = sceneGroup})
+	showNetworkLog.anchorX = 0
+	showNetworkLog:setFillColor(unpack(app_colors.settings.text))
+
+	local function tapShowNetworkLog(event)
+		local function logListener(event)
+			if event.index == 1 then
+				globalData.deleteNetworkLog()
+			end
+		end
+
+		local message = globalData.readNetworkLog()
+		native.showAlert(globalData.app_name, message, {"Clear Network Log", "Close"}, logListener)
+	end
+	showNetworkLog:addEventListener("tap", tapShowNetworkLog)
 
 	--------------
 	--- LOG IN ---

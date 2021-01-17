@@ -332,7 +332,6 @@ local function newTextField(x, y, width, height, params)
 		if centered then
 			local start_x = self:localToContent(-ghostText.width/2,0)
 			letter_index, offset = findCursorLocation(event.x - start_x)
-			print(-start_x + event.x)
 			cursor.x = -ghostText.width/2 + offset
 			NTF:setSelection(letter_index,letter_index)
 		else

@@ -68,7 +68,7 @@ function scene:create( event )
 		end
 	end
 
-	local default_switch_params = {defaultState = globalData.settings.showDefaultRecipes, tap_func = defaultRecipeOnPress, displayGroup = sceneGroup}
+	local default_switch_params = {defaultState = globalData.settings.showDefaultRecipes, tap_func = defaultRecipeOnPress, displayGroup = sceneGroup, touchScale = 2.0}
 	local showDefaultRecipesSwitch = tinker.newSlidingSwitch(0.9*W, y_level, default_switch_params)
 
 	y_level = y_level + 0.1*H
@@ -92,7 +92,7 @@ function scene:create( event )
 	end
 
 	local showLandscape = globalData.settings.recipeStyle == "landscape"
-	local recipe_style_switch_params = {defaultState = showLandscape, tap_func = tapRecipeStyle, displayGroup = sceneGroup}
+	local recipe_style_switch_params = {defaultState = showLandscape, tap_func = tapRecipeStyle, displayGroup = sceneGroup, touchScale = 2.0}
 	local recipe_style_switch = tinker.newSlidingSwitch(showDefaultRecipesSwitch.x, y_level, recipe_style_switch_params)
 
 	y_level = y_level + 0.1*H
@@ -117,7 +117,7 @@ function scene:create( event )
 	end
 
 	local prevent_screen_lock = not globalData.settings.allow_idle_timeout
-	local screen_lock_params = {defaultState = prevent_screen_lock, tap_func = tapScreenLock, displayGroup = sceneGroup}
+	local screen_lock_params = {defaultState = prevent_screen_lock, tap_func = tapScreenLock, displayGroup = sceneGroup, touchScale = 2.0}
 	local screen_lock_switch = tinker.newSlidingSwitch(recipe_style_switch.x, y_level, screen_lock_params)
 
 	y_level = y_level + 0.1*H
@@ -125,52 +125,56 @@ function scene:create( event )
 	------------------
 	-- DATA SYNCING -- 
 	------------------
-	local dataSync = display.newText({text = "Store data on the cloud", x = x_level, y = y_level, fontSize = globalData.mediumFontSize})
-	dataSync.anchorX = 0
-	dataSync:setFillColor(unpack(app_colors.settings.text))
-	sceneGroup:insert(dataSync)
+	-- local dataSync = display.newText({text = "Store data on the cloud", x = x_level, y = y_level, fontSize = globalData.mediumFontSize})
+	-- dataSync.anchorX = 0
+	-- dataSync:setFillColor(unpack(app_colors.settings.text))
+	-- sceneGroup:insert(dataSync)
 
-	local function tapDataSync(event)
-		globalData.settings.network_is_enabled = not globalData.settings.network_is_enabled
-		globalData.writeSettings()
+	-- local function tapDataSync(event)
+	-- 	globalData.settings.network_is_enabled = not globalData.settings.network_is_enabled
+	-- 	globalData.writeSettings()
 
-		-- Make sure that all entries have a timestamp for networking
-		if globalData.settings.network_is_enabled then
-			for key, value in pairs(globalData.menu) do
-				if not value.timestamp then
-					value.timestamp = os.time(os.date('*t'))
-				end
-			end
+	-- 	-- Make sure that all entries have a timestamp for networking
+	-- 	if globalData.settings.network_is_enabled then
+	-- 		for key, value in pairs(globalData.menu) do
+	-- 			if not value.timestamp then
+	-- 				value.timestamp = os.time(os.date('*t'))
+	-- 			end
+	-- 		end
 
-			if app_network.config.logged_in then
-				app_network.syncData()
-			end
+	-- 		if app_network.config.logged_in then
+	-- 			app_network.syncData()
+	-- 		end
 
-			local function firstTimeListener(event)
-				if event.index == 1 then
-					app_network.createProfile()
-				end
-				return true
-			end
+	-- 		local function firstTimeListener(event)
+	-- 			if event.index == 1 then
+	-- 				app_network.createProfile()
+	-- 			end
+	-- 			return true
+	-- 		end
 
-			if app_network.config.first_time then
-				native.showAlert(globalData.app_name, "Hey! This is your fist time connecting to the cloud\nLet's get started by making a profile for you!", {"OK", "Cancel"}, firstTimeListener)
-			end
-		end
-	end
+	-- 		if app_network.config.first_time then
+	-- 			native.showAlert(globalData.app_name, "Hey! This is your fist time connecting to the cloud\nLet's get started by making a profile for you!", {"OK", "Cancel"}, firstTimeListener)
+	-- 		end
+	-- 	end
+	-- end
 
-	local enable_data_sync_params = {defaultState = globalData.settings.network_is_enabled, tap_func = tapDataSync, displayGroup = sceneGroup}
-	local enable_data_sync = tinker.newSlidingSwitch(screen_lock_switch.x, y_level, enable_data_sync_params)
+	-- local enable_data_sync_params = {defaultState = globalData.settings.network_is_enabled, tap_func = tapDataSync, displayGroup = sceneGroup}
+	-- local enable_data_sync = tinker.newSlidingSwitch(screen_lock_switch.x, y_level, enable_data_sync_params)
 
-	y_level = y_level + 0.1*H
+	-- y_level = y_level + 0.1*H
 
 	---------------------
 	-- NETWORK PROFILE --
 	---------------------
 
-	local Profile = display.newText({text = "User Profile", x = x_level, y = y_level, fontSize = globalData.mediumFontSize, parent = sceneGroup})
+	local Profile = display.newText({text = "Network Profile", x = x_level, y = y_level, fontSize = globalData.mediumFontSize, parent = sceneGroup})
 	Profile.anchorX = 0
 	Profile:setFillColor(unpack(app_colors.settings.text))
+
+	local profileRect = display.newRect(sceneGroup, cX, Profile.y, W, 0.1*H)
+	profileRect.isVisible = false
+	profileRect.isHitTestable = true
 
 	local proceedToProfile = display.newImageRect(sceneGroup, "Image Assets/White-Dropdown-Arrow-Graphic.png", 0.05*W, 0.05*W)
 	proceedToProfile.x = recipe_style_switch.x
@@ -180,7 +184,7 @@ function scene:create( event )
 	local function moveToProfile(event)
 		app_transitions.moveTo("NetworkProfile")
 	end
-	proceedToProfile:addEventListener("tap", moveToProfile)
+	profileRect:addEventListener("tap", moveToProfile)
 
 	y_level = y_level + 0.1*H
 

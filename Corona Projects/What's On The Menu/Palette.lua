@@ -92,7 +92,6 @@ function P.darken(color, iter)
 		color[i] = math.max(0,color[i] - 0.05*iter)
 	end
 
-	print(color[1])
 	return color
 end
 

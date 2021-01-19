@@ -17,7 +17,6 @@ app_network.config.last_upload_time = 0
 
 -- Network Functions
 app_network.createHttpRequest     = require("NetworkUtil.network_create_http_request")
-app_network.isUsernameAvailable   = require("NetworkUtil.network_is_username_available")
 app_network.changeUsername        = require("NetworkUtil.network_change_username")
 app_network.changePassword        = require("NetworkUtil.network_change_password")
 app_network.createProfile         = require("NetworkUtil.network_create_profile")
@@ -34,7 +33,12 @@ app_network.log                   = require("NetworkUtil.network_log")
 -- Friends
 app_network.friends = {}
 app_network.friend_url = "http://www.recipes.bulldogtt.com/friend_listener.php"
-app_network.sendFriendRequest = require("NetworkUtil.network_send_friend_request")
+app_network.sendRecipe             = require("NetworkUtil.network_send_recipe")
+app_network.getFriends             = require("NetworkUtil.network_get_friends")
+app_network.deleteFriend           = require("NetworkUtil.network_delete_friend")
+app_network.sendFriendRequest      = require("NetworkUtil.network_send_friend_request")
+app_network.checkForFriendRequest  = require("NetworkUtil.network_check_for_friend_request")
+app_network.respondToFriendRequest = require("NetworkUtil.network_respond_to_friend_request")
 
 function app_network.connectionError()
 	native.showAlert(globalData.app_name, "Cannot connect to server, please check your network connection", {"OK"})

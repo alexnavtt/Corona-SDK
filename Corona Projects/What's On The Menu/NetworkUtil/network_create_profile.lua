@@ -103,22 +103,9 @@ local function createProfile()
 			return true
 		end
 
-		app_network.isUsernameAvailable(username_field.text)
-
-		local t_handle
-		t_handle = timer.performWithDelay(10, function(event)
-			if app_network.data_received then 
-				timer.cancel(t_handle)
-				if not app_network.username_free then
-					native.showAlert(globalData.app_name, "That username is already taken", {"OK"})
-				else
-					app_network.sendNewProfileRequest(email, username, password)
-					destroyGroup()
-				end
-			end
-			return true 
-		end,	
-		20000)
+		app_network.sendNewProfileRequest(email, username, password)
+		destroyGroup()
+		
 	end
 	local submit_button_params = {displayGroup = group, tap_func = submit, label = "Submit", strokeWidth = 3, strokeColor = {0}, radius = back_button_params.radius}
 	local submit_button = tinker.newButton(cX + 0.05*form.width, back_button.y, back_button.width, back_button.height, submit_button_params)

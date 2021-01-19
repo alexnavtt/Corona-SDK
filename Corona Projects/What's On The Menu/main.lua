@@ -141,6 +141,7 @@ end
 if globalData.settings.network_is_enabled and app_network.config.logged_in then
 	globalData.writeNetworkLog("---- NEW SESSION ----")
 	app_network.syncData()
+	app_network.checkForFriendRequest()
 end
 
 -- print(app_network.config.username)

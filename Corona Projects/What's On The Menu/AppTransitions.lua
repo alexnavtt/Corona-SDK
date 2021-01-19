@@ -12,8 +12,9 @@ order["ViewRecipePage"]      = {1, 2}
 order["BrowsePage"]          = {2, 2}
 order["FavouritesPage"]      = {3, 2}
 order["NewRecipePage"]       = {4, 2}
-order["Settings"]            = {5, 2}
-order["NetworkProfile"]      = {6, 2}
+order["FriendPage"]          = {5, 2}
+order["Settings"]            = {6, 2}
+order["NetworkProfile"]      = {7, 2}
 order["IngredientsPage"]     = {4, 3}
 order["InsertStepsPage"]     = {5, 3}
 

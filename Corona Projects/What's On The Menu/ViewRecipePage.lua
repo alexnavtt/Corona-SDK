@@ -229,6 +229,7 @@ function scene:show( event )
 	elseif ( phase == "did" ) then
 		self.glass_screen:toFront()
 		options = createOptions(name, scaling_factor, self)
+		sceneGroup:insert(options)
 
 		function tapOptions(event)
 			scene.glass_screen.alpha = 0.5

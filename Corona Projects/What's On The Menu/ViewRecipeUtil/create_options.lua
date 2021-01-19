@@ -1,7 +1,8 @@
-local globalData = require("globalData")
-local cookbook = require("cookbook")
-local app_colors = require("AppColours")
 local composer = require("composer")
+local cookbook = require("cookbook")
+local globalData = require("globalData")
+local app_colors = require("AppColours")
+local app_network = require("AppNetwork")
 
 local W = display.contentWidth
 local H = display.contentHeight
@@ -180,6 +181,12 @@ local function createOptions(name, scaling_factor, scene)
 	local send_icon  = display.newImageRect(options, send_image, star.width, star.height)
 	send_icon.x = star.x
 	send_icon.y = y_level
+
+	local function sendToFriend(event)
+		print(name)
+		app_network.sendRecipe("test@domain.com", name)
+	end
+	send_icon:addEventListener("tap", sendToFriend)
 
 	ypp(3*spacing)
 

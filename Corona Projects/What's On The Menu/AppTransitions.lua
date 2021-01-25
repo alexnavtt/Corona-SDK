@@ -80,13 +80,13 @@ function transition.move(direction)
 
 	-- Determine the "location" of the page to move to
 	if (direction == "right") then
-		x = math.min(x+1, 5)
+		x = math.min(x+1, 7)
 	elseif (direction == "left") then
 		x = math.max(x-1, 1)
 	elseif (direction == "up") then
 		y = math.max(y-1, 1)
 	elseif (direction == "down") then
-		y = math.min(y+1, 2)
+		y = math.min(y+1, 3)
 	end
 
 	-- Move to this new location

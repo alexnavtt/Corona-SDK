@@ -95,7 +95,7 @@ local function finalizeRecipe(event)
 	new_recipe_info.edit_existing_recipe = false
 
 	globalData.writeCustomMenu()
-	if app_network.config.logged_in and globalData.settings.network_is_enabled then
+	if app_network.config.logged_in then
 		app_network.syncData()
 	end
 	

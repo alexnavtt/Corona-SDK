@@ -48,7 +48,7 @@ local function newTextField(x, y, width, height, params)
 	local font 				= params.font 				or native.systemFont
 	local defaultText 		= params.defaultText 		or "TEXT HERE"
 	local id 				= params.id 				or "Tinker_Text_Field"
-	local fontSize 			= params.fontSize 			or 0.5*height
+	local fontSize 			= params.fontSize 			or (0.5*height)
 	local isNumeric 		= params.isNumeric
 	local tapOutside 		= params.tapOutside
 	local noUnderline		= params.noUnderline

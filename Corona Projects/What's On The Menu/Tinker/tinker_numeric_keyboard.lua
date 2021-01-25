@@ -7,9 +7,9 @@ local function numericKeyboard(x,y,width,height,params)
 
 	-- Default Params
 	local x 				= x 						or Cx
-	local y 				= y 						or 0.75*H
-	local width 			= width 					or 0.70*W
-	local height 			= height 					or 0.45*H
+	local y 				= y 						or (0.75*H)
+	local width 			= width 					or (0.70*W)
+	local height 			= height 					or (0.45*H)
 	local params 			= params 					or {}
 	local backgroundColor 	= params.backgroundColor 	or {1}
 	local touchedColor 		= params.touchedColor 		

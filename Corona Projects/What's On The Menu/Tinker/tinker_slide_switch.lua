@@ -9,9 +9,9 @@ local function newSlidingSwitch(x, y, params)
 	params = params or {}
 
 	-- Read input parameters
-	local width        = params.width          or 0.05*W
-	local height       = params.height         or 0.65*width
-	local radius       = params.radius         or 0.5*height
+	local width        = params.width          or (0.05*W)
+	local height       = params.height         or (0.65*width)
+	local radius       = params.radius         or (0.5*height)
 	local onColor      = params.onColor        or {0.3, 0.8, 0.3}
 	local offColor     = params.offColor       or {0.5}
 	local defaultState = params.defaultState   or "off"

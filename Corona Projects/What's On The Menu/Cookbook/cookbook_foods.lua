@@ -113,7 +113,6 @@ foods.dairy = {				["Milk"] 			= true,
 							["Brie Cheese"] 	= true,
 							["Blue Cheese"] 	= true,
 							["Cottage Cheese"] 	= true,
-							["Cottage Cheese"] 	= true,
 							["Butter"]			= true,
 							["Margarine"]		= true,
 							["Ice Cream"]		= true}

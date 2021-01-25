@@ -7,7 +7,7 @@ local app_transitions = require("AppTransitions")
 
 local tab_util = {}
 local tab_titles 	= {'Cookbook','Favourites','New Recipe'} --,'Settings'} --'Custom Search'
-local page_titles 	= {"BrowsePage", "FavouritesPage", "NewRecipePage", "Settings"} -- "CustomPage",
+local page_titles 	= {"BrowsePage", "FavouritesPage", "NewRecipePage", "FriendPage", "Settings"} -- "CustomPage",
 local icon_paths 	= {"Small-Recipe-App-Icon-Transparent.png", "Small-Star.png", "Small-Recipe-Card-Graphic.png", "Small-Settings-Graphic.png"}
 local num_tabs 		= #tab_titles
 
@@ -150,7 +150,7 @@ function tab_util.createTabBar()
 		end 
 
 		local options = {label = tab_titles[i], color = {1,1,1,0.1}, labelColor = app_colors.tab_bar.button_text, tap_func = onTap, fontSize = globalData.smallFontSize, displayGroup = tab_group, font = native.systemFontBold, radius = 30}
-		button = tinker.newButton((i-1)*tab_width + tab_width/2, 0.5*tab_height, 0.8*tab_width, 0.7*tab_height, options)
+		button = tinker.newButton((i-1)*tab_width + tab_width*0.7, 0.5*tab_height, 0.8*tab_width, 0.7*tab_height, options)
 		button.id = "bkgd-" .. page_titles[i]
 		button.count = i
 
@@ -158,6 +158,25 @@ function tab_util.createTabBar()
 
 		table.insert(buttons, button)
 	end
+
+	local friends_button
+	local function goToFriend(event)
+		for i = 1,#buttons,1 do
+			buttons[i]:setBackgroundColor({1,1,1,0.1})
+		end
+		friends_button:setBackgroundColor({1,1,1,0.2})
+
+		if globalData.activeScene == "FriendPage" then return true end
+
+		globalData.activeScene = "FriendPage"
+		app_transitions.moveTo("FriendPage")
+		return true
+	end
+
+	local friends_options = {image = "Image Assets/Cheese-Graphic.png", tap_func = goToFriend, displayGroup = tab_group, color = {0,0,0,0.01}}
+	friends_button = tinker.newDot(0.88*display.contentWidth, 0.5*tab_height, 0.4*tab_height, friends_options)
+	friends_button.id = "bkgd-FriendPage"
+	table.insert(buttons, friends_button)
 
 	local settings_button
 	local function goToSettings(event)
@@ -187,7 +206,7 @@ function tab_util.createTabBar()
 	local search_button
 
 	local options = {image = "Image Assets/Small-Magnifying-Glass-Graphic.png", tap_func = createSearchBar, displayGroup = tab_group, color = {0,0,0,0.01}}
-	search_button = tinker.newButton(settings_button.x - settings_button.width, settings_button.y, settings_button.width, settings_button.height, options)
+	search_button = tinker.newButton(settings_button.width*0.65, settings_button.y, settings_button.width, settings_button.height, options)
 
 	-- Update the tab bar so that it is at the current scene
 	function tab_group:update()
@@ -232,7 +251,7 @@ function tab_util.simpleTabBar(title, back_text, back_page, next_text, next_page
 		composer.gotoScene(next_page, {effect = "slideLeft", time = globalData.transition_time})
 	end
 
-	local next_params = {label = next_text, tap_func = next_tap, color = {1,1,1,0.1}, labelColor = app_colors.tab_bar.button_text, radius = 10, radius = 0.02*display.contentWidth, fontSize = globalData.mediumFontSize}
+	local next_params = {label = next_text, tap_func = next_tap, color = {1,1,1,0.1}, labelColor = app_colors.tab_bar.button_text, radius = 0.02*display.contentWidth, fontSize = globalData.mediumFontSize}
 	local next_button = tinker.newButton(0.97*display.contentWidth, 0.5*tab_height, 0.25*display.contentWidth, 0.8*tab_height, next_params)
 	next_button.anchorX = next_button.width
 	next_button.id = next_page

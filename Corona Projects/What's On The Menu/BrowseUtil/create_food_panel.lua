@@ -145,7 +145,7 @@ local function createFoodPanel(title, x, y, width, height, parent, color, text_c
 				globalData.writeCustomMenu()
 				globalData.deleteFoodImage(title)
 
-				if app_network.config.logged_in and globalData.settings.network_is_enabled then
+				if app_network.config.logged_in then
 					app_network.uploadData()
 					app_network.log({message = "Deleted " .. title, type = "local"})
 					globalData.writeNetwork()

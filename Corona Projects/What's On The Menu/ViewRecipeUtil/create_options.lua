@@ -1,8 +1,14 @@
+-- Solar2D Libraries
 local composer = require("composer")
+
+-- Custom Libraries
 local cookbook = require("cookbook")
 local globalData = require("globalData")
 local app_colors = require("AppColours")
 local app_network = require("AppNetwork")
+
+-- Custom Functions
+local showFriendsList = require("FriendsUtil.show_friends_list")
 
 local W = display.contentWidth
 local H = display.contentHeight
@@ -27,9 +33,9 @@ local function createOptions(name, scaling_factor, scene)
 	options.height = height
 	options.state = "hidden"
 
-	local function ypp(dy) 
+	local function ypp(dy)
 		dy = dy or spacing
-		y_level = y_level + dy 
+		y_level = y_level + dy
 	end
 
 	-- Visual Start
@@ -55,7 +61,7 @@ local function createOptions(name, scaling_factor, scene)
 	local image = display.newRect(options, 0, y_level, width, math.min(width, 0.4*height))
 	image.anchorX = 0
 	image.anchorY = 0
-	
+
 	if globalData.textures[name] then
 		image.height = math.min(width*globalData.gallery[name].height/globalData.gallery[name].width, 0.4*height)
 		image.fill = {type = "image", filename = globalData.textures[name].filename, baseDir = globalData.textures[name].baseDir}
@@ -80,12 +86,12 @@ local function createOptions(name, scaling_factor, scene)
 
 	ypp(spacing/2 + food_title.height)
 
-	
+
 
 	-- Food Info
 	if globalData.menu[name].calories and globalData.menu[name].calories ~= "" then
 		local calories = display.newText({	text = "- Calories: " .. globalData.menu[name].calories .. " kCal",
-											x = 0.5*width, 
+											x = 0.5*width,
 											y = y_level,
 											width = 0.8*width,
 											fontSize = globalData.smallFontSize,
@@ -121,7 +127,7 @@ local function createOptions(name, scaling_factor, scene)
 											width = 0.8*width,
 											fontSize = globalData.mediumFontSize,
 											font = native.systemFontBold})
-	options:insert(favourite_text)	
+	options:insert(favourite_text)
 	favourite_text.anchorX = 0
 	favourite_text:setFillColor(unpack(app_colors.recipe.ing_text))
 
@@ -168,9 +174,9 @@ local function createOptions(name, scaling_factor, scene)
 	ypp(2*spacing)
 
 	-- Send to a Friend Icon
-	local send = display.newText({text = "Send to a Friend", 
+	local send = display.newText({text = "Send to a Friend",
 								  x = edit.x, y = y_level,
-								  width = edit.width, 
+								  width = edit.width,
 								  font = native.systemFontBold,
 								  fontSize = globalData.mediumFontSize})
 	send:setFillColor(unpack(app_colors.recipe.ing_text))
@@ -183,8 +189,29 @@ local function createOptions(name, scaling_factor, scene)
 	send_icon.y = y_level
 
 	local function sendToFriend(event)
-		print(name)
-		app_network.sendRecipe("test@domain.com", name)
+		-- Find the coordinates of the screen center in the options frame
+		local x, y = options:contentToLocal(cX, cY)
+
+		-- Prevent touch propagation
+		local tapProof = display.newRect(options, x, y, W, H)
+		tapProof:setFillColor(0,0,0,0.3)
+		tapProof:addEventListener("tap", function(event) return true end)
+		tapProof:addEventListener("touch", function(event) return true end)
+
+		-- Listener for when the user submits their choice
+		local function onSubmit(switches)
+			for email, switch in pairs(switches) do
+				if switch.state then
+					app_network.sendRecipe(email, name)
+				end
+			end
+			tapProof:removeSelf()
+		end
+
+		local list = showFriendsList(onSubmit,true)
+
+		options:insert(list)
+		list.x, list.y = list:contentToLocal(list.x, list.y)
 	end
 	send_icon:addEventListener("tap", sendToFriend)
 
@@ -195,8 +222,8 @@ local function createOptions(name, scaling_factor, scene)
 		scene.glass_screen.alpha = 0
 		composer.gotoScene("ViewRecipePage", {params = {name = name, scaling_factor = 2*scaling_factor}})
 	end
-	local double_params = {	color = app_colors.contrast_color, 
-							label = "Double Recipe", 
+	local double_params = {	color = app_colors.contrast_color,
+							label = "Double Recipe",
 							labelColor = app_colors.recipe.title_text,
 							font = native.systemFontBold,
 							fontSize = globalData.mediumFontSize,
@@ -239,7 +266,7 @@ local function createOptions(name, scaling_factor, scene)
 	-- Function To Delete a Food From Memory
 	function delete:tap(event)
 		local function trash_listener(event)
-			if event.index == 1 then 
+			if event.index == 1 then
 				scene.glass_screen:dispatchEvent({name = "tap"})
 				globalData.menu[name] = nil
 				globalData.favourites[name] = nil
@@ -267,7 +294,7 @@ local function createOptions(name, scaling_factor, scene)
 
 		return true
 	end
-	
+
 	back:addEventListener("tap", function(e) scene.glass_screen:dispatchEvent({name = "tap"}) end)
 
 	return options

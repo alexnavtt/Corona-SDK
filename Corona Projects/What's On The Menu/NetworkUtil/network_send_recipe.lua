@@ -17,11 +17,12 @@ local function sendRecipe(friend_email, food_name)
 		if event.isError then
 			app_network.log("Network Error")
 		else
-			print(event.response)
 			local response = json.decode(event.response)
 			if not response then response = {} end
 
 			native.showAlert(globalData.app_name, tostring(response.message), {"OK"})
+
+			app_network.log(response)
 		end
 	end
 	network.request(app_network.friend_url, "POST", networkListener, params)

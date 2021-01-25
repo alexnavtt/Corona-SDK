@@ -9,6 +9,7 @@ tinker.newButton 		= require("Tinker.tinker_button")
 tinker.newDot 			= require("Tinker.tinker_dot")
 tinker.numericKeyboard 	= require("Tinker.tinker_numeric_keyboard")
 tinker.newCheckBox 		= require("Tinker.tinker_check_box")
+tinker.newDotSwitch     = require("Tinker.tinker_dot_switch")
 tinker.newSlidingSwitch = require("Tinker.tinker_slide_switch")
 
 function tinker.glass_screen(auto_destroy, group)

@@ -1,0 +1,20 @@
+{
+    "Lua.diagnostics.globals": [
+        "display",
+        "Runtime",
+        "timer",
+        "native",
+        "unpack",
+        "transition",
+        "media",
+        "system",
+        "loadstring",
+        "jit",
+        "graphics",
+        "network"
+    ],
+    "Lua.diagnostics.disable": [
+        "undefined-global",
+        "undefined-field"
+    ]
+}

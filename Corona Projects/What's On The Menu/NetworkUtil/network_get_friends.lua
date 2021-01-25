@@ -3,22 +3,21 @@ local json = require("json")
 
 local function getFriends()
 	local params = app_network.createHttpRequest("get friends")
-	local friends = {waiting = true}
 
 	local function networkListener(event)
 		if event.isError then
 			return ("Connection Error")
 		else
-			print(event.response)
 			local response = json.decode(event.response)
 			if not response then response = {} end
+			if not response.friends then response.friends = {} end
 
 			app_network.log(response)
 
 			for index, value in pairs(response.friends) do
-				friends[index] = value
+				app_network.friends[index] = value
 			end
-			friends.waiting = false;
+			app_network.friends_received = true;
 		end
 	end
 	network.request(app_network.friend_url, "POST", networkListener, params)

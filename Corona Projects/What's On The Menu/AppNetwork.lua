@@ -40,6 +40,10 @@ app_network.sendFriendRequest      = require("NetworkUtil.network_send_friend_re
 app_network.checkForFriendRequest  = require("NetworkUtil.network_check_for_friend_request")
 app_network.respondToFriendRequest = require("NetworkUtil.network_respond_to_friend_request")
 
+local network_recipes = require("NetworkUtil.network_receive_recipes")
+app_network.receiveRecipeNames = network_recipes.receiveRecipeNames
+app_network.receiveRecipe = network_recipes.receiveRecipe
+
 function app_network.connectionError()
 	native.showAlert(globalData.app_name, "Cannot connect to server, please check your network connection", {"OK"})
 end

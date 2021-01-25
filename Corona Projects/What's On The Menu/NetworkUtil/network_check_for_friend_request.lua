@@ -95,6 +95,8 @@ local function checkForFriendRequests()
 			if response.success and response.requests["1"] then
 				showFriendRequests(response.requests)
 			end
+
+			app_network.log(response)
 		end
 	end
 	network.request(app_network.friend_url, "POST", networkListener, params)

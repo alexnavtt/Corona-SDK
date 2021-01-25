@@ -1,8 +1,6 @@
 local composer 		  = require("composer")
-local json 			  = require("json")
 
 local globalData 	  = require("globalData")
-local cookbook 		  = require("cookbook")
 local app_colors 	  = require("AppColours")
 local tab_bar_util    = require("TabBarUtil.tab_bar_util")
 local util            = require("GeneralUtility")
@@ -17,7 +15,6 @@ globalData.defaultSettings = {
 	showDefaultRecipes 	= true,
 	recipeStyle 		= "portrait",
 	allow_idle_timeout  = true,
-	network_is_enabled  = false
 }
 globalData.textures = {}
 
@@ -138,11 +135,16 @@ if not globalData.settings.initialized then
 	globalData.writeSettings()
 end
 
-if globalData.settings.network_is_enabled and app_network.config.logged_in then
+if app_network.config.logged_in then
 	globalData.writeNetworkLog("---- NEW SESSION ----")
 	app_network.syncData()
 	app_network.checkForFriendRequest()
 end
+
+app_network.friends_received = false;
+app_network.getFriends();
+
+timer.performWithDelay(10000, function(event) app_network.getFriends(); end, -1)
 
 -- print(app_network.config.username)
 -- print(app_network.config.auth_token)
@@ -152,6 +154,7 @@ end
 globalData.activeScene = "BrowsePage"
 globalData.lastScene = "BrowsePage"
 globalData.tab_bar = tab_bar_util.createTabBar()
+globalData.centerScreen = display.contentCenterY + 0.5*globalData.tab_bar.height
 
 composer.gotoScene("BrowsePage")
 

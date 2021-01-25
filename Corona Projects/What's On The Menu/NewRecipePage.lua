@@ -21,6 +21,9 @@ local prep_time_text_field
 local cook_time_text_field 
 local serves_text_field
 
+local W = display.contentWidth
+local H = display.contentHeight
+
  
 -- create()
 function scene:create( event )
@@ -34,6 +37,18 @@ function scene:create( event )
 	background:addEventListener("touch", app_transitions.swipeRight)
 	background:addEventListener("touch", app_transitions.swipeLeft)
 
+	-- Show the title of the page up at the top
+	local title = display.newText({text = "Recipe Creator",
+								   x = display.contentCenterX,
+								   y = 0.125*display.contentHeight,
+								   width = display.contentWidth,
+								   height = 0,
+								   font = native.systemFontBold,
+								   fontSize = 2*globalData.titleFontSize,
+								   align = "center"})
+	sceneGroup:insert(title)
+	title:setFillColor(unpack(app_colors.new_recipe.title))
+
 	-- Create text field for the name of the recipe
 	local field_height = 0.05*display.contentHeight
 	local text_field_params = {	radius = field_height/2,
@@ -46,35 +61,23 @@ function scene:create( event )
 								cursorColor = globalData.dark_grey,
 								displayGroup = sceneGroup,
 								tapOutside  = true}
-	name_text_field = tinker.newTextField(display.contentCenterX, 0.25*display.contentHeight, 0.8*display.contentWidth, 0.05*display.contentHeight, text_field_params)
+	name_text_field = tinker.newTextField(display.contentCenterX, title.y + 0.1*H, 0.8*display.contentWidth, 0.05*display.contentHeight, text_field_params)
 
 	-- Create a text field for the prep time of the recipe
 	text_field_params.defaultText = "Prep Time"
-	prep_time_text_field = tinker.newTextField(0.5*display.contentCenterX, 0.37*display.contentHeight, 0.4*display.contentWidth, 0.05*display.contentHeight, text_field_params)
+	prep_time_text_field = tinker.newTextField(0.5*display.contentCenterX, name_text_field.y + 0.12*H, 0.4*display.contentWidth, 0.05*display.contentHeight, text_field_params)
 
 	-- Create a text field for the cook time of the recipe
 	text_field_params.defaultText = "Cook Time"
-	cook_time_text_field = tinker.newTextField(1.5*display.contentCenterX, 0.37*display.contentHeight, 0.4*display.contentWidth, 0.05*display.contentHeight, text_field_params)
+	cook_time_text_field = tinker.newTextField(1.5*display.contentCenterX, prep_time_text_field.y, 0.4*display.contentWidth, 0.05*display.contentHeight, text_field_params)
 
 	-- Create a text field for the serving amount of the recipe
 	text_field_params.defaultText = "Serves"
-	serves_text_field = tinker.newTextField(0.5*display.contentCenterX, display.contentCenterY, 0.4*display.contentWidth, 0.05*display.contentHeight, text_field_params)
+	serves_text_field = tinker.newTextField(0.5*display.contentCenterX, cook_time_text_field.y + 0.12*H, 0.4*display.contentWidth, 0.05*display.contentHeight, text_field_params)
 
 	-- Create a text field for the amount of calories in the dish
 	text_field_params.defaultText = "Calories"
-	calories_text_field = tinker.newTextField(1.5*display.contentCenterX, display.contentCenterY, 0.4*display.contentWidth, 0.05*display.contentHeight, text_field_params)
-
-	-- Show the title of the page up at the top
-	local title = display.newText({text = "Recipe Creator",
-								   x = display.contentCenterX,
-								   y = 0.15*display.contentHeight,
-								   width = display.contentWidth,
-								   height = 0,
-								   font = native.systemFontBold,
-								   fontSize = 2*globalData.titleFontSize,
-								   align = "center"})
-	sceneGroup:insert(title)
-	title:setFillColor(unpack(app_colors.new_recipe.title))
+	calories_text_field = tinker.newTextField(1.5*display.contentCenterX, serves_text_field.y, 0.4*display.contentWidth, 0.05*display.contentHeight, text_field_params)
 
 	-- An image of a recipe for aesthetics
 	local image = display.newImageRect(sceneGroup, "Image Assets/Recipe-Card-Graphic.png", 0.65*display.contentWidth, 0.3*display.contentHeight)

@@ -32,9 +32,11 @@ transition.touch_time = 0
 function transition.moveTo(scene, recipe_name)
 	-- Get the name of the current page
 	local current = composer.getSceneName("current")
+	current = string.sub(current, 7)
+	print(current)
 
 	-- No transition effect if moving to the current page
-	if scene == current then
+	if ("pages." .. scene) == current then
 		return true
 	end
 
@@ -64,7 +66,7 @@ function transition.moveTo(scene, recipe_name)
 	end
 
 	-- Move to the new scene
-	composer.gotoScene(scene, {effect = "slide" .. direction, time = globalData.transition_time, params = {name = recipe_name}})
+	composer.gotoScene("pages." .. scene, {effect = "slide" .. direction, time = globalData.transition_time, params = {name = recipe_name}})
 	globalData.tab_bar:update()
 end
 

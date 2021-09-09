@@ -156,6 +156,6 @@ globalData.lastScene = "BrowsePage"
 globalData.tab_bar = tab_bar_util.createTabBar()
 globalData.centerScreen = display.contentCenterY + 0.5*globalData.tab_bar.height
 
-composer.gotoScene("Pages.BrowsePage")
+composer.gotoScene("pages.BrowsePage")
 
 -- require("lib.network.upload_image")

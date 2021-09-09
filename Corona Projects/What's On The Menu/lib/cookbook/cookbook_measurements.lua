@@ -1,4 +1,4 @@
-local cookbook = require("Cookbook.cookbook_main")
+local cookbook = require("lib.cookbook.cookbook_main")
 
 local measurements = {}
 

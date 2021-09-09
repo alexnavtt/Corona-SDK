@@ -249,7 +249,7 @@ function scene:hide( event )
 	if ( phase == "will" ) then
  
 	elseif ( phase == "did" ) then
-		composer.removeScene("ViewRecipePage")
+		composer.removeScene("pages.ViewRecipePage")
 		
 	end
 end

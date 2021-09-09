@@ -182,7 +182,7 @@ function scene:create( event )
 	proceedToProfile:rotate(-90)
 
 	local function moveToProfile(event)
-		app_transitions.moveTo("NetworkProfile")
+		app_transitions.moveTo("NetworkProfilePage")
 	end
 	profileRect:addEventListener("tap", moveToProfile)
 

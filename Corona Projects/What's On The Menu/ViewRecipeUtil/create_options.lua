@@ -272,7 +272,7 @@ local function createOptions(name, scaling_factor, scene)
 				globalData.favourites[name] = nil
 				globalData.writeCustomMenu()
 				globalData.deleteFoodImage(name)
-				composer.gotoScene(globalData.activeScene)
+				composer.gotoScene("pages." .. globalData.activeScene .. "." .. globalData.activeScene)
 			end
 		end
 		native.showAlert("What's On The Menu", "Are you sure you want to delete \"" .. name .. "\"?", {"Yes, I'm Sure", "Cancel"}, trash_listener )

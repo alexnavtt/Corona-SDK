@@ -49,11 +49,13 @@ local function newButton(x, y, width, height, params)
 	group._button = button
 	-- button.id = id
 
+	-- Assign the tap function to the button
 	function button:tap(event)
 		return(tap_func(event))
 	end
 	button:addEventListener("tap", button)
 
+	-- Assign the touch function to the button
 	function button:touch(event)
 		return(touch_func(event))
 	end

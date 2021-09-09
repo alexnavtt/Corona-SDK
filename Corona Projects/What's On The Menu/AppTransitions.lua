@@ -33,7 +33,6 @@ function transition.moveTo(scene, recipe_name)
 	-- Get the name of the current page
 	local current = composer.getSceneName("current")
 	current = string.sub(current, 7)
-	print(current)
 
 	-- No transition effect if moving to the current page
 	if ("pages." .. scene) == current then

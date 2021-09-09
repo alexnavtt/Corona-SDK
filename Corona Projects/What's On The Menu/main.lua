@@ -4,7 +4,7 @@ local globalData 	  = require("globalData")
 local app_colors 	  = require("AppColours")
 local tab_bar_util    = require("TabBarUtil.tab_bar_util")
 local util            = require("GeneralUtility")
-local app_network     = require("AppNetwork")
+local app_network     = require("lib.network.library")
 local app_transitions = require("AppTransitions")
 
 globalData.app_name = "What's On the Menu"
@@ -156,6 +156,6 @@ globalData.lastScene = "BrowsePage"
 globalData.tab_bar = tab_bar_util.createTabBar()
 globalData.centerScreen = display.contentCenterY + 0.5*globalData.tab_bar.height
 
-composer.gotoScene("BrowsePage")
+composer.gotoScene("Pages.BrowsePage")
 
--- require("NetworkUtil.network_upload_image")
+-- require("lib.network.upload_image")

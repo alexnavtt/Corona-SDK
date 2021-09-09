@@ -1,5 +1,5 @@
 local globalData = require("globalData")
-local app_network = require("AppNetwork")
+local app_network = require("lib.network.library")
 local json = require("json")
 
 local file_io = {}
@@ -39,8 +39,8 @@ function file_io.readNetworkConfig()
 end
 
 function file_io.deleteNetworkConfig()
-	package.loaded.AppNetwork = nil
-	app_network = require("AppNetwork")
+	package.loaded.lib.network.library = nil
+	app_network = require("lib.network.library")
 
 	local path = system.pathForFile(globalData.network_config_file, system.DocumentsDirectory)
 	os.remove(path)

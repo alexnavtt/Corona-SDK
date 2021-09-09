@@ -1,4 +1,4 @@
-local app_network = require("AppNetwork")
+local app_network = require("lib.network.library")
 local globalData  = require("globalData")
 local widget      = require("widget")
 local tinker      = require("Tinker")

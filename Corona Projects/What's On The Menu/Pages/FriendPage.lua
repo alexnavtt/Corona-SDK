@@ -6,7 +6,7 @@ local composer = require("composer")
 local palette = require("Palette")
 local globalData = require("globalData")
 local app_colors = require("AppColours")
-local app_network = require("AppNetwork")
+local app_network = require("lib.network.library")
 local app_transitions = require("AppTransitions")
 local showFriendList = require("FriendsUtil.show_friends_list")
 

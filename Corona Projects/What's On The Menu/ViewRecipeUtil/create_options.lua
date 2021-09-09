@@ -5,7 +5,7 @@ local composer = require("composer")
 local cookbook = require("cookbook")
 local globalData = require("globalData")
 local app_colors = require("AppColours")
-local app_network = require("AppNetwork")
+local app_network = require("lib.network.library")
 
 -- Custom Functions
 local showFriendsList = require("FriendsUtil.show_friends_list")

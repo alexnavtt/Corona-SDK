@@ -8,7 +8,7 @@ local transition = require("transition")
 local new_recipe_info = require("NewRecipeUtil.new_recipe_info")
 local tab_bar_util = require("TabBarUtil.tab_bar_util")
 local util = require("GeneralUtility")
-local app_network = require("AppNetwork")
+local app_network = require("lib.network.library")
  
 local scene = composer.newScene()
 

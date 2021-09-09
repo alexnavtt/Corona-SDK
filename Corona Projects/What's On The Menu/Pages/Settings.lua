@@ -8,7 +8,7 @@ local app_colors = require("AppColours")
 local transition = require("transition")
 local util = require("GeneralUtility")
 local app_transitions = require("AppTransitions")
-local app_network = require("AppNetwork")
+local app_network = require("lib.network.library")
  
 local scene = composer.newScene()
 

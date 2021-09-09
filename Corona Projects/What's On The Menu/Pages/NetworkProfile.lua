@@ -1,7 +1,7 @@
 local composer = require("composer")
 local globalData = require("globalData")
 local app_colors = require("AppColours")
-local app_network = require("AppNetwork")
+local app_network = require("lib.network.library")
 local app_transitions = require("AppTransitions")
  
 local scene = composer.newScene()

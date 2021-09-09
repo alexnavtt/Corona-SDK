@@ -9,11 +9,11 @@ local transition = require("transition")
 local new_recipe_info = require("NewRecipeUtil.new_recipe_info")
 
 -- Custom library for the cookbook app
-local cookbook = require("Cookbook.cookbook_main")
+local cookbook = require("lib.cookbook.cookbook_main")
 
 
 -- Foods and Ingredients ----------------------------------
-local foods = require("Cookbook.cookbook_foods")
+local foods = require("lib.cookbook.cookbook_foods")
 cookbook.common_ingredients = foods.common_ingredients
 cookbook.meats 				= foods.meats
 cookbook.fruits_and_veggies = foods.fruits_and_veggies
@@ -27,7 +27,7 @@ cookbook.nuts 				= foods.nuts
 
 
 -- Measurements and Conversions ---------------------------
-local measurements = require("Cookbook.cookbook_measurements")
+local measurements = require("lib.cookbook.cookbook_measurements")
 cookbook.densities 		 = measurements.densities
 cookbook.essential_units = measurements.essential_units
 cookbook.volumes 		 = measurements.volumes
@@ -49,7 +49,7 @@ end
 
 
 -- Searching through the menu -----------------------------
-local menu_parser = require("Cookbook.cookbook_menu_parsing")
+local menu_parser = require("lib.cookbook.cookbook_menu_parsing")
 cookbook.findRecipe = menu_parser.findRecipe
 cookbook.searchMenu = menu_parser.searchMenu
 cookbook.searchIngredients = menu_parser.searchIngredients
@@ -85,7 +85,7 @@ end
 
 
 -- Math Functions for dealing with string fractions -------
-local math_util = require("Cookbook.cookbook_math_util")
+local math_util = require("lib.cookbook.cookbook_math_util")
 cookbook.getFraction 		= math_util.getFraction
 cookbook.breakdownFraction 	= math_util.breakdownFraction
 -- ========================================================

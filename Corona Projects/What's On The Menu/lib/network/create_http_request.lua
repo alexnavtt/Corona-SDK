@@ -1,7 +1,7 @@
 local json = require("json")
 local util = require("GeneralUtility")
 local globalData = require("globalData")
-local app_network = require("NetworkUtil.network_main")
+local app_network = require("lib.network.main")
 
 local function createHttpRequest(action, password)
 		-- Set up HTTP package

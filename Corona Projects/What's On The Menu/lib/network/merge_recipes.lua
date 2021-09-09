@@ -4,7 +4,7 @@ local composer = require("composer")
 local util = require("GeneralUtility")
 local tinker = require("Tinker")
 local globalData = require("globalData")
-local app_network = require("NetworkUtil.network_main")
+local app_network = require("lib.network.main")
 
 local cX = display.contentCenterX
 local cY = display.contentCenterY

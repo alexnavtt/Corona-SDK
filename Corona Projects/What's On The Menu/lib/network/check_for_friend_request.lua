@@ -3,7 +3,7 @@ local tinker = require("Tinker")
 local widget = require("widget")
 local palette = require("Palette")
 local globalData = require("globalData")
-local app_network = require("NetworkUtil.network_main")
+local app_network = require("lib.network.main")
 
 local W  = display.contentWidth
 local H  = display.contentHeight

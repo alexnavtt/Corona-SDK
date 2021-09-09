@@ -1,4 +1,4 @@
-local app_network = require("NetworkUtil.network_main")
+local app_network = require("lib.network.main")
 local globalData = require("globalData")
 
 local function changePasswordPanel()
@@ -52,12 +52,12 @@ local function changePasswordPanel()
 		if new_password_field.text ~= confirm_new_password_field.text then
 			native.showAlert(globalData.app_name, "Passwords do not match", {"OK"})
 			return true
-		end	
+		end
 
 		app_network.changePassword(password_field.text, new_password_field.text)
 		destroyGroup()
-		
-		return true 
+
+		return true
 	end
 	local submit_button_params = {displayGroup = group, tap_func = submit, label = "Submit", strokeWidth = 3, strokeColor = {0}, radius = back_button_params.radius}
 	local submit_button = tinker.newButton(cX + 0.05*form.width, back_button.y, back_button.width, back_button.height, submit_button_params)

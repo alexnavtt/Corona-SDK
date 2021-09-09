@@ -1,4 +1,4 @@
-local app_network = require("NetworkUtil.network_main")
+local app_network = require("lib.network.main")
 local globalData = require("globalData")
 local json = require("json")
 

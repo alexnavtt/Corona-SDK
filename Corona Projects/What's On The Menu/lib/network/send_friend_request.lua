@@ -1,10 +1,10 @@
+local app_network = require("lib.network.main")
 local globalData = require("globalData")
-local app_network = require("NetworkUtil.network_main")
 local json = require("json")
 
-local function deleteFriend(email)
+local function sendFriendRequest(friend_email)
 	local body = {email = app_network.config.email, username = app_network.config.username, token = app_network.config.auth_token, 
-				  action = "delete friend", device_id = globalData.settings.device_id, recipient = email}
+				  action = "friend request", device_id = globalData.settings.device_id, recipient = friend_email}
 	body = json.encode(body)
 
 	local headers = {}
@@ -15,17 +15,19 @@ local function deleteFriend(email)
 
 	local function networkListener(event)
 		if event.isError then
-			app_network.log("Connection Error: Did not delete " .. email)
+			app_network.log("Network Error")
 		else
+			print(event.response)
 			local response = json.decode(event.response)
 			if not response then response = {} end
 
-			app_network.log(response)
+			native.showAlert(globalData.app_name, tostring(response.message), {"OK"})
+			if response.success then
+				table.insert(app_network.friends, {name = response.name, email = friend_email, confirmed = false})
+			end
 		end
 	end
 	network.request(app_network.friend_url, "POST", networkListener, params)
-
-	return friends
 end
 
-return deleteFriend
+return sendFriendRequest

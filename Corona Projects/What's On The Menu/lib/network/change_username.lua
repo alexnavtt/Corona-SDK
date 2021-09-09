@@ -1,12 +1,12 @@
-local app_network = require("NetworkUtil.network_main")
+local app_network = require("lib.network.main")
 local globalData = require("globalData")
 local json = require("json")
 local util = require("GeneralUtility")
 
-local function changePassword(old_password, new_password)
-	local params = app_network.createHttpRequest("change password", old_password)
+local function changeUsername(new_username)
+	local params = app_network.createHttpRequest("change username")
 	local body = json.decode(params.body)
-	body.new_password = new_password
+	body.new_username = new_username
 	params.body = json.encode(body)
 
 	local function networkListener(event)
@@ -14,12 +14,11 @@ local function changePassword(old_password, new_password)
 			app_network.connectionError()
 		else
 			local response = json.decode(event.response)
-			if not response then return true end
+			if not response then response = {} end
 			app_network.log(response)
 
 			if response.success then
-				app_network.config.auth_token = response.token
-				app_network.config.logged_in = true
+				app_network.config.username = new_username
 				globalData.writeNetwork()
 			end
 		end
@@ -31,4 +30,4 @@ local function changePassword(old_password, new_password)
 	return true
 end
 
-return changePassword
+return changeUsername

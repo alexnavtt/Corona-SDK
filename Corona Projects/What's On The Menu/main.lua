@@ -55,34 +55,34 @@ globalData.network_log_file     = "NetworkLog.txt"
 globalData.transition_time = 300
 
 -- File IO
-local menu_io = require("FileIO.menu_file_io")
+local menu_io = require("lib.file_io.menu_file_io")
 globalData.writeCustomMenu  = menu_io.writeCustomMenu
 globalData.readCustomMenu   = menu_io.readCustomMenu
 globalData.deleteCustomMenu = menu_io.deleteCustomMenu
 globalData.readDefaultMenu  = menu_io.readDefaultMenu
 
-local favourites_io = require("FileIO.favourites_file_io")
+local favourites_io = require("lib.file_io.favourites_file_io")
 globalData.writeFavourites  = favourites_io.writeFavourites
 globalData.readFavourites   = favourites_io.readFavourites
 globalData.deleteFavourites = favourites_io.deleteFavourites 
 
-local image_io = require("FileIO.food_image_io")
+local image_io = require("lib.file_io.food_image_io")
 globalData.saveMenuImages    = image_io.saveMenuImages
 globalData.loadMenuImages    = image_io.loadMenuImages
 globalData.deleteFoodImage   = image_io.deleteFoodImage
 globalData.cleanupFoodImages = image_io.cleanupFoodImages
 
-local settings_io = require("FileIO.settings_io")
+local settings_io = require("lib.file_io.settings_io")
 globalData.writeSettings  = settings_io.writeSettings
 globalData.readSettings   = settings_io.readSettings
 globalData.deleteSettings = settings_io.deleteSettings
 
-local network_io = require("FileIO.network_file_io")
+local network_io = require("lib.file_io.network_file_io")
 globalData.writeNetwork  = network_io.writeNetworkConfig
 globalData.readNetwork   = network_io.readNetworkConfig
 globalData.deleteNetwork = network_io.deleteNetworkConfig
 
-local log_io = require("FileIO.network_log_file_io")
+local log_io = require("lib.file_io.network_log_file_io")
 globalData.writeNetworkLog  = log_io.writeNetworkLog
 globalData.readNetworkLog   = log_io.readNetworkLog
 globalData.deleteNetworkLog = log_io.deleteNetworkLog
@@ -102,8 +102,9 @@ end
 -- Overwrite the back button on the phone
 function globalData.goBack(event)
 	if (event.keyName == "back" and event.phase == "down") then
-		local last_scene = composer.getSceneName("previous")
-		local current_scene = composer.getSceneName("current")
+		-- Get the titles of the current and previous pages
+		local last_scene    = app_transitions.pageTitle(composer.getSceneName("previous"))
+		local current_scene = app_transitions.pageTitle(composer.getSceneName("current"))
 
 		-- Notable exceptions
 		if last_scene == nil then return true end
@@ -156,6 +157,6 @@ globalData.lastScene = "BrowsePage"
 globalData.tab_bar = tab_bar_util.createTabBar()
 globalData.centerScreen = display.contentCenterY + 0.5*globalData.tab_bar.height
 
-composer.gotoScene("pages.BrowsePage")
+composer.gotoScene("pages.BrowsePage.BrowsePage")
 
 -- require("lib.network.upload_image")

@@ -13,8 +13,8 @@ order["BrowsePage"]          = {2, 2}
 order["FavouritesPage"]      = {3, 2}
 order["NewRecipePage"]       = {4, 2}
 order["FriendPage"]          = {5, 2}
-order["Settings"]            = {6, 2}
-order["NetworkProfile"]      = {7, 2}
+order["SettingsPage"]        = {6, 2}
+order["NetworkProfilePage"]  = {7, 2}
 order["IngredientsPage"]     = {4, 3}
 order["InsertStepsPage"]     = {5, 3}
 
@@ -22,17 +22,26 @@ local importantPages = {}
 importantPages["BrowsePage"]     = true
 importantPages["FavouritesPage"] = true
 importantPages["NewRecipePage"]  = true
-importantPages["Settings"]       = true
+importantPages["SettingsPage"]   = true
 
 -- Handles swipe gestures
 transition.touch_time = 0
 
+-- Extract the page title from the page name
+function transition.pageTitle(name)
+	local name = name
+
+	-- Find the second instance of a "."
+	local title_end = string.find(name, "%.", 7)
+	name = string.sub(name, 7, title_end-1)
+
+	return name
+end
 
 -- Move to an aribrary scene
 function transition.moveTo(scene, recipe_name)
 	-- Get the name of the current page
-	local current = composer.getSceneName("current")
-	current = string.sub(current, 7)
+	local current = transition.pageTitle(composer.getSceneName("current"))
 
 	-- No transition effect if moving to the current page
 	if ("pages." .. scene) == current then
@@ -65,7 +74,7 @@ function transition.moveTo(scene, recipe_name)
 	end
 
 	-- Move to the new scene
-	composer.gotoScene("pages." .. scene, {effect = "slide" .. direction, time = globalData.transition_time, params = {name = recipe_name}})
+	composer.gotoScene("pages." .. scene .. "." .. scene, {effect = "slide" .. direction, time = globalData.transition_time, params = {name = recipe_name}})
 	globalData.tab_bar:update()
 end
 

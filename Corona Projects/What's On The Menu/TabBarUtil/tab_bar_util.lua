@@ -7,7 +7,7 @@ local app_transitions = require("AppTransitions")
 
 local tab_util = {}
 local tab_titles 	= {'Cookbook','Favourites','New Recipe'} --,'Settings'} --'Custom Search'
-local page_titles 	= {"BrowsePage", "FavouritesPage", "NewRecipePage", "FriendPage", "Settings"} -- "CustomPage",
+local page_titles 	= {"BrowsePage", "FavouritesPage", "NewRecipePage", "FriendPage", "SettingsPage"} -- "CustomPage",
 local icon_paths 	= {"Small-Recipe-App-Icon-Transparent.png", "Small-Star.png", "Small-Recipe-Card-Graphic.png", "Small-Settings-Graphic.png"}
 local num_tabs 		= #tab_titles
 
@@ -18,7 +18,7 @@ tab_util.tab_height = 0.05*display.contentHeight
 function tab_util.findDirection(last_name, this_name)
 	local last_index, this_index
 
-	if this_name == "Settings" then return "slideRight" end
+	if this_name == "SettingsPage" then return "slideRight" end
 
 	for i = 1,#page_titles,1 do
 		if page_titles[i] == last_name then
@@ -185,10 +185,10 @@ function tab_util.createTabBar()
 		end
 		settings_button:setBackgroundColor({1,1,1,0.2})
 
-		if globalData.activeScene == "Settings" then return true end
+		if globalData.activeScene == "SettingsPage" then return true end
 
-		globalData.activeScene = "Settings"
-		app_transitions.moveTo("Settings")
+		globalData.activeScene = "SettingsPage"
+		app_transitions.moveTo("SettingsPage")
 		return true
 	end 
 

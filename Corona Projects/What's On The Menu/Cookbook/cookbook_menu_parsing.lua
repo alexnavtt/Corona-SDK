@@ -5,8 +5,8 @@ local menu_parser = {}
 
 function menu_parser.findRecipe(search_word)
 	search_word = search_word:lower()
-	key_options = {}
-	result_options = {}
+	local key_options = {}
+	local result_options = {}
 
 	local word_length = #search_word
 

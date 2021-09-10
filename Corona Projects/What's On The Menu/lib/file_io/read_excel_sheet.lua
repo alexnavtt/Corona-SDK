@@ -1,5 +1,5 @@
 local globalData = require("globalData")
-local ftcsv = require("ftcsv")
+local ftcsv = require("ext_libs.ftcsv-master.ftcsv")
 local composer = require("composer")
 
 local url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSsYVoMs9cpnRWNg-B7usduhVjY8GYzOb74rutaGxwtBhG8BcT7wdqKJ_3q34R2CtFCV8TagJktLVVO/pub?output=csv"

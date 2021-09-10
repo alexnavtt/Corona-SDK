@@ -2,11 +2,11 @@ local globalData = require("globalData")
 local widget = require("widget")
 local composer = require("composer")
 local json = require("json")
-local tinker = require("Tinker")
+local tinker = require("ext_libs.tinker.tinker")
 local colors = require("Palette")
 local app_colors = require("AppColours")
 local transition = require("transition")
-local new_recipe_info = require("NewRecipeUtil.new_recipe_info")
+local new_recipe_info = require("pages.FriendPage.new_recipe_info")
 
 -- Custom library for the cookbook app
 local cookbook = require("lib.cookbook.cookbook_main")
@@ -80,14 +80,6 @@ function cookbook.editRecipe(title)
 	globalData.tab_bar:update()
 	return true
 end
--- ========================================================
-
-
-
--- Math Functions for dealing with string fractions -------
-local math_util = require("lib.cookbook.cookbook_math_util")
-cookbook.getFraction 		= math_util.getFraction
-cookbook.breakdownFraction 	= math_util.breakdownFraction
 -- ========================================================
 
 

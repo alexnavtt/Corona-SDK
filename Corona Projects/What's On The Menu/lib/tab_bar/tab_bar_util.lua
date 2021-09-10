@@ -2,8 +2,9 @@ local cookbook = require("cookbook")
 local globalData = require("globalData")
 local app_colors = require("AppColours")
 local composer = require("composer")
-local util = require("GeneralUtility")
+local util = require("lib.util.table")
 local app_transitions = require("AppTransitions")
+local tinker = require("ext_libs.tinker.tinker")
 
 local tab_util = {}
 local tab_titles 	= {'Cookbook','Favourites','New Recipe'} --,'Settings'} --'Custom Search'
@@ -234,9 +235,9 @@ function tab_util.simpleTabBar(title, back_text, back_page, next_text, next_page
 	local function back_tap(event)
 		globalData.activeScene = back_page
 		if back_page == "NewRecipePage" then
-			composer.gotoScene(back_page, {effect = "slideDown", time = globalData.transition_time})
+			composer.gotoScene("pages." .. back_page .. "." .. back_page, {effect = "slideDown", time = globalData.transition_time})
 		else
-			composer.gotoScene(back_page, {effect = "slideRight", time = globalData.transition_time})
+			composer.gotoScene("pages." .. back_page .. "." .. back_page, {effect = "slideRight", time = globalData.transition_time})
 		end
 	end
 
@@ -248,7 +249,7 @@ function tab_util.simpleTabBar(title, back_text, back_page, next_text, next_page
 
 	local function next_tap(event)
 		globalData.activeScene = next_page
-		composer.gotoScene(next_page, {effect = "slideLeft", time = globalData.transition_time})
+		composer.gotoScene("pages." .. next_page .. "." .. next_page, {effect = "slideLeft", time = globalData.transition_time})
 	end
 
 	local next_params = {label = next_text, tap_func = next_tap, color = {1,1,1,0.1}, labelColor = app_colors.tab_bar.button_text, radius = 0.02*display.contentWidth, fontSize = globalData.mediumFontSize}

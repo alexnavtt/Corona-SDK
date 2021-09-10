@@ -1,7 +1,7 @@
 local globalData 	= require("globalData")
 local defaultMenu   = require("DefaultMenu")
 local json 			= require("json")
-local util          = require("GeneralUtility")
+local table_util    = require("lib.util.table")
 
 local menu_io = {}
 
@@ -11,7 +11,7 @@ function menu_io.writeCustomMenu()
 
 	-- Remove default menu before we save
 	for name, value in pairs(defaultMenu) do
-		if util.tableEquals(globalData.menu[name], value) then
+		if table_util.tableEquals(globalData.menu[name], value) then
 			globalData.menu[name] = nil
 		end
 	end

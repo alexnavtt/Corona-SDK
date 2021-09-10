@@ -1,13 +1,13 @@
 local composer = require("composer")
-local cookbook = require("cookbook")
 local globalData = require("globalData")
 local widget = require("widget")
-local colors = require("Palette")
-local tinker = require("Tinker")
 local app_colors = require("AppColours")
 local transition = require("transition")
-local util = require("GeneralUtility")
 local app_transitions = require("AppTransitions")
+
+-- App library functions
+local util = require("lib.util.table")
+local fractions = require("lib.math.fractions")
 
 local scene = composer.newScene()
 
@@ -150,6 +150,7 @@ function scene:show( event )
 		sceneGroup:insert(self.recipe_group)
 
 		-- Section Title Generation --
+		local
 		title_text_params = {text = event.params.name,
 							 x = 0.05*W,
 							 y = page_params.info_bar_height + page_params.title_banner_height/2,
@@ -167,7 +168,7 @@ function scene:show( event )
 			title.size = 0.99*title.size
 		end
 
-		local scale_text = display.newText({text = "x" .. cookbook.getFraction(scaling_factor),
+		local scale_text = display.newText({text = "x" .. fractions.getFraction(scaling_factor),
 											x = title.x + title.width + 0.02*W, y = title.y,
 											fontSize = globalData.smallFontSize,
 											align = "center"})
@@ -196,7 +197,7 @@ function scene:show( event )
 			if scaling_factor ~= 1 then
 				if amount then
 					amount = amount*scaling_factor
-					text_amount = cookbook.getFraction(amount)
+					text_amount = fractions.getFraction(amount)
 				end
 			end
 
@@ -249,7 +250,7 @@ function scene:hide( event )
 	if ( phase == "will" ) then
  
 	elseif ( phase == "did" ) then
-		composer.removeScene("pages.ViewRecipePage")
+		composer.removeScene("pages.ViewRecipePage.ViewRecipePage")
 		
 	end
 end

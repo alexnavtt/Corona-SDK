@@ -1,6 +1,7 @@
 local composer = require("composer")
 local globalData = require("globalData")
 local app_colors = require("AppColours")
+local tinker = require("ext_libs.tinker.tinker")
 local app_network = require("lib.network.library")
 local app_transitions = require("AppTransitions")
  

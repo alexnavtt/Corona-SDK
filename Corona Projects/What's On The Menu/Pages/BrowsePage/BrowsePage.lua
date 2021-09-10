@@ -2,15 +2,15 @@ local composer = require("composer")
 local cookbook = require("cookbook")
 local widget   = require("widget")
 local globalData = require("globalData")
-local tinker = require("Tinker")
+local tinker = require("ext_libs.tinker.tinker")
 local colors = require("Palette")
 local app_colors = require("AppColours")
-local util = require("GeneralUtility")
+local table_util = require("lib.util.table")
 local app_transitions = require("AppTransitions")
  
 local scene = composer.newScene()
 
-local createFoodPanel = require("BrowseUtil.create_food_panel")
+local createFoodPanel = require("pages.BrowsePage.create_food_panel")
  
 -- create()
 function scene:create( event )
@@ -39,7 +39,7 @@ function scene:show( event )
 	local sceneGroup = self.view
 	local phase = event.phase
 
-	local food_list = util.sortTableKeys(globalData.menu)
+	local food_list = table_util.sortTableKeys(globalData.menu)
  
 	if ( phase == "will" ) then
 

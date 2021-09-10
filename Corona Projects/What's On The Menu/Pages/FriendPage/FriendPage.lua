@@ -8,7 +8,7 @@ local globalData = require("globalData")
 local app_colors = require("AppColours")
 local app_network = require("lib.network.library")
 local app_transitions = require("AppTransitions")
-local showFriendList = require("FriendsUtil.show_friends_list")
+local showFriendList = require("pages.FriendPage.show_friends_list")
 
 local scene = composer.newScene()
 scene.lib = {}

@@ -2,11 +2,11 @@ local composer = require("composer")
 local cookbook = require("cookbook")
 local widget   = require("widget")
 local globalData = require("globalData")
-local tinker = require("Tinker")
+local tinker = require("ext_libs.tinker.tinker")
 local app_colors = require("AppColours")
-local new_recipe_info = require("NewRecipeUtil.new_recipe_info")
-local tab_bar_util = require("TabBarUtil.tab_bar_util")
-local util = require("GeneralUtility")
+local new_recipe_info = require("pages.FriendPage.new_recipe_info")
+local tab_bar_util = require("lib.tab_bar.tab_bar_util")
+local table_util = require("lib.util.table")
 
 local scene = composer.newScene()
 
@@ -281,7 +281,7 @@ function scene:create( event )
 				self.results_group:remove(1)
 			end
 
-			local options = util.sortTableKeys(cookbook.searchIngredients(search_bar.text))
+			local options = table_util.sortTableKeys(cookbook.searchIngredients(search_bar.text))
 			local iter = 1
 			for i = 1,#options,1 do
 				if new_recipe_info.newRecipeIngredientList[options[iter]] then

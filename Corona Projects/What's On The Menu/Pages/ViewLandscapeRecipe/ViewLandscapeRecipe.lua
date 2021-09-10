@@ -7,8 +7,9 @@ local transition = require("transition")
 local globalData = require("globalData")
 local app_colors = require("AppColours")
 local cookbook   = require("cookbook")
-local util       = require("GeneralUtility")
+local util       = require("lib.util.table")
 local app_transitions = require("AppTransitions")
+local fractions  = require("lib.math.fractions")
 
 -- Page includes
 local view_recipe_params = require("ViewRecipeUtil.view_recipe_shared_params")
@@ -172,7 +173,7 @@ function scene:show( event )
 		end
 
 		-- Show the recipe multiplication factor
-		local scale_text = display.newText({text = "x" .. cookbook.getFraction(scaling_factor),
+		local scale_text = display.newText({text = "x" .. fractions.getFraction(scaling_factor),
 											x = title.x, y = title.y + 1.05*title.width,
 											fontSize = globalData.smallFontSize,
 											align = "center"})
@@ -206,7 +207,7 @@ function scene:show( event )
 			if scaling_factor ~= 1 then
 				if amount then
 					amount = amount*scaling_factor
-					text_amount = cookbook.getFraction(amount)
+					text_amount = fractions.getFraction(amount)
 				end
 			end
 

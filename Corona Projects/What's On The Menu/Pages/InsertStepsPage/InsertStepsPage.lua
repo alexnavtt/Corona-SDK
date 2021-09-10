@@ -2,12 +2,13 @@ local composer = require("composer")
 local cookbook = require("cookbook")
 local widget = require("widget")
 local globalData = require("globalData")
-local tinker = require("Tinker")
+local tinker = require("ext_libs.tinker.tinker")
 local app_colors = require("AppColours")
 local transition = require("transition")
-local new_recipe_info = require("NewRecipeUtil.new_recipe_info")
-local tab_bar_util = require("TabBarUtil.tab_bar_util")
-local util = require("GeneralUtility")
+local new_recipe_info = require("pages.FriendPage.new_recipe_info")
+local tab_bar_util = require("lib.tab_bar.tab_bar_util")
+local time_util = require("lib.util.time")
+local table_util = require("lib.util.table")
 local app_network = require("lib.network.library")
  
 local scene = composer.newScene()
@@ -44,7 +45,7 @@ end
 -- -----------------------------------------------------------------------------------
  
 local function finalizeRecipe(event)
-	util.printTable(new_recipe_info)
+	table_util.printTable(new_recipe_info)
 
 	local recipe_title
 	if globalData.menu[new_recipe_info.newRecipeTitle] == nil then
@@ -82,9 +83,9 @@ local function finalizeRecipe(event)
 	globalData.menu[recipe_title].prep_time = new_recipe_info.newRecipeParams.prep_time
 	globalData.menu[recipe_title].servings  = new_recipe_info.newRecipeParams.servings
 	globalData.menu[recipe_title].calories  = new_recipe_info.newRecipeParams.calories
-	globalData.menu[recipe_title].timestamp = util.time()
+	globalData.menu[recipe_title].timestamp = time_util.time()
 
-	app_network.config.last_update_time = util.time()
+	app_network.config.last_update_time = time_util.time()
 
 	new_recipe_info.newRecipeIngredients = {}
 	new_recipe_info.newRecipeSteps = {}
@@ -100,10 +101,10 @@ local function finalizeRecipe(event)
 	end
 	
 	globalData.activeScene = 'BrowsePage'
-	composer.gotoScene('BrowsePage')
-	composer.removeScene('NewRecipePage')
-	composer.removeScene('IngredientsPage')
-	composer.removeScene('InsertStepsPage')
+	composer.gotoScene('pages.BrowsePage.BrowsePage')
+	composer.removeScene('pages.NewRecipePage.NewRecipePage')
+	composer.removeScene('pages.IngredientsPage.IngredientsPage')
+	composer.removeScene('pages.InsertStepsPage.InsertStepsPage')
 
 	globalData.tab_bar:update()
 end
@@ -273,7 +274,7 @@ function scene:create( event )
  	self.back_group:insert(insert_step_text)
 
  	local temp_tab = tab_bar_util.simpleTabBar("Insert Steps", "Back to Ingredients", "IngredientsPage", "Finish", "BrowsePage")
- 	local finalize_button = util.findID(temp_tab, "BrowsePage")
+ 	local finalize_button = table_util.findID(temp_tab, "BrowsePage")
  	finalize_button:addEventListener("tap", finalizeRecipe)
  	sceneGroup:insert(temp_tab) 
 

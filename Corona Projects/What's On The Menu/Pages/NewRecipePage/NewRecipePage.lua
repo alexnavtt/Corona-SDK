@@ -5,14 +5,13 @@ local widget = require( "widget" )
 local transition = require("transition")
 
 -- Custom Packages
-local tinker = require("Tinker")
+local tinker = require("ext_libs.tinker.tinker")
 local colors = require("Palette")
 local app_colors = require("AppColours")
-local util = require("GeneralUtility")
 local app_transitions = require("AppTransitions")
 
 -- Page Specific Info
-local new_recipe_info = require("NewRecipeUtil.new_recipe_info")
+local new_recipe_info = require("pages.FriendPage.new_recipe_info")
  
 local scene = composer.newScene()
 
@@ -20,6 +19,7 @@ local name_text_field
 local prep_time_text_field
 local cook_time_text_field 
 local serves_text_field
+local calories_text_field
 
 local W = display.contentWidth
 local H = display.contentHeight
@@ -106,7 +106,7 @@ function scene:create( event )
 		new_recipe_info.is_editing = true
 		new_recipe_info.newRecipeTitle = name_text_field.text
 		new_recipe_info.newRecipeParams = {cook_time = cook_time_text_field.text, prep_time = prep_time_text_field.text, servings = serves_text_field.text, calories = calories_text_field.text}
-		composer.gotoScene("IngredientsPage", {effect = "slideUp", time = globalData.transition_time})
+		composer.gotoScene("pages.IngredientsPage.IngredientsPage", {effect = "slideUp", time = globalData.transition_time})
 	end
 	begin_button:addEventListener("tap", begin_button)
 
@@ -161,8 +161,8 @@ function scene:hide( event )
 			prep_time_text_field:replaceText("")
 			cook_time_text_field:replaceText("")
 			new_recipe_info.edit_existing_recipe = false
-			composer.removeScene("IngredientsPage")
-			composer.removeScene("InsertStepsPage") 
+			composer.removeScene("pages.IngredientsPage.IngredientsPage")
+			composer.removeScene("pages.InsertStepsPage.InsertStepsPage") 
 		end
 
 		globalData.lastScene = "NewRecipePage"

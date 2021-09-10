@@ -3,12 +3,12 @@ local cookbook 	 = require("cookbook")
 local widget   	 = require("widget")
 local globalData = require("globalData")
 local app_colors = require("AppColours")
-local util = require("GeneralUtility")
+local table_util = require("lib.util.table")
 local app_transitions = require("AppTransitions")
 
 local scene = composer.newScene()
 
-local createFoodPanel = require("BrowseUtil.create_food_panel")
+local createFoodPanel = require("pages.BrowsePage.create_food_panel")
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
@@ -54,7 +54,7 @@ function scene:show( event )
 		
 		local panel_group = display.newGroup()
 
-		local food_list = util.sortTableKeys(globalData.favourites)
+		local food_list = table_util.sortTableKeys(globalData.favourites)
 
 		local panel_width  = display.contentWidth --globalData.panel_width
 		local panel_height = panel_width*(display.contentWidth/display.contentHeight)

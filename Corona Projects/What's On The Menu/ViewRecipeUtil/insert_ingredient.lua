@@ -1,9 +1,7 @@
-local tinker = require("Tinker")
+local tinker = require("ext_libs.tinker.tinker")
 local cookbook = require("cookbook")
 local app_colors = require("AppColours")
 
-local W = display.contentWidth
-local H = display.contentHeight
 local cX = display.contentCenterX
 local cY = display.contentCenterY
 
@@ -16,8 +14,10 @@ local function insertIngredient(ingredient, amount, unit, amount_number, ingredi
 
 	-- Make it look pretty
 	for i = 1,#ingredient-2,1 do
+		-- Capitalize the first letter of every word
 		if string.sub(ingredient,i, i) == " " then
 			ingredient = ingredient:sub(1,i) .. string.upper(ingredient:sub(i+1,i+1)) .. ingredient:sub(i+2)
+		-- Create a break at "/" signs so that text can wrap to the next line cleanly
 		elseif string.sub(ingredient,i, i) == "/" then
 			ingredient = ingredient:sub(1,i) .. " " .. ingredient:sub(i+1) 
 		end
@@ -35,6 +35,7 @@ local function insertIngredient(ingredient, amount, unit, amount_number, ingredi
 	bkgd.anchorX = 0
 
 	-- Ingredient Text
+	local
 	ingredient_text_params = {text = ingredient,
 							  x = 0.05*bkgd.width,
 							  y = 0,

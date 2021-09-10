@@ -2,7 +2,7 @@ local composer = require("composer")
 local cookbook = require("cookbook")
 local widget   = require("widget")
 local globalData = require("globalData")
-local tinker = require("Tinker")
+local tinker = require("ext_libs.tinker.tinker")
  
 local scene = composer.newScene()
  

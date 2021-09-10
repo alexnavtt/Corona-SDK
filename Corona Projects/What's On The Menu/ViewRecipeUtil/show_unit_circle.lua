@@ -2,6 +2,7 @@ local cookbook = require("cookbook")
 local globalData = require("globalData")
 local app_colors = require("AppColours")
 local transition = require("transition")
+local fractions  = require("lib.math.fractions")
 
 local function showUnitCircle(unit, amount_text, amount, foodname)
 	if unit == "" or unit:lower() == "count" then return false end
@@ -51,7 +52,7 @@ local function showUnitCircle(unit, amount_text, amount, foodname)
 		elseif new_unit == "lb" or new_unit == "kg" then
 			label = string.format("%.2f", new_amount) .. "\n" .. new_unit
 		else
-			label = cookbook.getFraction(new_amount) .. "\n" .. new_unit
+			label = fractions.getFraction(new_amount) .. "\n" .. new_unit
 		end
 
 		local function replaceText(event)

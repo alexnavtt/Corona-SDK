@@ -1,7 +1,6 @@
 local json = require("json")
 local globalData = require("globalData")
 local app_network = require("lib.network.main")
-local util = require("GeneralUtility")
 
 local function syncData()
 	if app_network.config.username == "" then

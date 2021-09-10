@@ -1,7 +1,6 @@
 local app_network = require("lib.network.main")
 local globalData = require("globalData")
 local json = require("json")
-local util = require("GeneralUtility")
 
 local function changePassword(old_password, new_password)
 	local params = app_network.createHttpRequest("change password", old_password)

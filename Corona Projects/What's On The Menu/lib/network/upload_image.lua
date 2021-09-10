@@ -1,5 +1,4 @@
 local json = require("json")
-local util = require("GeneralUtility")
 
 local IMG = system.pathForFile("Image Assets/Milk-Graphic.png", system.resourceDirectory)
 local dest = system.pathForFile("test_image.png", system.TemporaryDirectory)

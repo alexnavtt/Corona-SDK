@@ -3,7 +3,7 @@ local cookbook = require("cookbook")
 local globalData = require("globalData")
 local widget = require("widget")
 local colors = require("Palette")
-local tinker = require("Tinker")
+local tinker = require("ext_libs.tinker.tinker")
 local app_colors = require("AppColours")
 local scene = composer.newScene()
 

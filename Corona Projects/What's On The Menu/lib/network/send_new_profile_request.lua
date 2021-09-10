@@ -1,7 +1,6 @@
 local app_network = require("lib.network.main")
 local globalData = require("globalData")
 local json = require("json")
-local util = require("GeneralUtility")
 
 local function sendNewProfileRequest(email, username, password)
 	app_network.config.username = username

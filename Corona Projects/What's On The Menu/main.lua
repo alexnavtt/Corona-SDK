@@ -2,10 +2,14 @@ local composer 		  = require("composer")
 
 local globalData 	  = require("globalData")
 local app_colors 	  = require("AppColours")
-local tab_bar_util    = require("TabBarUtil.tab_bar_util")
-local util            = require("GeneralUtility")
+local tab_bar_util    = require("lib.tab_bar.tab_bar_util")
 local app_network     = require("lib.network.library")
 local app_transitions = require("AppTransitions")
+
+-- Setup
+local tinker = require("ext_libs.tinker.tinker")
+tinker.initialize("ext_libs")
+
 
 globalData.app_name = "What's On the Menu"
 
@@ -89,13 +93,13 @@ globalData.deleteNetworkLog = log_io.deleteNetworkLog
 
 
 function globalData.reloadApp()
-	composer.removeScene(globalData.activeScene)
-	composer.gotoScene(globalData.activeScene, {params = {reload = true}})
+	composer.removeScene("pages." .. globalData.activeScene .. "." .. globalData.activeScene)
+	composer.gotoScene("pages." .. globalData.activeScene .. "." .. globalData.activeScene, {params = {reload = true}})
 	globalData.tab_bar:removeSelf()
 	globalData.tab_bar = tab_bar_util.createTabBar()
 
 	for i = 1,#globalData.all_scenes,1 do
-		composer.removeScene(globalData.all_scenes[i])
+		composer.removeScene("pages." .. globalData.all_scenes[i] .. "." .. globalData.all_scenes[i])
 	end
 end
 

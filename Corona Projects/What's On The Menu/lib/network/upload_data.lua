@@ -1,13 +1,13 @@
 local globalData = require("globalData")
 local app_network = require("lib.network.main")
 local json = require("json")
-local util = require("GeneralUtility")
+local time_util = require("lib.util.time")
 
 local function uploadData()
 	-- Ensure that all recipes going up have a timestamp
 	for key, value in pairs(globalData.menu) do
 		if not value.timestamp then
-			value.timestamp = util.time()
+			value.timestamp = time_util.time()
 		end
 	end
 	globalData.writeCustomMenu()

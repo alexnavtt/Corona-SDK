@@ -1,8 +1,7 @@
 local widget = require("widget")
 local composer = require("composer")
 
-local util = require("GeneralUtility")
-local tinker = require("Tinker")
+local tinker = require("ext_libs.tinker.tinker")
 local globalData = require("globalData")
 local app_network = require("lib.network.main")
 

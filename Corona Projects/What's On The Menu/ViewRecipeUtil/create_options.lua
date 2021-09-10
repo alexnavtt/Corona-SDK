@@ -6,9 +6,10 @@ local cookbook = require("cookbook")
 local globalData = require("globalData")
 local app_colors = require("AppColours")
 local app_network = require("lib.network.library")
+local tinker = require("ext_libs.tinker.tinker")
 
 -- Custom Functions
-local showFriendsList = require("FriendsUtil.show_friends_list")
+local showFriendsList = require("pages.FriendPage.show_friends_list")
 
 local W = display.contentWidth
 local H = display.contentHeight

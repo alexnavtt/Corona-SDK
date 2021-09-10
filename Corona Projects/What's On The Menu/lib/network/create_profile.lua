@@ -1,6 +1,6 @@
 local app_network = require("lib.network.main")
 local globalData = require("globalData")
-local tinker = require("Tinker")
+local tinker = require("ext_libs.tinker.tinker")
 local crypto = require("crypto")
 local palette = require("Palette")
 

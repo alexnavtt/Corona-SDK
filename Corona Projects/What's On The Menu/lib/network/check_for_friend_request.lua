@@ -1,5 +1,5 @@
 local json = require("json")
-local tinker = require("Tinker")
+local tinker = require("ext_libs.tinker.tinker")
 local widget = require("widget")
 local palette = require("Palette")
 local globalData = require("globalData")
